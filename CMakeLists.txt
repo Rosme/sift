@@ -36,4 +36,6 @@ endif()
 
 include_directories(extlibs)
 
+add_subdirectory(tests)
+
 add_executable(PFE ${SRC})
