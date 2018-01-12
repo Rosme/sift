@@ -1,6 +1,9 @@
 # TBD PFE 3000
 This is a school project. More info to come.
 
+# Build Status
+[![Build Status](https://img.shields.io/appveyor/ci/Rosme/pfe/master.svg?label=windows)](https://ci.appveyor.com/project/Rosme/pfe)
+
 # License
 
 The source code and the project is distributed under the MIT license, unless specified otherwise.\
