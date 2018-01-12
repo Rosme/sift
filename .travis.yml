@@ -1,34 +1,33 @@
 sudo: required
 dist: trusty
 language: generic
-
 notifications:
   email: false
-
+  slack:
+    secure: obxFWkNwlHzdnz6NnDaxE8Ruw9C4Z/CogjSRgSwkItVr3OFyaQuwCH0CY58uaI7WTKL/jsrUWcKZ7+3CgReqo7p/66Q3+sN6nv+eScCOwNIjH5orqk77Ac8c3tk9x1dR+nqQoaD/1jvxZsO/B6RK6zjeHoHs54Iv5BRi14kjoCubSyLgIQLbPIbggBzbdIeVF+0147bqhhxJJBoTyU4sbY4JafjBH+c6rWEzZ5N9ZdM1nSWB0TmkrFKFQW/4CiV4fwWt5fvuDe2dd1PQ93WV0JWa3a2SAye9svoJ50RO6RnlAZ/+qbLHdIYV+k1WmVV4zJPuj5pnawJL6MJS3LPFxa3aCLXmqGb8liPMWi4tvwz2nI05cJxdOfhiasCV0ctZy2PikF6dAPulPb+m9V1YI7xgCOqbG3xjGdIVKmJGJb1KRgoic+aLLOypvvjlNeLF+W8N2K/2K5HypnnsZPuN/Yb8yXfdozH90RIUTGIpZvNaacJNU9SMZNHzQpROAVPk0UHg0D4fkxBdKB6ZEm3DsoVaBBLXhG8sOmek41oxsBr/RF3H7I+wzCXZWx2dtuMasokD15T5xWbcWv4QSlU4rGv0WX7E0nmqfFCASC3aBYJPCynCzPZZAHj4kDdFRCfpTB7Fpe8WiLGxCJ33uf6zknDXbA3+qhgOt2MUycLIiRk=
 matrix:
   include:
-    - env: CXX=g++-5 CC=gcc-5
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.8
-          packages:
-            - g++-5
-    - env: CXX=clang++-3.6 CC=clang-3.6
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
-          packages:
-            - clang-3.6
-
+  - env: CXX=g++-5 CC=gcc-5
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-precise-3.8
+        packages:
+        - g++-5
+  - env: CXX=clang++-3.6 CC=clang-3.6
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-precise-3.6
+        packages:
+        - clang-3.6
 before_install:
-  - sudo apt-get update -qq
+- sudo apt-get update -qq
 script:
-  - mkdir build
-  - cd build
-  - cmake ../
-  - make
-  - ./tests/tests
+- mkdir build
+- cd build
+- cmake ../
+- make
+- "./tests/tests"
