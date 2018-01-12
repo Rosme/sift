@@ -1,5 +1,11 @@
 # TBD PFE 3000
-TBD PFE is a great project that involves c++ and aims to be a great project.
+This is a school project. More info to come.
+
+# License
+
+The source code and the project is distributed under the MIT license, unless specified otherwise.
+Copyright(C) Jean-Sebastien Fauteux, Michel Rioux, Raphael Massabot.
+
 # Building
 * mkdir build
 * cd build
