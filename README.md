@@ -3,7 +3,7 @@ This is a school project. More info to come.
 
 # License
 
-The source code and the project is distributed under the MIT license, unless specified otherwise.
+The source code and the project is distributed under the MIT license, unless specified otherwise.\
 Copyright(C) Jean-Sebastien Fauteux, Michel Rioux, Raphael Massabot.
 
 # Building
