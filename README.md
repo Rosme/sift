@@ -2,7 +2,7 @@
 This is a school project. More info to come.
 
 # Build Status
-[![Build Status](https://img.shields.io/appveyor/ci/Rosme/pfe/master.svg?label=windows)](https://ci.appveyor.com/project/Rosme/pfe)
+[![Build Status](https://img.shields.io/travis/Rosme/rsm/master.svg?label=linux+and+macOS)](https://travis-ci.org/Rosme/rsm) [![Build Status](https://img.shields.io/appveyor/ci/Rosme/pfe/master.svg?label=windows)](https://ci.appveyor.com/project/Rosme/pfe)
 
 # License
 
