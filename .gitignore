@@ -1,4 +1,6 @@
 
+.DS_STORE
+
 # Created by https://www.gitignore.io/api/c++,cmake,xcode,ninja,kdevelop4,visualstudio
 
 ### C++ ###
