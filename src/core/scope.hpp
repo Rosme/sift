@@ -21,40 +21,33 @@
  * SOFTWARE.
  */
 
-#include "catch.hh"
+#pragma once
 
-#include "core/utils.hpp"
+#include <vector>
+#include <memory>
 
-TEST_CASE("Testing JSON utils", "[json]") {
+#include <rosme/smartenum.hpp>
+
+namespace Core {
+
+  struct File;
   
-  nlohmann::json json;
-  const std::string fileName = "tests.json";
-  const std::string jsonKey = "TestValue";
-  const unsigned int jsonValue = 5;
+  smart_enum_class(ScopeType,
+                   Namespace,
+                   Class,
+                   Function,
+                   Conditionnal,
+                   Variable);
   
-  SECTION("Writing to json file") {
+  class Scope {
+  public:
+    explicit Scope(ScopeType type);
     
-    json[jsonKey] = jsonValue;
-    
-    Core::writeJsonFile(fileName, json);
-    
-    {
-      std::ifstream file(fileName);
-      REQUIRE(file.is_open());
-    }
-  }
-  
-  SECTION("Reading from json file") {
-    json = Core::readJsonFile(fileName);
-    
-    REQUIRE(json.size() == 1);
-  }
-  
-  SECTION("Verifying Value in json") {
-    json = Core::readJsonFile(fileName);
-    
-    REQUIRE(json[jsonKey].is_number());
-    REQUIRE(json[jsonKey] == jsonValue);
-  }
+  private:
+    const ScopeType m_type;
+    std::vector<std::unique_ptr<Scope>> m_children;
+    unsigned int m_lineNumber;
+    File* m_file;
+  };
   
 }

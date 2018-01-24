@@ -21,40 +21,13 @@
  * SOFTWARE.
  */
 
-#include "catch.hh"
+#pragma once
 
-#include "core/utils.hpp"
-
-TEST_CASE("Testing JSON utils", "[json]") {
+namespace Flow {
   
-  nlohmann::json json;
-  const std::string fileName = "tests.json";
-  const std::string jsonKey = "TestValue";
-  const unsigned int jsonValue = 5;
-  
-  SECTION("Writing to json file") {
-    
-    json[jsonKey] = jsonValue;
-    
-    Core::writeJsonFile(fileName, json);
-    
-    {
-      std::ifstream file(fileName);
-      REQUIRE(file.is_open());
-    }
-  }
-  
-  SECTION("Reading from json file") {
-    json = Core::readJsonFile(fileName);
-    
-    REQUIRE(json.size() == 1);
-  }
-  
-  SECTION("Verifying Value in json") {
-    json = Core::readJsonFile(fileName);
-    
-    REQUIRE(json[jsonKey].is_number());
-    REQUIRE(json[jsonKey] == jsonValue);
-  }
+  class FlowAnalyser {
+  public:
+    virtual ~FlowAnalyser();
+  };
   
 }

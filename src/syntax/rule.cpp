@@ -21,40 +21,33 @@
  * SOFTWARE.
  */
 
-#include "catch.hh"
+#include "rule.hpp"
+#include "../core/utils.hpp"
 
-#include "core/utils.hpp"
-
-TEST_CASE("Testing JSON utils", "[json]") {
+namespace Syntax {
   
-  nlohmann::json json;
-  const std::string fileName = "tests.json";
-  const std::string jsonKey = "TestValue";
-  const unsigned int jsonValue = 5;
-  
-  SECTION("Writing to json file") {
+  std::vector<Rule> readRules(const std::string& rulesFile) {
+    std::vector<Rule> rules;
     
-    json[jsonKey] = jsonValue;
+    auto json = Core::readJsonFile(rulesFile);
     
-    Core::writeJsonFile(fileName, json);
-    
+    if(json["rules"].is_array())
     {
-      std::ifstream file(fileName);
-      REQUIRE(file.is_open());
+      auto jsonRules = json["rules"].array();
+      
+      for(const auto& jsonRule : jsonRules)
+      {
+        Rule rule(Core::ScopeType_to_enum_class(jsonRule["appliedTo"].get<std::string>()));
+        rules.push_back(rule);
+      }
     }
+    
+    return rules;
   }
   
-  SECTION("Reading from json file") {
-    json = Core::readJsonFile(fileName);
-    
-    REQUIRE(json.size() == 1);
-  }
-  
-  SECTION("Verifying Value in json") {
-    json = Core::readJsonFile(fileName);
-    
-    REQUIRE(json[jsonKey].is_number());
-    REQUIRE(json[jsonKey] == jsonValue);
+  Rule::Rule(Core::ScopeType applyTo)
+    : m_applyTo(applyTo)
+  {
   }
   
 }

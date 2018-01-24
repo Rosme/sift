@@ -6,16 +6,36 @@ set(SRC_MISC
     src/main.cpp
     )
 
-set(SRC_UTILS
-    src/core/utils/json.hpp
+set(SRC_CORE
+    src/core/utils.hpp
+    src/core/scope.hpp
+    src/core/scope.cpp
+    src/core/file.hpp
+    )
+
+SET(SRC_SYNTAX
+    src/syntax/syntax_analyser.hpp
+    src/syntax/syntax_analyser.cpp
+    src/syntax/rule.hpp
+    src/syntax/rule.cpp
+    )
+
+SET(SRC_FLOW
+    src/flow/flow_analyser.hpp
+    src/flow/flow_analyser.cpp
     )
 
 SET(SRC
     ${SRC_MISC}
-    ${SRC_UTILS}
+    ${SRC_CORE}
+    ${SRC_SYNTAX}
+    ${SRC_FLOW}
     )
 
-source_group("core\\utils" FILES ${SRC_UTILS})
+source_group("core" FILES ${SRC_CORE})
+source_group("syntax" FILES ${SRC_SYNTAX})
+source_group("flow" FILES ${SRC_FLOW})
+
 
 if(UNIX)
 	include(CheckCXXCompilerFlag)

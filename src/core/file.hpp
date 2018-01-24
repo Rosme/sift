@@ -21,40 +21,16 @@
  * SOFTWARE.
  */
 
-#include "catch.hh"
+#pragma once
 
-#include "core/utils.hpp"
+#include <string>
+#include <vector>
 
-TEST_CASE("Testing JSON utils", "[json]") {
+namespace Core {
   
-  nlohmann::json json;
-  const std::string fileName = "tests.json";
-  const std::string jsonKey = "TestValue";
-  const unsigned int jsonValue = 5;
-  
-  SECTION("Writing to json file") {
-    
-    json[jsonKey] = jsonValue;
-    
-    Core::writeJsonFile(fileName, json);
-    
-    {
-      std::ifstream file(fileName);
-      REQUIRE(file.is_open());
-    }
-  }
-  
-  SECTION("Reading from json file") {
-    json = Core::readJsonFile(fileName);
-    
-    REQUIRE(json.size() == 1);
-  }
-  
-  SECTION("Verifying Value in json") {
-    json = Core::readJsonFile(fileName);
-    
-    REQUIRE(json[jsonKey].is_number());
-    REQUIRE(json[jsonKey] == jsonValue);
-  }
+  struct File {
+    std::string filename;
+    std::vector<std::string> lines;
+  };
   
 }
