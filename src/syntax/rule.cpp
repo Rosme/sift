@@ -33,11 +33,14 @@ namespace Syntax {
     
     if(json["rules"].is_array())
     {
-      auto jsonRules = json["rules"].array();
+      auto jsonRules = json["rules"].get<std::vector<nlohmann::json>>();
       
       for(const auto& jsonRule : jsonRules)
       {
-        Rule rule(Core::ScopeType_to_enum_class(jsonRule["appliedTo"].get<std::string>()));
+        const std::string parameter = (jsonRule.find("parameter") != jsonRule.end()) ? jsonRule["parameter"].get<std::string>() : "";
+        Rule rule(Core::ScopeType_to_enum_class(jsonRule["appliedTo"].get<std::string>()),
+                  RuleType_to_enum_class(jsonRule["rule"].get<std::string>()),
+                  parameter);
         rules.push_back(rule);
       }
     }
@@ -46,12 +49,17 @@ namespace Syntax {
   }
   
   std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule) {
-    out << Core::to_string(rule.getScopeType());
+    out << "Rule: " << to_string(rule.getRuleType()) << " - Applied To: " << Core::to_string(rule.getScopeType());
+    if(rule.hasParameter()) {
+      out << " - Parameter: " << rule.getParameter();
+    }
     return out;
   }
   
-  Rule::Rule(Core::ScopeType applyTo)
+  Rule::Rule(Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter)
     : m_applyTo(applyTo)
+    , m_type(type)
+    , m_parameter(optionalParameter)
   {
   }
   
@@ -59,4 +67,16 @@ namespace Syntax {
     return m_applyTo;
   }
   
+  Syntax::RuleType Rule::getRuleType() const {
+    return m_type;
+  }
+
+  bool Rule::hasParameter() const {
+    return m_parameter.size() > 0;
+  }
+
+  const std::string& Rule::getParameter() const {
+    return m_parameter;
+  }
+
 }

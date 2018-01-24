@@ -3,12 +3,12 @@
   "rules": [
     {
       "rule" : "NoAuto",
-      "appliedTo": "function"
+      "appliedTo": "Function"
     },
     
     {
       "rule" : "StartWithX",
-      "appliedTo" : "class_function",
+      "appliedTo" : "Function",
       "parameter" : "m_"
     }
   ]

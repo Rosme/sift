@@ -26,21 +26,31 @@
 #include <vector>
 #include <string>
 
+#include <rosme/smartenum.hpp>
+
 #include "../core/scope.hpp"
 
 namespace Syntax {
   
+  smart_enum_class(RuleType,
+                   NoAuto,
+                   StartWithX);
+
   class Rule {
   public:
-    Rule(Core::ScopeType applyTo);
+    Rule(Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter = "");
     
     Core::ScopeType getScopeType() const;
-    
+    RuleType getRuleType() const;
+    bool hasParameter() const;
+    const std::string& getParameter() const;
+
   private:
     Core::ScopeType m_applyTo;
-    
+    RuleType m_type;
+    std::string m_parameter;
   };
-  
+
   std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule);
   std::vector<Rule> readRules(const std::string& rulesFile);
   
