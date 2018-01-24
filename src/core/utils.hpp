@@ -35,7 +35,7 @@
 
 namespace Core {
 
-  nlohmann::json readJsonFile(const std::string& fileName) {
+  inline nlohmann::json readJsonFile(const std::string& fileName) {
     std::string content;
     std::string line;
 
@@ -50,7 +50,7 @@ namespace Core {
     return nlohmann::json::parse(content);
   }
 
-  void writeJsonFile(const std::string& fileName, const nlohmann::json& json) {
+  inline void writeJsonFile(const std::string& fileName, const nlohmann::json& json) {
     std::ofstream file(fileName);
 
     assert(file.is_open());
@@ -79,7 +79,7 @@ namespace Core {
     return true;
   }
   
-  Scope parseSourceFile(const File& file) {
+  inline Scope parseSourceFile(const File& file) {
     Scope scope(ScopeType::Namespace);
     
     return scope;
