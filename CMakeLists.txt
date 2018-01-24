@@ -59,3 +59,7 @@ include_directories(extlibs)
 add_subdirectory(tests)
 
 add_executable(PFE ${SRC})
+
+add_custom_command(TARGET PFE POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:PFE>/samples
+                    )
