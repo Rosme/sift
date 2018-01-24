@@ -22,23 +22,23 @@
  */
 
 #include <iostream>
-#include "core/utils.hpp"
 #include <muflihun/easylogging++.h>
+
+#include "core/utils.hpp"
+#include "core/file.hpp"
+#include "syntax/rule.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[]) {
   START_EASYLOGGINGPP(argc, argv);
-  nlohmann::json json;
-
-  json["type"] = "Welcome";
-  json["value"] = std::vector<std::string>({ "Hello", "World" });
-
-  Core::writeJsonFile("testFile.txt", json);
   
-  auto readJson = Core::readJsonFile("testFile.txt");
+  auto rules = Syntax::readRules("samples/rules/rules.json");
 
-  LOG(INFO) << readJson;
+  for(const auto& rule : rules) {
+    LOG(INFO) << rule;
+  }
+  
   std::cin.get();
   return 0;
 }

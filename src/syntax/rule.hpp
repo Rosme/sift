@@ -34,11 +34,14 @@ namespace Syntax {
   public:
     Rule(Core::ScopeType applyTo);
     
+    Core::ScopeType getScopeType() const;
+    
   private:
     Core::ScopeType m_applyTo;
     
   };
   
+  std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule);
   std::vector<Rule> readRules(const std::string& rulesFile);
   
 }

@@ -45,9 +45,18 @@ namespace Syntax {
     return rules;
   }
   
+  std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule) {
+    out << Core::to_string(rule.getScopeType());
+    return out;
+  }
+  
   Rule::Rule(Core::ScopeType applyTo)
     : m_applyTo(applyTo)
   {
+  }
+  
+  Core::ScopeType Rule::getScopeType() const {
+    return m_applyTo;
   }
   
 }

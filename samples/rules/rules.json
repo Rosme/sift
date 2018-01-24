@@ -1,0 +1,15 @@
+
+{
+  "rules": [
+    {
+      "rule" : "NoAuto",
+      "appliedTo": "function"
+    },
+    
+    {
+      "rule" : "StartWithX",
+      "appliedTo" : "class_function",
+      "parameter" : "m_"
+    }
+  ]
+}
