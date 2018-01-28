@@ -27,32 +27,34 @@ project(PFE)
 
 set(USE_PFE_ASSERT true CACHE BOOL "Use PFE defined assert")
 
-set(SRC_MISC
+set(SRC_MAIN
     src/main.cpp
     )
 
 set(SRC_CORE
-    src/core/utils.hpp
-    src/core/scope.hpp
-    src/core/scope.cpp
-    src/core/file.hpp
-    src/core/assert.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/utils.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/scope.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/scope.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/assert.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/message.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/message_stack.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/message_stack.cpp
     )
 
 SET(SRC_SYNTAX
-    src/syntax/syntax_analyser.hpp
-    src/syntax/syntax_analyser.cpp
-    src/syntax/rule.hpp
-    src/syntax/rule.cpp
+    ${CMAKE_SOURCE_DIR}/src/syntax/syntax_analyser.hpp
+    ${CMAKE_SOURCE_DIR}/src/syntax/syntax_analyser.cpp
+    ${CMAKE_SOURCE_DIR}/src/syntax/rule.hpp
+    ${CMAKE_SOURCE_DIR}/src/syntax/rule.cpp
     )
 
 SET(SRC_FLOW
-    src/flow/flow_analyser.hpp
-    src/flow/flow_analyser.cpp
+    ${CMAKE_SOURCE_DIR}/src/flow/flow_analyser.hpp
+    ${CMAKE_SOURCE_DIR}/src/flow/flow_analyser.cpp
     )
 
 SET(SRC
-    ${SRC_MISC}
     ${SRC_CORE}
     ${SRC_SYNTAX}
     ${SRC_FLOW}
@@ -88,7 +90,7 @@ if(USE_PFE_ASSERT)
     add_definitions(-DUSE_PFE_ASSERT)
 endif(USE_PFE_ASSERT)
 
-add_executable(PFE ${SRC})
+add_executable(PFE ${SRC_MAIN} ${SRC})
 
 add_custom_command(TARGET PFE POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:PFE>/samples

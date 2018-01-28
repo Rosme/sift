@@ -30,9 +30,14 @@ SET(TESTS_INC
 set(TESTS_TESTS
   main.cpp
   tests_json.cpp
+  tests_message.cpp
   )
 
 include_directories(../extlib)
 include_directories(../src)
 
-add_executable("tests" ${TESTS_INC} ${TESTS_TESTS})
+add_executable("tests" ${TESTS_INC} ${TESTS_TESTS} ${SRC})
+
+add_custom_command(TARGET tests POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:tests>/samples
+                    )

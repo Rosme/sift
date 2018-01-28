@@ -23,13 +23,27 @@
 
 #pragma once
 
-#include <cassert>
-#include <muflihun/easylogging++.h>
+#include <string>
+#include <rosme/smartenum.hpp>
 
+namespace Core {
 
-#ifdef USE_PFE_ASSERT
-#define PFE_ASSERT(x, message) if(!x) { LOG(ERROR) << message; } assert(x);
-                                
-#else
-#define PFE_ASSERT(x, message)
-#endif
+  smart_enum_class(MessageType,
+                   Warning,
+                   Error,
+                   Unknown);
+
+  struct Message {
+    Message(MessageType type = MessageType::Unknown, const std::string& content = "")
+      : type(type)
+      , content(content) {}
+    MessageType type;
+    std::string content;
+  };
+
+  inline std::ostream& operator<<(std::ostream& out, const Message& message) {
+    out << to_string(message.type) << " : " << message.content << "\n";
+    return out;
+  }
+
+}

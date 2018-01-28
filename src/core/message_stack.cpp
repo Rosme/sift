@@ -1,3 +1,4 @@
+#include "message_stack.hpp"
 /* MIT License
 *
 * Copyright (c) 2018 Jean-Sebastien Fauteux, Michel Rioux, Raphaël Massabot
@@ -23,13 +24,32 @@
 
 #pragma once
 
-#include <cassert>
-#include <muflihun/easylogging++.h>
+#include "message_stack.hpp"
+#include "assert.hpp"
 
+namespace Core {
 
-#ifdef USE_PFE_ASSERT
-#define PFE_ASSERT(x, message) if(!x) { LOG(ERROR) << message; } assert(x);
-                                
-#else
-#define PFE_ASSERT(x, message)
-#endif
+  void MessageStack::pushMessage(const Message & message) {
+    m_messages.push_back(message);
+  }
+
+  bool MessageStack::hasMessages() const {
+    return m_messages.size() != 0;
+  }
+
+  const std::vector<Message>& MessageStack::getMessages() const {
+    return m_messages;
+  }
+
+  std::size_t MessageStack::size() const {
+    return m_messages.size();
+  }
+
+  Message MessageStack::popMessage() {
+    PFE_ASSERT(hasMessages(), "Empty messages stack")
+    Message message = m_messages[0];
+    m_messages.erase(m_messages.begin());
+    return message;
+  }
+
+}

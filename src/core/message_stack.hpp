@@ -23,13 +23,22 @@
 
 #pragma once
 
-#include <cassert>
-#include <muflihun/easylogging++.h>
+#include <vector>
 
+#include "message.hpp"
 
-#ifdef USE_PFE_ASSERT
-#define PFE_ASSERT(x, message) if(!x) { LOG(ERROR) << message; } assert(x);
-                                
-#else
-#define PFE_ASSERT(x, message)
-#endif
+namespace Core {
+
+  class MessageStack {
+  public:
+    void pushMessage(const Message& message);
+    bool hasMessages() const;
+    const std::vector<Message>& getMessages() const;
+    std::size_t size() const;
+    Message popMessage();
+
+  private:
+    std::vector<Message> m_messages;
+  };
+
+}
