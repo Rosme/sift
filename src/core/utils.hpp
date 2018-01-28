@@ -30,6 +30,7 @@
 #include <nlohmann/json.hpp>
 #include <muflihun/easylogging++.h>
 
+#include "assert.hpp"
 #include "file.hpp"
 #include "scope.hpp"
 
@@ -41,7 +42,7 @@ namespace Core {
 
     std::ifstream file(fileName);
 
-    assert(file.is_open());
+    PFE_ASSERT(file.is_open(), "Could not open Json file for reading");
 
     while(std::getline(file, line)) {
         content += line;
@@ -53,7 +54,7 @@ namespace Core {
   inline void writeJsonFile(const std::string& fileName, const nlohmann::json& json) {
     std::ofstream file(fileName);
 
-    assert(file.is_open());
+    PFE_ASSERT(file.is_open(), "Could not open Json file for writing");
 
     file << json;
   }
