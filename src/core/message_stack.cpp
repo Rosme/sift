@@ -1,4 +1,3 @@
-#include "message_stack.hpp"
 /* MIT License
 *
 * Copyright (c) 2018 Jean-Sebastien Fauteux, Michel Rioux, Raphaël Massabot
@@ -21,9 +20,6 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-
-#pragma once
-
 #include "message_stack.hpp"
 #include "assert.hpp"
 

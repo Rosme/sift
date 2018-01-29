@@ -30,9 +30,16 @@
 #include <nlohmann/json.hpp>
 #include <muflihun/easylogging++.h>
 
+#include "config.hpp"
 #include "assert.hpp"
 #include "file.hpp"
 #include "scope.hpp"
+
+#ifdef UNIX
+#include <dirent.h>
+#else
+#include <Windows.h>
+#endif
 
 namespace Core {
 
@@ -86,4 +93,60 @@ namespace Core {
     return scope;
   }
   
+  struct FilesystemItem
+  {
+    bool isDirectory = false;
+    std::string name = "";
+    std::string fullPath = "";
+  };
+  
+  inline std::vector<FilesystemItem> getFilenamesInDirectory(const std::string directory)
+  {
+    std::vector<FilesystemItem> toReturn;
+    #if defined(UNIX)
+    
+    DIR* pDirectory;
+    struct dirent *ent;
+    if ((pDirectory = opendir(directory.c_str())) != nullptr)
+    {
+      while ((ent = readdir(pDirectory)) != nullptr)
+      {
+        // Filter out ../.
+        if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0)
+        {
+          FilesystemItem item;
+          item.name = ent->d_name;
+          item.isDirectory = (ent->d_type == DT_DIR);
+          item.fullPath = directory + "/" + item.name;
+          toReturn.push_back(item);
+        }
+      }
+      closedir(pDirectory);
+    }
+    #elif defined(WIN32)
+    HANDLE hFind;
+    WIN32_FIND_DATA data;
+    
+    hFind = FindFirstFile(CSTR(directory.c_str() << "\\*.*"), &data);
+    if (hFind != INVALID_HANDLE_VALUE) {
+      do {
+        // Filter out ../.
+        if(strcmp(data.cFileName, ".") != 0 && strcmp(data.cFileName, "..") != 0)
+        {
+          FilesystemItem item;
+          item.name = data.cFileName;
+          item.isDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+          item.fullPath = directory + "/" + item.name;
+          toReturn.push_back(item);
+        }
+      } while (FindNextFile(hFind, &data));
+      FindClose(hFind);
+    }
+    
+    #else
+    #error "Current platform not supported"
+    #endif
+    
+    return toReturn;
+  }
 }

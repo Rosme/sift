@@ -33,12 +33,29 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char* argv[]) {
   START_EASYLOGGINGPP(argc, argv);
   
-  auto rules = Syntax::readRules("samples/rules/rules.json");
-
-  for(const auto& rule : rules) {
-    LOG(INFO) << rule;
-  }
+//   auto rules = Syntax::readRules("samples/rules/rules.json");
+// 
+//   for(const auto& rule : rules) {
+//     LOG(INFO) << rule;
+//   }
   
+  std::vector<Core::FilesystemItem> stack, current;
+  stack = Core::getFilenamesInDirectory("samples");
+  while(stack.size() > 0)
+  {
+    current = stack;
+    stack.clear();
+    for(auto&& item : current)
+    {
+      LOG(INFO) << item.fullPath;
+      if(item.isDirectory)
+      {
+        auto temp = Core::getFilenamesInDirectory(item.fullPath);
+        stack.insert(stack.begin(), temp.begin(), temp.end());
+      }
+    }
+  }
+ 
   std::cin.get();
   return 0;
 }
