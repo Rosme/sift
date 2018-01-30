@@ -29,8 +29,11 @@
 #include "core/file.hpp"
 #include "syntax/rule.hpp"
 
+
 INITIALIZE_EASYLOGGINGPP
 
+#include <regex>
+#include <chrono>
 //TODO move to desired file
 inline bool parseFile(Core::File& file, Core::Scope &outScope)
 {
@@ -42,33 +45,40 @@ inline bool parseFile(Core::File& file, Core::Scope &outScope)
   Core::Scope scope;
   for(auto&& line : file.lines)
   {
-    int startCharNo = line.find("#define");
-    if(startCharNo != std::string::npos)
+    // Avoid the costly regex if possible
+    if(line.find("#define") != std::string::npos)
     {
-      scope = Core::Scope(Core::ScopeType::Namespace);
-      scope.lineNumber = lineNo;
-      scope.characterNumberStart = startCharNo+charNo;
-      scope.file = &file;
-      
-      // Multiline define TODO: Verify with standard
-      if(line.at(line.size()-1) == '\\')
+      // Should match "     #define" and "   /* some comment */   #define"
+      std::regex defineRegex("^(\\s*|\\/\\*.*\\*\\/\\s*)#define");
+      std::smatch sm;
+      std::regex_search(line, sm, defineRegex);
+      if(sm.size() > 0)
       {
-        isStillInDefine = true;
-        scope.isMultiLine = true;
+        scope = Core::Scope(Core::ScopeType::Namespace);
+        scope.lineNumber = lineNo;
+        scope.characterNumberStart = sm.position(0)+charNo;
+        scope.file = &file;
+        
+        // Multiline define TODO: Verify with standard
+        if(line.at(line.size()-1) == '\\')
+        {
+          isStillInDefine = true;
+          scope.isMultiLine = true;
+        }
+        else
+        {
+          scope.characterNumberEnd = scope.characterNumberStart + line.size();
+          rootScope.children.push_back(scope);
+        }
       }
-      else
+      else if(isStillInDefine)
       {
-        scope.characterNumberEnd = scope.characterNumberStart + line.size();
-        rootScope.children.push_back(scope);
-      }
-    }
-    else if(isStillInDefine)
-    {
-      if(line.find("\\") == std::string::npos)
-      {
-        scope.characterNumberEnd = charNo + line.size()-1;
-        rootScope.children.push_back(scope);
-        isStillInDefine = false;
+        if(line.find("\\") == std::string::npos)
+        {
+          scope.characterNumberEnd = charNo + line.size()-1;
+          rootScope.children.push_back(scope);
+          isStillInDefine = false;
+        }
       }
     }
     lineNo++;
@@ -102,8 +112,11 @@ int main(int argc, char* argv[]) {
   
   // Recursively get all files
   std::vector<Core::FilesystemItem> stack, current;
-//   stack = Core::getFilenamesInDirectory("samples/src/playground/src/utils");
   stack = Core::getFilenamesInDirectory("samples");
+//   stack = Core::getFilenamesInDirectory("../src"); // Our own source
+  
+  std::chrono::time_point<std::chrono::system_clock> before = std::chrono::system_clock::now();
+  
   while(stack.size() > 0)
   {
     current = stack;
@@ -176,8 +189,11 @@ int main(int argc, char* argv[]) {
   }
   
   // You can verify with grep -R "#define" samples | wc -l
-  LOG(INFO) << "Found " << total_defines << " defines in " << parsed_files.size();
+  LOG(INFO) << "Found " << total_defines << " defines in " << parsed_files.size() << " files";
  
+  std::chrono::time_point<std::chrono::system_clock> after = std::chrono::system_clock::now();
+  LOG(INFO) << "Ran in " << std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count() << "ms";
+  
   std::cin.get();
   return 0;
 }
