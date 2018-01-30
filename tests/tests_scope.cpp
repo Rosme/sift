@@ -29,9 +29,9 @@ TEST_CASE("Scope Children", "[scope]") {
 
   using namespace Core;
   Scope root(ScopeType::Source);
-  
   //TODO Red Maybe it is best to settle on how scope works before writing those tests
 /*
+
   SECTION("Get All Children") {
     for(int i = 0; i < 10; ++i) {
       root.pushChild(Scope(static_cast<ScopeType>(1u << i)));
@@ -57,6 +57,7 @@ TEST_CASE("Scope Children", "[scope]") {
     REQUIRE(root.getChildrenOfType(Core::ScopeType::Variable).size() == 0);
   }*/
 
+
   SECTION("Enum to String") {
     REQUIRE(to_string(ScopeType::Function) == "Function");
   }
@@ -64,5 +65,4 @@ TEST_CASE("Scope Children", "[scope]") {
   SECTION("String to Enum") {
     REQUIRE(ScopeType_to_enum_class("fuNcTiOn") == ScopeType::Function);
   }
-
 }
