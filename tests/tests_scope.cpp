@@ -47,4 +47,20 @@ TEST_CASE("Scope Children", "[scope]") {
     REQUIRE(root.getChildrenOfType(Core::ScopeType::Variable).size() == 3);
   }
 
+  SECTION("Found No Children") {
+    for(int i = 0; i < 5; ++i) {
+      root.pushChild(Scope(static_cast<ScopeType>(1u << i)));
+    }
+
+    REQUIRE(root.getChildrenOfType(Core::ScopeType::Variable).size() == 0);
+  }
+
+  SECTION("Enum to String") {
+    REQUIRE(to_string(ScopeType::Function) == "Function");
+  }
+
+  SECTION("String to Enum") {
+    REQUIRE(ScopeType_to_enum_class("fuNcTiOn") == ScopeType::Function);
+  }
+
 }
