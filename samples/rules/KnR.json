@@ -1,0 +1,24 @@
+
+{
+  "rules": [
+    {
+      "rule" : "CurlyBracketsOpenSeperateLine",
+      "appliedTo": "Class"
+    },
+	
+    {
+      "rule" : "CurlyBracketsOpenSameLine",
+      "appliedTo": "Conditional"
+    },
+	
+    {
+      "rule" : "CurlyBracketsCloseSeperateLine",
+      "appliedTo": "Class"
+    },
+    
+    {
+      "rule" : "TabIndentation",
+      "appliedTo" : "Class"
+    }
+  ]
+}
