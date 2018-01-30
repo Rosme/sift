@@ -30,5 +30,25 @@ namespace Core {
     : m_type(type)
   {
   }
+
+  void Scope::pushChild(const Scope& child) {
+    m_children.push_back(child);
+  }
+
+  const ScopeVector& Scope::getChildren() const {
+    return m_children;
+  }
+
+  ScopeVector Scope::getChildrenOfType(ScopeType type) const {
+    ScopeVector children;
+
+    for(const auto& child : m_children) {
+      if(static_cast<unsigned int>(child.m_type & type) != 0) {
+        children.push_back(child);
+      }
+    }
+
+    return children;
+  }
   
 }
