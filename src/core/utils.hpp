@@ -33,7 +33,6 @@
 #include "config.hpp"
 #include "assert.hpp"
 #include "file.hpp"
-#include "scope.hpp"
 
 #ifdef UNIX
 #include <dirent.h>
@@ -87,11 +86,21 @@ namespace Core {
     return true;
   }
   
-  inline Scope parseSourceFile(const File& file) {
-    Scope scope(ScopeType::Namespace);
-    
-    return scope;
+  inline std::string toLower(const std::string& str) {
+    std::string s;
+
+    for(const auto& c : str) {
+      s.push_back(tolower(c));
+    }
+
+    return s;
   }
+  
+  
+  inline bool string_case_compare(const std::string& lhs, const std::string& rhs) {
+    return toLower(lhs) == toLower(rhs);
+  }
+  
   
   struct FilesystemItem
   {
@@ -149,4 +158,5 @@ namespace Core {
     
     return toReturn;
   }
+
 }
