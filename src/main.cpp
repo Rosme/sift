@@ -49,7 +49,7 @@ inline bool parseFile(Core::File& file, Core::Scope &outScope)
     if(line.find("#define") != std::string::npos)
     {
       // Should match "     #define" and "   /* some comment */   #define"
-      std::regex defineRegex("^(\\s*|\\/\\*.*\\*\\/\\s*)#define");
+      std::regex defineRegex("^(\\s*|\\s*\\/\\*.*\\*\\/\\s*)#define");
       std::smatch sm;
       std::regex_search(line, sm, defineRegex);
       if(sm.size() > 0)
@@ -71,14 +71,14 @@ inline bool parseFile(Core::File& file, Core::Scope &outScope)
           rootScope.children.push_back(scope);
         }
       }
-      else if(isStillInDefine)
+    } 
+    else if(isStillInDefine)
+    {
+      if(line.find("\\") == std::string::npos)
       {
-        if(line.find("\\") == std::string::npos)
-        {
-          scope.characterNumberEnd = charNo + line.size()-1;
-          rootScope.children.push_back(scope);
-          isStillInDefine = false;
-        }
+        scope.characterNumberEnd = charNo + line.size()-1;
+        rootScope.children.push_back(scope);
+        isStillInDefine = false;
       }
     }
     lineNo++;
@@ -161,30 +161,33 @@ int main(int argc, char* argv[]) {
   
   // Get namespace scopes
   int total_defines = 0;
+  int definesInFile = 0;
   for(auto&& filePair : parsed_files)
   {
     Core::Scope rootScope = filePair.second;
     std::vector<std::string> defineMessages;
+    Core::File* current = nullptr;
     for(auto&& defScope : rootScope.getAllChildrenOfType(Core::ScopeType::Namespace))
     {
 //       if(defScope.isMultiLine)
       {
+        if(current != defScope.file)
+        {
+          LOG(INFO) << "Found " << definesInFile << " define(s) in this file";
+          LOG(INFO) << "====";
+          LOG(INFO) << "Namespace scopes for file " << defScope.file->filename;
+          current = defScope.file;
+          definesInFile = 0;
+        }
+        int i =0;
         for(auto&& line : defScope.getScopeLines())
         {
           defineMessages.push_back(line);
+          LOG(INFO) << "  " << (i++ == 0 ? "->" : "  ") << line;
         }
       }
       total_defines++;
-    }
-    
-    if(defineMessages.size() > 0)
-    {
-      LOG(INFO) << "====";
-      LOG(INFO) << "Namespace scopes for file " << filePair.first << ":";
-      for(auto&& mess : defineMessages)
-      {
-        LOG(INFO) << mess;
-      }
+      definesInFile++;
     }
   }
   

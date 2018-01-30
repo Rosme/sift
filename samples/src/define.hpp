@@ -19,6 +19,9 @@ i must say\
    is\
         very \
         disgusting
+        
+        
+  #define dont_forget(x) about these ones too 
 
 std::string something_else("this string has #define in it");
 
