@@ -35,7 +35,7 @@ namespace Core {
   struct File;
   
   enum class ScopeType {
-    Source = 1u << 0,
+    Source = 1u << 0, /* Root scope of a file */
     Namespace = 1u << 1,
     Class = 1u << 2,
     Enum = 1u << 3,
@@ -52,20 +52,24 @@ namespace Core {
   };
 
   class Scope;
-  using ScopePtr = std::unique_ptr<Scope>;
+  using ScopePtr = std::shared_ptr<Scope>;
   using ScopeVector = std::vector<Scope>;
   using ScopePtrVector = std::vector<ScopePtr>;
 
   class Scope {
   public:
-    explicit Scope(ScopeType type);
+    Scope() {};
+    Scope(ScopeType type);
     
     void pushChild(const Scope& child);
     const ScopeVector& getChildren() const;
-    ScopeVector getChildrenOfType(ScopeType type) const;
+    ScopeVector getDirectChildrenOfType(ScopeType type) const;
+    ScopeVector getAllChildrenOfType(ScopeType type) const;
 
+    void setLineNumber(const int line){ m_lineNumber = line; }
+    int getLineNumber() { return m_lineNumber; }
   private:
-    const ScopeType m_type;
+    ScopeType m_type;
     ScopeVector m_children;
     unsigned int m_lineNumber;
     File* m_file;

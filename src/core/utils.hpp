@@ -42,6 +42,26 @@
 
 namespace Core {
 
+  inline bool string_ends_with(std::string const& value, std::string const& ending)
+  {
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+  }
+  
+  inline std::string toLower(const std::string& str) {
+    std::string s;
+    
+    for(const auto& c : str) {
+      s.push_back(tolower(c));
+    }
+    
+    return s;
+  }
+  
+  inline bool string_case_compare(const std::string& lhs, const std::string& rhs) {
+    return toLower(lhs) == toLower(rhs);
+  }
+  
   inline nlohmann::json readJsonFile(const std::string& fileName) {
     std::string content;
     std::string line;
@@ -66,10 +86,10 @@ namespace Core {
   }
 
   inline bool readSourceFile(const std::string& filename, File& file) {
-    LOG(INFO) << "Loading Source File: " << filename;
+    LOG(TRACE) << "Loading Source File: " << filename;
     
     std::ifstream filestream(filename);
-    if(!filestream.is_open()) {
+    if(filestream.is_open()) {
       
       file.filename = filename;
       std::string line;
@@ -79,28 +99,13 @@ namespace Core {
       
       LOG(DEBUG) << "Read a total of " << file.lines.size() << " lines of code";
     } else {
-      LOG(ERROR) << "Could not open file: " << filename;
+      //TODO: Isn't this redundant considering it returns true/false already
+//       LOG(ERROR) << "Could not open file: " << filename;
       return false;
     }
     
     return true;
   }
-  
-  inline std::string toLower(const std::string& str) {
-    std::string s;
-
-    for(const auto& c : str) {
-      s.push_back(tolower(c));
-    }
-
-    return s;
-  }
-  
-  
-  inline bool string_case_compare(const std::string& lhs, const std::string& rhs) {
-    return toLower(lhs) == toLower(rhs);
-  }
-  
   
   struct FilesystemItem
   {

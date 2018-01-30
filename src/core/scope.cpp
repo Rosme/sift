@@ -39,7 +39,7 @@ namespace Core {
     return m_children;
   }
 
-  ScopeVector Scope::getChildrenOfType(ScopeType type) const {
+  ScopeVector Scope::getDirectChildrenOfType(ScopeType type) const {
     ScopeVector children;
 
     for(const auto& child : m_children) {
@@ -51,4 +51,22 @@ namespace Core {
     return children;
   }
   
+  ScopeVector Scope::getAllChildrenOfType(ScopeType type) const {
+    ScopeVector stack, current, toReturn;
+    stack = m_children;
+    while(!stack.empty())
+    {
+      current = stack;
+      stack.clear();
+      for(const auto& child : current)
+      {
+        if(static_cast<unsigned int>(child.m_type & type) != 0) {
+          toReturn.push_back(child);
+        }
+        
+        stack.insert(stack.begin(), child.getChildren().begin(), child.getChildren().end());
+      }
+    }
+    return toReturn;
+  }
 }
