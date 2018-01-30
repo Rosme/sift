@@ -28,6 +28,8 @@
 #include <memory>
 #include <string>
 
+#include "utils.hpp"
+
 namespace Core {
 
   struct File;
@@ -102,62 +104,56 @@ namespace Core {
     }
   }
 
-#if WIN32
-#define PFE_STRCMP(x, y) _stricmp(x, y)
-#else
-#define PFE_STRCMP(x, y) strcasecmp(x, y)
-#endif
-
   inline ScopeType ScopeType_to_enum_class(const std::string& type) {
-    if(PFE_STRCMP(type.c_str(), "Source") == 0) {
+    if(string_case_compare(type, "Source")) {
       return ScopeType::Source;
     }
     
-    if(PFE_STRCMP(type.c_str(), "Namespace") == 0) {
+    if(string_case_compare(type, "Namespace")) {
       return ScopeType::Namespace;
     }
 
-    if(PFE_STRCMP(type.c_str(), "Class") == 0) {
+    if(string_case_compare(type, "Class")) {
       return ScopeType::Class;
     }
 
-    if(PFE_STRCMP(type.c_str(), "Enum") == 0) {
+    if(string_case_compare(type, "Enum")) {
       return ScopeType::Enum;
     }
 
-    if(PFE_STRCMP(type.c_str(), "FreeFunction") == 0) {
+    if(string_case_compare(type, "FreeFunction")) {
       return ScopeType::FreeFunction;
     }
 
-    if(PFE_STRCMP(type.c_str(), "ClassFunction") == 0) {
+    if(string_case_compare(type, "ClassFunction")) {
       return ScopeType::ClassFunction;
     }
 
-    if(PFE_STRCMP(type.c_str(), "Function") == 0) {
+    if(string_case_compare(type, "Function")) {
       return ScopeType::Function;
     }
 
-    if(PFE_STRCMP(type.c_str(), "Conditionnal") == 0) {
+    if(string_case_compare(type, "Conditionnal")) {
       return ScopeType::Conditionnal;
     }
 
-    if(PFE_STRCMP(type.c_str(), "ClassVariable") == 0) {
+    if(string_case_compare(type, "ClassVariable")) {
       return ScopeType::ClassVariable;
     }
 
-    if(PFE_STRCMP(type.c_str(), "FunctionVariable") == 0) {
+    if(string_case_compare(type, "FunctionVariable")) {
       return ScopeType::FunctionVariable;
     }
 
-    if(PFE_STRCMP(type.c_str(), "GlobalVariable") == 0) {
+    if(string_case_compare(type, "GlobalVariable")) {
       return ScopeType::GlobalVariable;
     }
 
-    if(PFE_STRCMP(type.c_str(), "Global") == 0) {
+    if(string_case_compare(type, "Global")) {
       return ScopeType::Global;
     }
 
-    if(PFE_STRCMP(type.c_str(), "Variable") == 0) {
+    if(string_case_compare(type, "Variable")) {
       return ScopeType::Variable;
     }
 
