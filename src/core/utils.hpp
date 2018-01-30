@@ -157,7 +157,7 @@ namespace Core {
         {
           FilesystemItem item;
           item.name = data.cFileName;
-          item.isDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+          item.isDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
           item.fullPath = directory + "/" + item.name;
           toReturn.push_back(item);
         }
