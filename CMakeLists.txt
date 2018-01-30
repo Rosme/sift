@@ -100,7 +100,7 @@ if(UNIX)
   endif()
 endif()
 
-include_directories(extlibs)
+include_directories(extlibs SYSTEM)
 
 add_subdirectory(tests)
 
@@ -108,8 +108,9 @@ if(USE_PFE_ASSERT)
     add_definitions(-DUSE_PFE_ASSERT)
 endif(USE_PFE_ASSERT)
 
-add_executable(PFE ${SRC_MAIN} ${SRC})
+add_executable(${PROJECT_NAME} ${SRC_MAIN} ${SRC})
 
-add_custom_command(TARGET PFE POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:PFE>/samples
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:${PROJECT_NAME}>/samples
                     )
+file(COPY ${CMAKE_SOURCE_DIR}/samples DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -21,6 +21,7 @@
  * SOFTWARE.
  */
 
+
 #include <iostream>
 #include <muflihun/easylogging++.h>
 
@@ -30,24 +31,53 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-
 //TODO move to desired file
-inline bool parseFile(const Core::File& file, Core::Scope &outScope)
+inline bool parseFile(Core::File& file, Core::Scope &outScope)
 {
   Core::Scope rootScope(Core::ScopeType::Source);
-  int lineNo = 0;
+  // We are 1-indexed
+  int lineNo = 1;
+  int charNo = 1;
+  bool isStillInDefine = false;
+  Core::Scope scope;
   for(auto&& line : file.lines)
   {
-    if(line.find("#define") != std::string::npos)
+    int startCharNo = line.find("#define");
+    if(startCharNo != std::string::npos)
     {
-      Core::Scope define(Core::ScopeType::Namespace);
-      define.setLineNumber(lineNo);
+      scope = Core::Scope(Core::ScopeType::Namespace);
+      scope.lineNumber = lineNo;
+      scope.characterNumberStart = startCharNo+charNo;
+      scope.file = &file;
       
+      // Multiline define TODO: Verify with standard
+      if(line.at(line.size()-1) == '\\')
+      {
+        isStillInDefine = true;
+        scope.isMultiLine = true;
+      }
+      else
+      {
+        scope.characterNumberEnd = scope.characterNumberStart + line.size();
+        rootScope.children.push_back(scope);
+      }
+    }
+    else if(isStillInDefine)
+    {
+      if(line.find("\\") == std::string::npos)
+      {
+        scope.characterNumberEnd = charNo + line.size()-1;
+        rootScope.children.push_back(scope);
+        isStillInDefine = false;
+      }
     }
     lineNo++;
+    charNo+=line.size()+1;
   }
   
   outScope = rootScope;
+  
+  return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -70,7 +100,9 @@ int main(int argc, char* argv[]) {
   std::map<std::string, Core::File> files;
   std::map<std::string, Core::Scope> parsed_files;
   
+  // Recursively get all files
   std::vector<Core::FilesystemItem> stack, current;
+//   stack = Core::getFilenamesInDirectory("samples/src/playground/src/utils");
   stack = Core::getFilenamesInDirectory("samples");
   while(stack.size() > 0)
   {
@@ -99,6 +131,7 @@ int main(int argc, char* argv[]) {
     }
   }
   
+  // Parse all files found
   for(auto&& filePair : files)
   {
     Core::Scope scope;
@@ -112,6 +145,38 @@ int main(int argc, char* argv[]) {
       LOG(ERROR) << "Could not parse source file '" << filePair.first << "'";
     }
   }
+  
+  // Get namespace scopes
+  int total_defines = 0;
+  for(auto&& filePair : parsed_files)
+  {
+    Core::Scope rootScope = filePair.second;
+    std::vector<std::string> defineMessages;
+    for(auto&& defScope : rootScope.getAllChildrenOfType(Core::ScopeType::Namespace))
+    {
+//       if(defScope.isMultiLine)
+      {
+        for(auto&& line : defScope.getScopeLines())
+        {
+          defineMessages.push_back(line);
+        }
+      }
+      total_defines++;
+    }
+    
+    if(defineMessages.size() > 0)
+    {
+      LOG(INFO) << "====";
+      LOG(INFO) << "Namespace scopes for file " << filePair.first << ":";
+      for(auto&& mess : defineMessages)
+      {
+        LOG(INFO) << mess;
+      }
+    }
+  }
+  
+  // You can verify with grep -R "#define" samples | wc -l
+  LOG(INFO) << "Found " << total_defines << " defines in " << parsed_files.size();
  
   std::cin.get();
   return 0;

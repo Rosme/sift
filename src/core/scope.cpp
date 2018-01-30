@@ -27,23 +27,23 @@
 namespace Core {
   
   Scope::Scope(ScopeType type)
-    : m_type(type)
+    : type(type)
   {
   }
-
+/*
   void Scope::pushChild(const Scope& child) {
-    m_children.push_back(child);
+    children.push_back(child);
   }
 
   const ScopeVector& Scope::getChildren() const {
-    return m_children;
-  }
+    return children;
+  }*/
 
   ScopeVector Scope::getDirectChildrenOfType(ScopeType type) const {
     ScopeVector children;
 
-    for(const auto& child : m_children) {
-      if(static_cast<unsigned int>(child.m_type & type) != 0) {
+    for(const auto& child : children) {
+      if(static_cast<unsigned int>(child.type & type) != 0) {
         children.push_back(child);
       }
     }
@@ -53,20 +53,50 @@ namespace Core {
   
   ScopeVector Scope::getAllChildrenOfType(ScopeType type) const {
     ScopeVector stack, current, toReturn;
-    stack = m_children;
+    stack = children;
     while(!stack.empty())
     {
       current = stack;
       stack.clear();
       for(const auto& child : current)
       {
-        if(static_cast<unsigned int>(child.m_type & type) != 0) {
+        if(static_cast<unsigned int>(child.type & type) != 0) {
           toReturn.push_back(child);
         }
         
-        stack.insert(stack.begin(), child.getChildren().begin(), child.getChildren().end());
+        stack.insert(stack.begin(), child.children.begin(), child.children.end());
       }
     }
+    return toReturn;
+  }
+  
+  std::vector<std::string> Core::Scope::getScopeLines() const
+  {
+    std::vector<std::string> toReturn;
+    int currentLineNo = 1;
+    int currentCharNo = 1;
+    for(const auto& line : file->lines)
+    {
+      if(currentLineNo == lineNumber)
+      {
+        bool multiLine = characterNumberEnd > characterNumberStart + line.size();
+        toReturn.push_back(line.substr(characterNumberStart-currentCharNo, (multiLine ? line.size() : characterNumberEnd-currentCharNo)));
+        if(!multiLine)
+          break;
+      }
+      else if(currentCharNo > characterNumberStart && currentCharNo + line.size()-1 <= characterNumberEnd) // Line after a '#define \'   
+      {
+        toReturn.push_back(line);
+      }
+      else if(currentCharNo < characterNumberEnd && currentCharNo + line.size()-1 > characterNumberEnd) // Line finishing a multiLine define
+      {
+        toReturn.push_back(line.substr(0, characterNumberEnd-currentCharNo));
+      }
+      
+      currentCharNo+=line.size()+1;
+      currentLineNo++;
+    }
+    
     return toReturn;
   }
 }

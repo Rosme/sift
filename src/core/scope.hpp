@@ -48,31 +48,31 @@ namespace Core {
     GlobalVariable = 1u << 9,
     Global = GlobalVariable | FreeFunction,
     Variable = ClassVariable | FunctionVariable | GlobalVariable,
-    Unknown = 1u << 10
+    Unknown = 1u << 10,
+    All = 0xffff
   };
 
-  class Scope;
-  using ScopePtr = std::shared_ptr<Scope>;
+  struct Scope;
+//   using ScopePtr = std::shared_ptr<Scope>;
   using ScopeVector = std::vector<Scope>;
-  using ScopePtrVector = std::vector<ScopePtr>;
+//   using ScopePtrVector = std::vector<ScopePtr>;
 
-  class Scope {
+  struct Scope {
   public:
     Scope() {};
     Scope(ScopeType type);
     
-    void pushChild(const Scope& child);
-    const ScopeVector& getChildren() const;
     ScopeVector getDirectChildrenOfType(ScopeType type) const;
     ScopeVector getAllChildrenOfType(ScopeType type) const;
 
-    void setLineNumber(const int line){ m_lineNumber = line; }
-    int getLineNumber() { return m_lineNumber; }
-  private:
-    ScopeType m_type;
-    ScopeVector m_children;
-    unsigned int m_lineNumber;
-    File* m_file;
+    ScopeType type;
+    ScopeVector children;
+    unsigned int lineNumber = 0;
+    unsigned int characterNumberStart = 0;
+    unsigned int characterNumberEnd = 0;
+    bool isMultiLine = false;
+    std::vector<std::string> getScopeLines() const;
+    File* file;
   };
 
   inline std::string to_string(ScopeType type) {

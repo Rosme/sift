@@ -40,6 +40,12 @@
 #include <Windows.h>
 #endif
 
+// Real convenient for debuging
+#define DUMP(x) std::cout << #x << ": " << x << std::endl
+#define CSTR(x) dynamic_cast< std::ostringstream & >(( std::ostringstream() << std::dec << x ) ).str().c_str()
+#define SSTR(x) dynamic_cast< std::ostringstream & >(( std::ostringstream() << std::dec << x ) ).str()
+//
+
 namespace Core {
 
   inline bool string_ends_with(std::string const& value, std::string const& ending)
@@ -94,6 +100,8 @@ namespace Core {
       file.filename = filename;
       std::string line;
       while(std::getline(filestream, line)) {
+        if (!line.empty() && line[line.size() - 1] == '\r')
+          line.erase(line.size() - 1);
         file.lines.push_back(line);
       }
       
