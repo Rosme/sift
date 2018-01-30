@@ -31,6 +31,7 @@ set(TESTS_TESTS
   main.cpp
   tests_json.cpp
   tests_message.cpp
+  tests_scope.cpp
   )
 
 include_directories(../extlib)
