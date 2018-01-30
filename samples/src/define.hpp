@@ -15,6 +15,11 @@ ugly\
 defines\
 i must say\
 
+   /* this one is also technically valid */ #define although(x) it\
+   is\
+        very \
+        disgusting
+
 std::string something_else("this string has #define in it");
 
 // better be careful with #define comments too
