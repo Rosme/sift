@@ -102,56 +102,62 @@ namespace Core {
     }
   }
 
+#if WIN32
+#define PFE_STRCMP(x, y) _stricmp(x, y)
+#else
+#define PFE_STRCMP(x, y) strcasecmp(x, y)
+#endif
+
   inline ScopeType ScopeType_to_enum_class(const std::string& type) {
-    if(_stricmp(type.c_str(), "Source") == 0) {
+    if(PFE_STRCMP(type.c_str(), "Source") == 0) {
       return ScopeType::Source;
     }
     
-    if(_stricmp(type.c_str(), "Namespace") == 0) {
+    if(PFE_STRCMP(type.c_str(), "Namespace") == 0) {
       return ScopeType::Namespace;
     }
 
-    if(_stricmp(type.c_str(), "Class") == 0) {
+    if(PFE_STRCMP(type.c_str(), "Class") == 0) {
       return ScopeType::Class;
     }
 
-    if(_stricmp(type.c_str(), "Enum") == 0) {
+    if(PFE_STRCMP(type.c_str(), "Enum") == 0) {
       return ScopeType::Enum;
     }
 
-    if(_stricmp(type.c_str(), "FreeFunction") == 0) {
+    if(PFE_STRCMP(type.c_str(), "FreeFunction") == 0) {
       return ScopeType::FreeFunction;
     }
 
-    if(_stricmp(type.c_str(), "ClassFunction") == 0) {
+    if(PFE_STRCMP(type.c_str(), "ClassFunction") == 0) {
       return ScopeType::ClassFunction;
     }
 
-    if(_stricmp(type.c_str(), "Function") == 0) {
+    if(PFE_STRCMP(type.c_str(), "Function") == 0) {
       return ScopeType::Function;
     }
 
-    if(_stricmp(type.c_str(), "Conditionnal") == 0) {
+    if(PFE_STRCMP(type.c_str(), "Conditionnal") == 0) {
       return ScopeType::Conditionnal;
     }
 
-    if(_stricmp(type.c_str(), "ClassVariable") == 0) {
+    if(PFE_STRCMP(type.c_str(), "ClassVariable") == 0) {
       return ScopeType::ClassVariable;
     }
 
-    if(_stricmp(type.c_str(), "FunctionVariable") == 0) {
+    if(PFE_STRCMP(type.c_str(), "FunctionVariable") == 0) {
       return ScopeType::FunctionVariable;
     }
 
-    if(_stricmp(type.c_str(), "GlobalVariable") == 0) {
+    if(PFE_STRCMP(type.c_str(), "GlobalVariable") == 0) {
       return ScopeType::GlobalVariable;
     }
 
-    if(_stricmp(type.c_str(), "Global") == 0) {
+    if(PFE_STRCMP(type.c_str(), "Global") == 0) {
       return ScopeType::Global;
     }
 
-    if(_stricmp(type.c_str(), "Variable") == 0) {
+    if(PFE_STRCMP(type.c_str(), "Variable") == 0) {
       return ScopeType::Variable;
     }
 
