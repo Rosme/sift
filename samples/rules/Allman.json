@@ -5,20 +5,14 @@
       "rule" : "CurlyBracketsOpenSeperateLine",
       "appliedTo": "Class"
     },
-	
-    {
-      "rule" : "CurlyBracketsOpenSameLine",
-      "appliedTo": "Conditional"
-    },
-	
     {
       "rule" : "CurlyBracketsCloseSeperateLine",
       "appliedTo": "Class"
     },
 	
     {
-      "rule" : "CurlyBracketsIndentationAlignWithDeclaration",
-      "appliedTo": "Class"
+      "rule" : "ElseSeparateLineFromCurlyBracketClose",
+      "appliedTo": "Conditional"
     },
     
     {
@@ -27,9 +21,13 @@
     },
 	
     {
-      "rule" : "MaxCharactersPerLine",
-      "appliedTo": "Source",
-      "parameter" : "80"
+      "rule" : "CurlyBracketsIndentationAlignWithDeclaration",
+      "appliedTo": "Class"
+    },
+	
+    {
+      "rule" : "AlwaysHaveCurlyBrackets",
+      "appliedTo": "Conditional"
     }
   ]
 }

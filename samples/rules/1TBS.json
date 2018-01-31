@@ -15,10 +15,21 @@
       "rule" : "CurlyBracketsCloseSeperateLine",
       "appliedTo": "Class"
     },
+	
+    {
+      "rule" : "CurlyBracketsIndentationAlignWithDeclaration",
+      "appliedTo": "Class"
+    },
     
     {
       "rule" : "TabIndentation",
-      "appliedTo" : "Class"
+      "appliedTo" : "Source"
+    },
+	
+    {
+      "rule" : "MaxCharactersPerLine",
+      "appliedTo": "Source",
+      "parameter" : "80"
     },
 	
     {
