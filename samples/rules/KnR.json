@@ -30,6 +30,11 @@
       "rule" : "MaxCharactersPerLine",
       "appliedTo": "Source",
       "parameter" : "80"
+    },
+	
+    {
+      "rule" : "SpaceBetweenOperandsInternal",
+      "appliedTo": "Source"
     }
   ]
 }

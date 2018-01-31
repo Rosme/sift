@@ -21,13 +21,18 @@
     },
 	
     {
-      "rule" : "CurlyBracketsIndentationAlignWithDeclaration",
+      "rule" : "CurlyBracketsIndentationAlignWithCode",
       "appliedTo": "Class"
     },
 	
     {
       "rule" : "AlwaysHaveCurlyBrackets",
       "appliedTo": "Conditional"
+    },
+	
+    {
+      "rule" : "SpaceBetweenOperandsInternal",
+      "appliedTo": "Source"
     }
   ]
 }

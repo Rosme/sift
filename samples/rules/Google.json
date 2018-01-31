@@ -53,5 +53,10 @@
       "appliedTo": "Namespace",
     },
 	
+    {
+      "rule" : "SpaceBetweenOperandsInternal",
+      "appliedTo": "Source"
+    }
+	
   ]
 }

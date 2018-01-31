@@ -35,6 +35,11 @@
     {
       "rule" : "AlwaysHaveCurlyBrackets",
       "appliedTo": "Conditional"
+    },
+	
+    {
+      "rule" : "SpaceBetweenOperandsInternal",
+      "appliedTo": "Source"
     }
   ]
 }

@@ -25,6 +25,11 @@
     {
       "rule" : "CurlyBracketsIndentationUnique",
       "appliedTo": "Conditional"
+    },
+	
+    {
+      "rule" : "SpaceBetweenOperandsInternal",
+      "appliedTo": "Source"
     }
   ]
 }
