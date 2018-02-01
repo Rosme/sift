@@ -48,6 +48,7 @@ namespace Core
     void extractScopes();
     void applyRules();
     void registerRuleWork();
+    void outputMessages();
     
     std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
   private:

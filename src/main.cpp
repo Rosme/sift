@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
   pfe.readFilesFromDirectory("samples");
   pfe.extractScopes();
   pfe.applyRules();
+  pfe.outputMessages();
 
   std::chrono::time_point<std::chrono::system_clock> after = std::chrono::system_clock::now();
   LOG(INFO) << "Ran in " << std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count() << "ms";

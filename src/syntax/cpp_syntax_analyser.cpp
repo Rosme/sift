@@ -24,6 +24,7 @@
 #include "cpp_syntax_analyser.hpp"
 
 #include "../core/file.hpp"
+#include "../core/message.hpp"
 
 namespace Syntax
 {
@@ -39,34 +40,21 @@ namespace Syntax
   void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
     // Get namespace scopes
-    int total_defines = 0;
-    int definesInFile = 0;
-    Core::Scope rootScope = scope;
-    std::vector<std::string> defineMessages;
-    Core::File* current = nullptr;
-    for(auto&& defScope : rootScope.getAllChildrenOfType(Core::ScopeType::Namespace))
+    for(auto&& defScope : scope.getAllChildrenOfType(Core::ScopeType::Namespace))
     {
+      std::stringstream defineLines;
+
+      for(auto&& line : defScope.getScopeLines())
       {
-        if(current != defScope.file)
-        {
-          LOG(INFO) << "Found " << definesInFile << " define(s) in this file";
-          LOG(INFO) << "====";
-          LOG(INFO) << "Namespace scopes for file " << defScope.file->filename;
-          current = defScope.file;
-          definesInFile = 0;
-        }
-        int i =0;
-        for(auto&& line : defScope.getScopeLines())
-        {
-          defineMessages.push_back(line);
-          LOG(INFO) << "  " << (i++ == 0 ? "->" : "  ") << line;
-        }
+        defineLines << line << "\n";
       }
-      total_defines++;
-      definesInFile++;
+      
+      //TODO message associated with line/char?
+      Core::Message message(Core::MessageType::Error, 
+        SSTR("Define found - " << defScope.file->filename << ":" << defScope.lineNumber << " vvvv"
+        "\n -->" << defineLines.str())
+      );
+      messageStack.pushMessage(message);
     }
-    
-    // You can verify with grep -R "#define" samples | wc -l
-//     LOG(INFO) << "Found " << total_defines << " defines in " << pfe.getScopes().size() << " files";
   }
 };

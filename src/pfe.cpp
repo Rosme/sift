@@ -205,6 +205,19 @@ namespace Core
     
     REGISTER_RULE(NoDefine);
   }
+  
+  void PFE::outputMessages()
+  {    
+    std::ofstream file("output.txt");
+    while(m_messageStack.hasMessages())
+    {
+      auto message = m_messageStack.popMessage();
+      file << message << "\n";
+      LOG(INFO) << message;
+    }
+    
+    file.close();
+  }
 };
 
 
