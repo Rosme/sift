@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
   std::chrono::time_point<std::chrono::system_clock> before = std::chrono::system_clock::now();
   
   Core::PFE pfe;
+  pfe.parseArgv(argc, argv);
   pfe.setupLogging();
   pfe.setupRules("samples/rules/rules.json");
   pfe.registerRuleWork();

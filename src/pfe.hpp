@@ -42,6 +42,7 @@ namespace Core
     PFE();
     
     // Move these to syntax_analyzer accordingly
+    void parseArgv(int argc, char** argv);
     void setupLogging();
     void setupRules(const std::string filename);
     void readFilesFromDirectory(const std::string directory);
@@ -70,5 +71,8 @@ namespace Core
     std::shared_ptr<Flow::FlowAnalyser> m_flowAnalyser;
     std::shared_ptr<Syntax::SyntaxAnalyser> m_syntaxAnalyser;
     Core::MessageStack m_messageStack;
+    
+    bool m_quietMode = false;
+    std::string m_outputFilename;
   };
 };

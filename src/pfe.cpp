@@ -24,6 +24,7 @@
 #include <regex>
 #include <chrono>
 #include <muflihun/easylogging++.h>
+#include <cxxopts/cxxopts.hpp>
 
 #include "pfe.hpp"
 #include "flow/cpp_flow_analyser.hpp"
@@ -37,6 +38,45 @@ namespace Core
     //TODO impl
     m_syntaxAnalyser = std::make_shared<Syntax::CPPSyntaxAnalyser>();
     m_flowAnalyser = std::make_shared<Flow::CPPFlowAnalyser>();
+  }
+  
+  void PFE::parseArgv(int argc, char** argv)
+  {
+    cxxopts::Options options("PFE", "Syntax analyser for cpp");
+    
+    // How does this even work haha
+    options.add_options()
+    ("d,debug", "Enable debugging")
+    ("q,quiet", "Enable quiet mode")
+    ("o,output", "Output results to file", cxxopts::value<std::string>())
+    ("h,help", "Print help")
+    ;
+    try
+    {
+      auto result = options.parse(argc, argv);
+      if (result.count("help"))
+      {
+        std::cout << options.help({"", "Group"}) << std::endl;
+        exit(0);
+      }
+      
+      // Uses default if not found
+      m_quietMode = result["q"].as<bool>();
+      
+      if(result.count("output"))
+      {
+        m_outputFilename = result["output"].as<std::string>();
+      }
+      else
+      {
+        m_outputFilename = "output.txt";
+      }
+    }
+    catch(...)
+    {
+      std::cout << options.help({"", "Group"}) << std::endl;
+      exit(EXIT_FAILURE);
+    }
   }
   
   void PFE::setupLogging()
@@ -203,20 +243,26 @@ namespace Core
   {
     using namespace Syntax;
     
+    // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
     REGISTER_RULE(NoDefine);
   }
   
   void PFE::outputMessages()
   {    
-    std::ofstream file("output.txt");
+    std::ofstream file(m_outputFilename);
     while(m_messageStack.hasMessages())
     {
       auto message = m_messageStack.popMessage();
       file << message << "\n";
-      LOG(INFO) << message;
+      if(!m_quietMode)
+      {
+        LOG(INFO) << message;
+      }
     }
     
     file.close();
+    
+    LOG(INFO) << "Wrote results to file: " << m_outputFilename;
   }
 };
 
