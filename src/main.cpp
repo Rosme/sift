@@ -58,7 +58,7 @@ inline bool parseFile(Core::File& file, Core::Scope &outScope)
         scope.lineNumber = lineNo;
         scope.characterNumberStart = sm.position(0)+charNo;
         scope.file = &file;
-        
+
         // Multiline define TODO: Verify with standard
         if(line.at(line.size()-1) == '\\')
         {
@@ -71,7 +71,7 @@ inline bool parseFile(Core::File& file, Core::Scope &outScope)
           rootScope.children.push_back(scope);
         }
       }
-    } 
+    }
     else if(isStillInDefine)
     {
       if(line.find("\\") == std::string::npos)
@@ -84,15 +84,15 @@ inline bool parseFile(Core::File& file, Core::Scope &outScope)
     lineNo++;
     charNo+=line.size()+1;
   }
-  
+
   outScope = rootScope;
-  
+
   return true;
 }
 
 int main(int argc, char* argv[]) {
   START_EASYLOGGINGPP(argc, argv);
-  
+
   // This would be 10x better in a log.conf
   el::Configurations conf;
   conf.setToDefault();
@@ -100,30 +100,35 @@ int main(int argc, char* argv[]) {
   conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
   conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
   el::Loggers::reconfigureLogger("default", conf);
-  
+
   auto rules = Syntax::readRules("samples/rules/rules.json");
 
   for(const auto& rule : rules) {
     LOG(INFO) << rule;
   }
-  
+
   std::map<std::string, Core::File> files;
   std::map<std::string, Core::Scope> parsed_files;
-  
+
   // Recursively get all files
-  std::vector<Core::FilesystemItem> stack, current;
+  auto rules = Syntax::readRules("samples/rules/rules.json");
+
+  for(const auto& rule : rules) {
+    LOG(INFO) << rule;
+  }
+
+  std::vector<Core::FilesystemItem> stack, current, all;
   stack = Core::getFilenamesInDirectory("samples");
 //   stack = Core::getFilenamesInDirectory("../src"); // Our own source
-  
+
   std::chrono::time_point<std::chrono::system_clock> before = std::chrono::system_clock::now();
-  
+
   while(stack.size() > 0)
   {
     current = stack;
     stack.clear();
     for(auto&& item : current)
     {
-      LOG(INFO) << item.fullPath;
       if(item.isDirectory)
       {
         auto temp = Core::getFilenamesInDirectory(item.fullPath);
@@ -138,12 +143,12 @@ int main(int argc, char* argv[]) {
           LOG(ERROR) << "Could not read source file '" << item.fullPath << "'";
           continue;
         }
-        
+
         files[item.fullPath] = file;
       }
     }
   }
-  
+
   // Parse all files found
   for(auto&& filePair : files)
   {
@@ -158,7 +163,7 @@ int main(int argc, char* argv[]) {
       LOG(ERROR) << "Could not parse source file '" << filePair.first << "'";
     }
   }
-  
+
   // Get namespace scopes
   int total_defines = 0;
   int definesInFile = 0;
@@ -190,13 +195,13 @@ int main(int argc, char* argv[]) {
       definesInFile++;
     }
   }
-  
+
   // You can verify with grep -R "#define" samples | wc -l
   LOG(INFO) << "Found " << total_defines << " defines in " << parsed_files.size() << " files";
- 
+
   std::chrono::time_point<std::chrono::system_clock> after = std::chrono::system_clock::now();
   LOG(INFO) << "Ran in " << std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count() << "ms";
-  
+
   std::cin.get();
   return 0;
 }
