@@ -53,21 +53,21 @@ namespace Core {
     if (ending.size() > value.size()) return false;
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
   }
-  
+
   inline std::string toLower(const std::string& str) {
     std::string s;
-    
+
     for(const auto& c : str) {
       s.push_back(tolower(c));
     }
-    
+
     return s;
   }
-  
+
   inline bool string_case_compare(const std::string& lhs, const std::string& rhs) {
     return toLower(lhs) == toLower(rhs);
   }
-  
+
   inline nlohmann::json readJsonFile(const std::string& fileName) {
     std::string content;
     std::string line;
@@ -93,10 +93,10 @@ namespace Core {
 
   inline bool readSourceFile(const std::string& filename, File& file) {
     LOG(TRACE) << "Loading Source File: " << filename;
-    
+
     std::ifstream filestream(filename);
     if(filestream.is_open()) {
-      
+
       file.filename = filename;
       std::string line;
       while(std::getline(filestream, line)) {
@@ -104,29 +104,29 @@ namespace Core {
           line.erase(line.size() - 1);
         file.lines.push_back(line);
       }
-      
+
       LOG(DEBUG) << "Read a total of " << file.lines.size() << " lines of code";
     } else {
       //TODO: Isn't this redundant considering it returns true/false already
 //       LOG(ERROR) << "Could not open file: " << filename;
       return false;
     }
-    
+
     return true;
   }
-  
+
   struct FilesystemItem
   {
     bool isDirectory = false;
     std::string name = "";
     std::string fullPath = "";
   };
-  
+
   inline std::vector<FilesystemItem> getFilenamesInDirectory(const std::string directory)
   {
     std::vector<FilesystemItem> toReturn;
     #if defined(UNIX)
-    
+
     DIR* pDirectory;
     struct dirent *ent;
     if ((pDirectory = opendir(directory.c_str())) != nullptr)
@@ -148,7 +148,7 @@ namespace Core {
     #elif defined(WIN32)
     HANDLE hFind;
     WIN32_FIND_DATA data;
-    
+
     hFind = FindFirstFile(CSTR(directory.c_str() << "\\*.*"), &data);
     if (hFind != INVALID_HANDLE_VALUE) {
       do {
@@ -164,11 +164,11 @@ namespace Core {
       } while (FindNextFile(hFind, &data));
       FindClose(hFind);
     }
-    
+
     #else
     #error "Current platform not supported"
     #endif
-    
+
     return toReturn;
   }
 }

@@ -101,11 +101,11 @@ int main(int argc, char* argv[]) {
   conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
   el::Loggers::reconfigureLogger("default", conf);
   
-//   auto rules = Syntax::readRules("samples/rules/rules.json");
-// 
-//   for(const auto& rule : rules) {
-//     LOG(INFO) << rule;
-//   }
+  auto rules = Syntax::readRules("samples/rules/rules.json");
+
+  for(const auto& rule : rules) {
+    LOG(INFO) << rule;
+  }
   
   std::map<std::string, Core::File> files;
   std::map<std::string, Core::Scope> parsed_files;
