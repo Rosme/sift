@@ -46,7 +46,9 @@ endif()
 configure_file("config.hpp.in" "${CMAKE_SOURCE_DIR}/src/core/config.hpp" @ONLY)
 
 set(SRC_MAIN
-    src/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/pfe.hpp
+    ${CMAKE_SOURCE_DIR}/src/pfe.cpp
     )
 
 set(SRC_CORE
@@ -58,11 +60,14 @@ set(SRC_CORE
     ${CMAKE_SOURCE_DIR}/src/core/message.hpp
     ${CMAKE_SOURCE_DIR}/src/core/message_stack.hpp
     ${CMAKE_SOURCE_DIR}/src/core/message_stack.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/config.hpp
     )
 
 SET(SRC_SYNTAX
     ${CMAKE_SOURCE_DIR}/src/syntax/syntax_analyser.hpp
     ${CMAKE_SOURCE_DIR}/src/syntax/syntax_analyser.cpp
+    ${CMAKE_SOURCE_DIR}/src/syntax/cpp_syntax_analyser.hpp
+    ${CMAKE_SOURCE_DIR}/src/syntax/cpp_syntax_analyser.cpp
     ${CMAKE_SOURCE_DIR}/src/syntax/rule.hpp
     ${CMAKE_SOURCE_DIR}/src/syntax/rule.cpp
     )
@@ -70,6 +75,8 @@ SET(SRC_SYNTAX
 SET(SRC_FLOW
     ${CMAKE_SOURCE_DIR}/src/flow/flow_analyser.hpp
     ${CMAKE_SOURCE_DIR}/src/flow/flow_analyser.cpp
+    ${CMAKE_SOURCE_DIR}/src/flow/cpp_flow_analyser.hpp
+    ${CMAKE_SOURCE_DIR}/src/flow/cpp_flow_analyser.cpp
     )
 
 SET(SRC

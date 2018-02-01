@@ -1,5 +1,5 @@
 /* MIT License
- *
+ * 
  * Copyright (c) 2018 Jean-Sebastien Fauteux, Michel Rioux, Raphaël Massabot
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,37 +23,21 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
+#include "syntax_analyser.hpp"
+#include "rule.hpp"
 
-#include <rosme/smartenum.hpp>
-
+//TODO Dirty 
 #include "../core/scope.hpp"
+#include "../core/message_stack.hpp"
 
 namespace Syntax {
   
-  smart_enum_class(RuleType,
-                   NoAuto,
-                   NoDefine,
-                   StartWithX);
-
-  class Rule {
+  class CPPSyntaxAnalyser : public SyntaxAnalyser {
   public:
-    Rule() { }
-    Rule(Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter = "");
+    CPPSyntaxAnalyser();
+    virtual ~CPPSyntaxAnalyser();
     
-    Core::ScopeType getScopeType() const;
-    RuleType getRuleType() const;
-    bool hasParameter() const;
-    const std::string& getParameter() const;
-
-  private:
-    Core::ScopeType m_applyTo;
-    RuleType m_type;
-    std::string m_parameter;
+    static void RuleNoDefine(Syntax::Rule&, Core::Scope&, Core::MessageStack&);
   };
-
-  std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule);
-  std::map<RuleType, Rule> readRules(const std::string& rulesFile);
   
 }

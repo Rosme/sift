@@ -22,4 +22,8 @@
 */
 
 #define CATCH_CONFIG_MAIN
+#include <muflihun/easylogging++.h>
+
+INITIALIZE_EASYLOGGINGPP
+
 #include "catch.hh"

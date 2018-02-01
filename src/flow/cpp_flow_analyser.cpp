@@ -1,5 +1,5 @@
 /* MIT License
- *
+ * 
  * Copyright (c) 2018 Jean-Sebastien Fauteux, Michel Rioux, Raphaël Massabot
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,39 +21,17 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "cpp_flow_analyser.hpp"
 
-#include <vector>
-#include <string>
-
-#include <rosme/smartenum.hpp>
-
-#include "../core/scope.hpp"
-
-namespace Syntax {
-  
-  smart_enum_class(RuleType,
-                   NoAuto,
-                   NoDefine,
-                   StartWithX);
-
-  class Rule {
-  public:
-    Rule() { }
-    Rule(Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter = "");
+namespace Flow
+{
+  CPPFlowAnalyser::CPPFlowAnalyser()
+  {
     
-    Core::ScopeType getScopeType() const;
-    RuleType getRuleType() const;
-    bool hasParameter() const;
-    const std::string& getParameter() const;
-
-  private:
-    Core::ScopeType m_applyTo;
-    RuleType m_type;
-    std::string m_parameter;
-  };
-
-  std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule);
-  std::map<RuleType, Rule> readRules(const std::string& rulesFile);
+  }
   
-}
+  CPPFlowAnalyser::~CPPFlowAnalyser()
+  {
+  }
+
+};
