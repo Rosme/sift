@@ -1,0 +1,38 @@
+
+{
+  "rules": [
+    {
+      "rule" : "CurlyBracketsOpenSeperateLine",
+      "appliedTo": "Class"
+    },
+    {
+      "rule" : "CurlyBracketsCloseSeperateLine",
+      "appliedTo": "Class"
+    },
+	
+    {
+      "rule" : "ElseSeparateLineFromCurlyBracketClose",
+      "appliedTo": "Conditional"
+    },
+    
+    {
+      "rule" : "TabIndentation",
+      "appliedTo" : "Source"
+    },
+	
+    {
+      "rule" : "CurlyBracketsIndentationAlignWithDeclaration",
+      "appliedTo": "Class"
+    },
+	
+    {
+      "rule" : "AlwaysHaveCurlyBrackets",
+      "appliedTo": "Conditional"
+    },
+	
+    {
+      "rule" : "SpaceBetweenOperandsInternal",
+      "appliedTo": "Source"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+
+{
+  "rules": [
+    {
+      "rule" : "CurlyBracketsOpenSeperateLine",
+      "appliedTo": "Class"
+    },
+	
+    {
+      "rule" : "CurlyBracketsOpenSameLine",
+      "appliedTo": "Conditional"
+    },
+	
+    {
+      "rule" : "CurlyBracketsCloseSeperateLine",
+      "appliedTo": "Class"
+    },
+	
+    {
+      "rule" : "CurlyBracketsIndentationAlignWithDeclaration",
+      "appliedTo": "Class"
+    },
+    
+    {
+      "rule" : "TabIndentation",
+      "appliedTo" : "Source"
+    },
+	
+    {
+      "rule" : "MaxCharactersPerLine",
+      "appliedTo": "Source",
+      "parameter" : "80"
+    },
+	
+    {
+      "rule" : "SpaceBetweenOperandsInternal",
+      "appliedTo": "Source"
+    }
+  ]
+}
