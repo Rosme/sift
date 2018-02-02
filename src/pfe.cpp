@@ -21,17 +21,15 @@
  * SOFTWARE.
  */
 
+// Fix Cxxopts under MSVC
+#define NOMINMAX
+
 #include <regex>
 #include <chrono>
 #include <muflihun/easylogging++.h>
+#include <cxxopts/cxxopts.hpp>
 
 #include "core/config.hpp"
-
-#ifdef UNIX 
-//TODO: need a better solution xplatform
-#include <cxxopts/cxxopts.hpp>
-#endif 
-
 #include "pfe.hpp"
 #include "flow/cpp_flow_analyser.hpp"
 #include "syntax/cpp_syntax_analyser.hpp"
@@ -48,7 +46,6 @@ namespace Core
   
   void PFE::parseArgv(int argc, char** argv)
   {
-#ifdef UNIX
     cxxopts::Options options("PFE", "Syntax analyser for cpp");
     
     // How does this even work haha
@@ -84,7 +81,6 @@ namespace Core
       std::cout << options.help({"", "Group"}) << std::endl;
       exit(EXIT_FAILURE);
     }
-#endif
   }
   
   void PFE::setupLogging()
