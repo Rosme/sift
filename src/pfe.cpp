@@ -39,9 +39,8 @@ namespace Core
 {
   PFE::PFE()
   {
-    //TODO impl
-    m_syntaxAnalyser = std::make_shared<Syntax::CPPSyntaxAnalyser>();
-    m_flowAnalyser = std::make_shared<Flow::CPPFlowAnalyser>();
+    m_syntaxAnalyser = std::make_unique<Syntax::CPPSyntaxAnalyser>();
+    m_flowAnalyser = std::make_unique<Flow::CPPFlowAnalyser>();
   }
   
   #define CXXOPT(longName, variableName, type, defaultValue) if(result.count(longName)) { \
@@ -247,15 +246,10 @@ namespace Core
     }
   }
   
-  // Force consistency between name and method
-  #define NS(ns,item) ns::item
-  #define REGISTER_RULE(REG) m_rulesWork[NS(RuleType, REG)] = CPPSyntaxAnalyser::Rule##REG
+
   void PFE::registerRuleWork()
   {
-    using namespace Syntax;
-    
-    // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
-    REGISTER_RULE(NoDefine);
+    m_syntaxAnalyser->registerRuleWork(m_rulesWork);
   }
   
   void PFE::outputMessages()

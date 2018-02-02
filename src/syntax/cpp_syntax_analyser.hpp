@@ -23,10 +23,12 @@
 
 #pragma once
 
+#include <map>
+#include <functional>
+
 #include "syntax_analyser.hpp"
 #include "rule.hpp"
 
-//TODO Dirty 
 #include "../core/scope.hpp"
 #include "../core/message_stack.hpp"
 
@@ -37,7 +39,8 @@ namespace Syntax {
     CPPSyntaxAnalyser();
     virtual ~CPPSyntaxAnalyser();
     
-    static void RuleNoDefine(Syntax::Rule&, Core::Scope&, Core::MessageStack&);
+    void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work);
+    void RuleNoDefine(Syntax::Rule&, Core::Scope&, Core::MessageStack&);
   };
   
 }

@@ -29,9 +29,8 @@
 #include "core/file.hpp"
 #include "core/scope.hpp"
 #include "syntax/rule.hpp"
-
-namespace Flow { class FlowAnalyser; }
-namespace Syntax { class SyntaxAnalyser; }
+#include "syntax/syntax_analyser.hpp"
+#include "flow/flow_analyser.hpp"
 
 namespace Core
 {
@@ -68,8 +67,8 @@ namespace Core
     // ruleType : work
     std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>> m_rulesWork;
     
-    std::shared_ptr<Flow::FlowAnalyser> m_flowAnalyser;
-    std::shared_ptr<Syntax::SyntaxAnalyser> m_syntaxAnalyser;
+    std::unique_ptr<Flow::FlowAnalyser> m_flowAnalyser;
+    std::unique_ptr<Syntax::SyntaxAnalyser> m_syntaxAnalyser;
     Core::MessageStack m_messageStack;
     
     bool m_quietMode = false;
