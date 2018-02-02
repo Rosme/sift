@@ -20,5 +20,6 @@ Copyright(C) Jean-Sebastien Fauteux, Michel Rioux, Raphael Massabot.
  * _if_ with just 1 instruction still needs brackets
 * macros should be avoided
 * Class members should start with m_
+* m_camelCase of anything and everything
 * Usage of C++11/C++14 as much as possible
 * Usage of pragma once should be favorised
