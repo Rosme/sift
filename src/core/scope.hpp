@@ -23,31 +23,161 @@
 
 #pragma once
 
+#include <functional>
 #include <vector>
 #include <memory>
+#include <string>
 
-#include <rosme/smartenum.hpp>
+#include "utils.hpp"
 
 namespace Core {
 
   struct File;
   
-  smart_enum_class(ScopeType,
-                   Namespace,
-                   Class,
-                   Function,
-                   Conditionnal,
-                   Variable);
-  
-  class Scope {
-  public:
-    explicit Scope(ScopeType type);
-    
-  private:
-    const ScopeType m_type;
-    std::vector<std::unique_ptr<Scope>> m_children;
-    unsigned int m_lineNumber;
-    File* m_file;
+  enum class ScopeType {
+    Source = 1u << 0, /* Root scope of a file */
+    Namespace = 1u << 1,
+    Class = 1u << 2,
+    Enum = 1u << 3,
+    FreeFunction = 1u << 4,
+    ClassFunction = 1u << 5,
+    Function = FreeFunction | ClassFunction,
+    Conditionnal = 1u << 6,
+    ClassVariable = 1u << 7,
+    FunctionVariable = 1u << 8,
+    GlobalVariable = 1u << 9,
+    Global = GlobalVariable | FreeFunction,
+    Variable = ClassVariable | FunctionVariable | GlobalVariable,
+    Unknown = 1u << 10,
+    All = 0xffff
   };
-  
+
+  struct Scope;
+//   using ScopePtr = std::shared_ptr<Scope>;
+  using ScopeVector = std::vector<Scope>;
+//   using ScopePtrVector = std::vector<ScopePtr>;
+
+  struct Scope {
+  public:
+    Scope() {};
+    Scope(ScopeType type);
+    
+    ScopeVector getDirectChildrenOfType(ScopeType type) const;
+    ScopeVector getAllChildrenOfType(ScopeType type) const;
+
+    ScopeType type;
+    ScopeVector children;
+    unsigned int lineNumber = 0;
+    unsigned int characterNumberStart = 0;
+    unsigned int characterNumberEnd = 0;
+    bool isMultiLine = false;
+    std::vector<std::string> getScopeLines() const;
+    File* file;
+  };
+
+  inline std::string to_string(ScopeType type) {
+    switch(type) {
+    case ScopeType::Source:
+      return "Source";
+    case ScopeType::Namespace:
+      return "Namespace";
+    case ScopeType::Class:
+      return "Class";
+    case ScopeType::Enum:
+      return "Enum";
+    case ScopeType::FreeFunction:
+      return "FreeFunction";
+    case ScopeType::ClassFunction:
+      return "ClassFunction";
+    case ScopeType::Function:
+      return "Function";
+    case ScopeType::Conditionnal:
+      return "Conditionnal";
+    case ScopeType::ClassVariable:
+      return "ClassVariable";
+    case ScopeType::FunctionVariable:
+      return "FunctionVariable";
+    case ScopeType::GlobalVariable:
+      return "GlobalVariable";
+    case ScopeType::Global:
+      return "Global";
+    case ScopeType::Variable:
+      return "Variable";
+    default:
+      return "Unknown";
+    }
+  }
+
+  inline ScopeType ScopeType_to_enum_class(const std::string& type) {
+    if(string_case_compare(type, "Source")) {
+      return ScopeType::Source;
+    }
+    
+    if(string_case_compare(type, "Namespace")) {
+      return ScopeType::Namespace;
+    }
+
+    if(string_case_compare(type, "Class")) {
+      return ScopeType::Class;
+    }
+
+    if(string_case_compare(type, "Enum")) {
+      return ScopeType::Enum;
+    }
+
+    if(string_case_compare(type, "FreeFunction")) {
+      return ScopeType::FreeFunction;
+    }
+
+    if(string_case_compare(type, "ClassFunction")) {
+      return ScopeType::ClassFunction;
+    }
+
+    if(string_case_compare(type, "Function")) {
+      return ScopeType::Function;
+    }
+
+    if(string_case_compare(type, "Conditionnal")) {
+      return ScopeType::Conditionnal;
+    }
+
+    if(string_case_compare(type, "ClassVariable")) {
+      return ScopeType::ClassVariable;
+    }
+
+    if(string_case_compare(type, "FunctionVariable")) {
+      return ScopeType::FunctionVariable;
+    }
+
+    if(string_case_compare(type, "GlobalVariable")) {
+      return ScopeType::GlobalVariable;
+    }
+
+    if(string_case_compare(type, "Global")) {
+      return ScopeType::Global;
+    }
+
+    if(string_case_compare(type, "Variable")) {
+      return ScopeType::Variable;
+    }
+
+    return ScopeType::Unknown;
+  }
+
+  inline ScopeType operator&(ScopeType lhs, ScopeType rhs) {
+    using Underlying = std::underlying_type<ScopeType>::type;
+    return static_cast<ScopeType>(
+      static_cast<Underlying>(lhs) &
+      static_cast<Underlying>(rhs)
+      );
+  }
+
+  inline ScopeType operator|(ScopeType lhs, ScopeType rhs) {
+    using Underlying = std::underlying_type<ScopeType>::type;
+    return static_cast<ScopeType>(
+      static_cast<Underlying>(lhs) |
+      static_cast<Underlying>(rhs)
+      );
+  }
+
 }

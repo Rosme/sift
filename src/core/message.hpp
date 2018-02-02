@@ -42,7 +42,7 @@ namespace Core {
   };
 
   inline std::ostream& operator<<(std::ostream& out, const Message& message) {
-    out << to_string(message.type) << " : " << message.content << "\n";
+    out << to_string(message.type) << " : " << message.content;
     return out;
   }
 

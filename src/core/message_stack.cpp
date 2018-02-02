@@ -1,4 +1,3 @@
-#include "message_stack.hpp"
 /* MIT License
 *
 * Copyright (c) 2018 Jean-Sebastien Fauteux, Michel Rioux, Raphaël Massabot

@@ -31,9 +31,10 @@ set(TESTS_TESTS
   main.cpp
   tests_json.cpp
   tests_message.cpp
+  tests_scope.cpp
   )
 
-include_directories(../extlib)
+include_directories(../extlib SYSTEM)
 include_directories(../src)
 
 add_executable("tests" ${TESTS_INC} ${TESTS_TESTS} ${SRC})

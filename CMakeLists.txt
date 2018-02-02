@@ -24,11 +24,31 @@
 cmake_minimum_required(VERSION 3.0)
 
 project(PFE)
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH 0)
 
 set(USE_PFE_ASSERT true CACHE BOOL "Use PFE defined assert")
 
+# Default to debug for now
+if("${CMAKE_BUILD_TYPE}" STREQUAL "")
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+set(VERSION "v${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-${CMAKE_BUILD_TYPE}")
+message("Building ${PROJECT_NAME} ${VERSION}")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+  set(DEBUG_BUILD 1)
+else()
+  set(RELEASE_BUILD 1)
+endif()
+
+configure_file("config.hpp.in" "${CMAKE_SOURCE_DIR}/src/core/config.hpp" @ONLY)
+
 set(SRC_MAIN
-    src/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/pfe.hpp
+    ${CMAKE_SOURCE_DIR}/src/pfe.cpp
     )
 
 set(SRC_CORE
@@ -40,11 +60,14 @@ set(SRC_CORE
     ${CMAKE_SOURCE_DIR}/src/core/message.hpp
     ${CMAKE_SOURCE_DIR}/src/core/message_stack.hpp
     ${CMAKE_SOURCE_DIR}/src/core/message_stack.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/config.hpp
     )
 
 SET(SRC_SYNTAX
     ${CMAKE_SOURCE_DIR}/src/syntax/syntax_analyser.hpp
     ${CMAKE_SOURCE_DIR}/src/syntax/syntax_analyser.cpp
+    ${CMAKE_SOURCE_DIR}/src/syntax/cpp_syntax_analyser.hpp
+    ${CMAKE_SOURCE_DIR}/src/syntax/cpp_syntax_analyser.cpp
     ${CMAKE_SOURCE_DIR}/src/syntax/rule.hpp
     ${CMAKE_SOURCE_DIR}/src/syntax/rule.cpp
     )
@@ -52,6 +75,8 @@ SET(SRC_SYNTAX
 SET(SRC_FLOW
     ${CMAKE_SOURCE_DIR}/src/flow/flow_analyser.hpp
     ${CMAKE_SOURCE_DIR}/src/flow/flow_analyser.cpp
+    ${CMAKE_SOURCE_DIR}/src/flow/cpp_flow_analyser.hpp
+    ${CMAKE_SOURCE_DIR}/src/flow/cpp_flow_analyser.cpp
     )
 
 SET(SRC
@@ -66,23 +91,23 @@ source_group("flow" FILES ${SRC_FLOW})
 
 
 if(UNIX)
-	include(CheckCXXCompilerFlag)
-	check_cxx_compiler_flag("-std=c++1y" COMPILER_SUPPORTS_CXX1Y)
-	check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
-	check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
-	check_cxx_compiler_flag("-std=c++0X" COMPILER_SUPPORTS_CXX0X)
-	if(COMPILER_SUPPORTS_CXX1Y)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
-	elseif(COMPILER_SUPPORTS_CXX14)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-	elseif(COMPILER_SUPPORTS_CXX11)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	elseif(COMPILER_SUPPORTS_CXX0X)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-	endif()
+  include(CheckCXXCompilerFlag)
+  check_cxx_compiler_flag("-std=c++1y" COMPILER_SUPPORTS_CXX1Y)
+  check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
+  check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
+  check_cxx_compiler_flag("-std=c++0X" COMPILER_SUPPORTS_CXX0X)
+  if(COMPILER_SUPPORTS_CXX1Y)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+  elseif(COMPILER_SUPPORTS_CXX14)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+  elseif(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+  endif()
 endif()
 
-include_directories(extlibs)
+include_directories(extlibs SYSTEM)
 
 add_subdirectory(tests)
 
@@ -90,8 +115,9 @@ if(USE_PFE_ASSERT)
     add_definitions(-DUSE_PFE_ASSERT)
 endif(USE_PFE_ASSERT)
 
-add_executable(PFE ${SRC_MAIN} ${SRC})
+add_executable(${PROJECT_NAME} ${SRC_MAIN} ${SRC})
 
-add_custom_command(TARGET PFE POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:PFE>/samples
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:${PROJECT_NAME}>/samples
                     )
+file(COPY ${CMAKE_SOURCE_DIR}/samples DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

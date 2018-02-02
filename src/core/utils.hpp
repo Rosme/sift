@@ -30,11 +30,43 @@
 #include <nlohmann/json.hpp>
 #include <muflihun/easylogging++.h>
 
+#include "config.hpp"
 #include "assert.hpp"
 #include "file.hpp"
-#include "scope.hpp"
+
+#ifdef UNIX
+#include <dirent.h>
+#else
+#include <Windows.h>
+#endif
+
+// Real convenient for debuging
+#define DUMP(x) std::cout << #x << ": " << x << std::endl
+#define CSTR(x) dynamic_cast< std::ostringstream & >(( std::ostringstream() << std::dec << x ) ).str().c_str()
+#define SSTR(x) dynamic_cast< std::ostringstream & >(( std::ostringstream() << std::dec << x ) ).str()
+//
 
 namespace Core {
+
+  inline bool string_ends_with(std::string const& value, std::string const& ending)
+  {
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+  }
+
+  inline std::string toLower(const std::string& str) {
+    std::string s;
+
+    for(const auto& c : str) {
+      s.push_back(tolower(c));
+    }
+
+    return s;
+  }
+
+  inline bool string_case_compare(const std::string& lhs, const std::string& rhs) {
+    return toLower(lhs) == toLower(rhs);
+  }
 
   inline nlohmann::json readJsonFile(const std::string& fileName) {
     std::string content;
@@ -60,30 +92,83 @@ namespace Core {
   }
 
   inline bool readSourceFile(const std::string& filename, File& file) {
-    LOG(INFO) << "Loading Source File: " << filename;
-    
+    LOG(TRACE) << "Loading Source File: " << filename;
+
     std::ifstream filestream(filename);
-    if(!filestream.is_open()) {
-      
+    if(filestream.is_open()) {
+
       file.filename = filename;
       std::string line;
       while(std::getline(filestream, line)) {
+        if (!line.empty() && line[line.size() - 1] == '\r')
+          line.erase(line.size() - 1);
         file.lines.push_back(line);
       }
-      
+
       LOG(DEBUG) << "Read a total of " << file.lines.size() << " lines of code";
     } else {
-      LOG(ERROR) << "Could not open file: " << filename;
+      //TODO: Isn't this redundant considering it returns true/false already
+//       LOG(ERROR) << "Could not open file: " << filename;
       return false;
     }
-    
+
     return true;
   }
-  
-  inline Scope parseSourceFile(const File& file) {
-    Scope scope(ScopeType::Namespace);
-    
-    return scope;
+
+  struct FilesystemItem
+  {
+    bool isDirectory = false;
+    std::string name = "";
+    std::string fullPath = "";
+  };
+
+  inline std::vector<FilesystemItem> getFilenamesInDirectory(const std::string directory)
+  {
+    std::vector<FilesystemItem> toReturn;
+    #if defined(UNIX)
+
+    DIR* pDirectory;
+    struct dirent *ent;
+    if ((pDirectory = opendir(directory.c_str())) != nullptr)
+    {
+      while ((ent = readdir(pDirectory)) != nullptr)
+      {
+        // Filter out ../.
+        if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0)
+        {
+          FilesystemItem item;
+          item.name = ent->d_name;
+          item.isDirectory = (ent->d_type == DT_DIR);
+          item.fullPath = directory + "/" + item.name;
+          toReturn.push_back(item);
+        }
+      }
+      closedir(pDirectory);
+    }
+    #elif defined(WIN32)
+    HANDLE hFind;
+    WIN32_FIND_DATA data;
+
+    hFind = FindFirstFile(CSTR(directory.c_str() << "\\*.*"), &data);
+    if (hFind != INVALID_HANDLE_VALUE) {
+      do {
+        // Filter out ../.
+        if(strcmp(data.cFileName, ".") != 0 && strcmp(data.cFileName, "..") != 0)
+        {
+          FilesystemItem item;
+          item.name = data.cFileName;
+          item.isDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+          item.fullPath = directory + "/" + item.name;
+          toReturn.push_back(item);
+        }
+      } while (FindNextFile(hFind, &data));
+      FindClose(hFind);
+    }
+
+    #else
+    #error "Current platform not supported"
+    #endif
+
+    return toReturn;
   }
-  
 }

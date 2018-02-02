@@ -1,3 +1,4 @@
+src/core/config.hpp
 
 .DS_STORE
 
@@ -384,3 +385,4 @@ __pycache__/
 # should be stored in the .pubxml.user file.
 
 # End of https://www.gitignore.io/api/c++,cmake,xcode,ninja,kdevelop4,visualstudio
+*-swp

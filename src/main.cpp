@@ -21,24 +21,37 @@
  * SOFTWARE.
  */
 
+
 #include <iostream>
 #include <muflihun/easylogging++.h>
 
+#include "pfe.hpp"
 #include "core/utils.hpp"
 #include "core/file.hpp"
 #include "syntax/rule.hpp"
 
+#include <regex>
+#include <chrono>
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[]) {
   START_EASYLOGGINGPP(argc, argv);
   
-  auto rules = Syntax::readRules("samples/rules/rules.json");
-
-  for(const auto& rule : rules) {
-    LOG(INFO) << rule;
-  }
+  std::chrono::time_point<std::chrono::system_clock> before = std::chrono::system_clock::now();
   
+  Core::PFE pfe;
+  pfe.parseArgv(argc, argv);
+  pfe.setupLogging();
+  pfe.setupRules("samples/rules/rules.json");
+  pfe.registerRuleWork();
+  pfe.readFilesFromDirectory("samples");
+  pfe.extractScopes();
+  pfe.applyRules();
+  pfe.outputMessages();
+
+  std::chrono::time_point<std::chrono::system_clock> after = std::chrono::system_clock::now();
+  LOG(INFO) << "Ran in " << std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count() << "ms";
+
   std::cin.get();
   return 0;
 }

@@ -20,14 +20,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 #include "rule.hpp"
 #include "../core/utils.hpp"
 
 namespace Syntax {
   
-  std::vector<Rule> readRules(const std::string& rulesFile) {
-    std::vector<Rule> rules;
+  std::map<RuleType, Rule> readRules(const std::string& rulesFile) {
+    std::map<RuleType, Rule> rules;
     
     auto json = Core::readJsonFile(rulesFile);
     
@@ -38,10 +37,11 @@ namespace Syntax {
       for(const auto& jsonRule : jsonRules)
       {
         const std::string parameter = (jsonRule.find("parameter") != jsonRule.end()) ? jsonRule["parameter"].get<std::string>() : "";
-        Rule rule(Core::ScopeType_to_enum_class(jsonRule["appliedTo"].get<std::string>()),
+        const std::string appliedTo = (jsonRule.find("appliedTo") != jsonRule.end()) ? jsonRule["appliedTo"].get<std::string>() : "Source";
+        Rule rule(Core::ScopeType_to_enum_class(appliedTo),
                   RuleType_to_enum_class(jsonRule["rule"].get<std::string>()),
                   parameter);
-        rules.push_back(rule);
+        rules[rule.getRuleType()] = rule;
       }
     }
     

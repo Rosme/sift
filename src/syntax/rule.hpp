@@ -34,10 +34,12 @@ namespace Syntax {
   
   smart_enum_class(RuleType,
                    NoAuto,
+                   NoDefine,
                    StartWithX);
 
   class Rule {
   public:
+    Rule() { }
     Rule(Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter = "");
     
     Core::ScopeType getScopeType() const;
@@ -52,6 +54,6 @@ namespace Syntax {
   };
 
   std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule);
-  std::vector<Rule> readRules(const std::string& rulesFile);
+  std::map<RuleType, Rule> readRules(const std::string& rulesFile);
   
 }
