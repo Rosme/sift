@@ -4,5 +4,4 @@
 #define VERSION "@VERSION@"
 #cmakedefine DEBUG_BUILD
 #cmakedefine RELEASE_BUILD
-#cmakedefine WIN32
 #cmakedefine UNIX

@@ -73,6 +73,6 @@ namespace Core
     Core::MessageStack m_messageStack;
     
     bool m_quietMode = false;
-    std::string m_outputFilename;
+    std::string m_outputFilename = "output.txt";
   };
 };
