@@ -44,6 +44,12 @@ namespace Core
     m_flowAnalyser = std::make_shared<Flow::CPPFlowAnalyser>();
   }
   
+  #define CXXOPT(longName, variableName, type, defaultValue) if(result.count(longName)) { \
+    variableName = result[longName].as<type>(); \
+  }else{ \
+    variableName = defaultValue; \
+  }
+  
   void PFE::parseArgv(int argc, char** argv)
   {
     cxxopts::Options options("PFE", "Syntax analyser for cpp");
@@ -52,6 +58,7 @@ namespace Core
     options.add_options()
     ("d,debug", "Enable debugging")
     ("q,quiet", "Enable quiet mode")
+    ("l,logconfig", "Specify a easylogging config file to use", cxxopts::value<std::string>())
     ("o,output", "Output results to file", cxxopts::value<std::string>())
     ("h,help", "Print help")
     ;
@@ -64,17 +71,9 @@ namespace Core
         exit(0);
       }
       
-      // Uses default if not found
-      m_quietMode = result["q"].as<bool>();
-      
-      if(result.count("output"))
-      {
-        m_outputFilename = result["output"].as<std::string>();
-      }
-      else
-      {
-        m_outputFilename = "output.txt";
-      }
+      CXXOPT("quiet", m_quietMode, bool, false);
+      CXXOPT("output", m_outputFilename, std::string, "output.txt");
+      CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
     }
     catch(...)
     {
@@ -85,12 +84,20 @@ namespace Core
   
   void PFE::setupLogging()
   {
-    // This would be 10x better in a log.conf
+    // Setup defaults
     el::Configurations conf;
     conf.setToDefault();
     conf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
     conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
     conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
+    
+    std::ifstream file(m_loggingSettingsFilename);
+    
+    if(file.good())
+    {
+      conf = el::Configurations(m_loggingSettingsFilename);
+    }
+    
     el::Loggers::reconfigureLogger("default", conf);
   }
   
