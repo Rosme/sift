@@ -44,7 +44,8 @@ namespace Core
     void parseArgv(int argc, char** argv);
     void setupLogging();
     void setupRules(const std::string filename);
-    void readFilesFromDirectory(const std::string directory);
+    void readSingleSourceFile(const std::string& filename);
+    void readFilesFromDirectory(const std::string& directory);
     void extractScopes();
     void applyRules();
     void registerRuleWork();
@@ -54,6 +55,7 @@ namespace Core
   private:
     bool extractScopesFromFile(Core::File& file, Core::Scope &outScope);
     void extractDefines(Core::File& file, Core::Scope &outScope);
+    void extractNamespaces(Core::File& file, Core::Scope& parent);
     
     // filename : rawText
     std::map<std::string, Core::File> m_files;

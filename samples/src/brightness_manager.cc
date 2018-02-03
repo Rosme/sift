@@ -23,6 +23,29 @@
 #include "config.h"
 
 namespace brightnessmanager {
+
+  namespace insideBrightnessManagerNamespace {
+    long get_value(const char *filename, long default_value) {
+      std::filebuf fb;
+      char value[8] = {0};
+      char *ptr;
+      long lvalue;
+      if(fb.open(filename, std::ios::in)) {
+        std::istream is(&fb);
+        is.getline(value, 8);
+        lvalue = strtol(value, &ptr, 10);
+        if(value == ptr) {
+          lvalue = default_value;
+        }
+        fb.close();
+      } else {
+        lvalue = default_value;
+      }
+
+      return lvalue;
+    }
+  }
+
     long get_value(const char *filename, long default_value) {
         std::filebuf fb;
         char value[8] = {0};

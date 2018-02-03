@@ -60,7 +60,7 @@ namespace Syntax
       
       //TODO message associated with line/char?
       Core::Message message(Core::MessageType::Error, 
-        SSTR("Define found - " << defScope.file->filename << ":" << defScope.lineNumber << " vvvv"
+        SSTR("Define found - " << defScope.file->filename << ":" << defScope.lineNumberStart << " vvvv"
         "\n -->" << defineLines.str())
       );
       messageStack.pushMessage(message);

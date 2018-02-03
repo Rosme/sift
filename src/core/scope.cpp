@@ -77,7 +77,7 @@ namespace Core {
     int currentCharNo = 1;
     for(const auto& line : file->lines)
     {
-      if(currentLineNo == lineNumber)
+      if(currentLineNo == lineNumberStart)
       {
         bool multiLine = characterNumberEnd > characterNumberStart + line.size();
         toReturn.push_back(line.substr(characterNumberStart-currentCharNo, (multiLine ? line.size() : characterNumberEnd-currentCharNo)));

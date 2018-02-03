@@ -26,6 +26,7 @@
 
 #include <regex>
 #include <chrono>
+#include <stack>
 #include <muflihun/easylogging++.h>
 #include <cxxopts/cxxopts.hpp>
 
@@ -114,8 +115,20 @@ namespace Core
     LOG(INFO) << "Parsed " << m_rules.size() << " rules:";
     LOG(INFO) << rulesString.str();
   }
+
+  void PFE::readSingleSourceFile(const std::string & filename) 
+  {
+    Core::File file;
+    if(!Core::readSourceFile(filename, file)) {
+      LOG(ERROR) << "Could not read source file '" << filename << "'";
+      return;
+    }
+
+    m_files[filename] = file;
+    LOG(INFO) << "Source file '" << filename << "' has been read";
+  }
   
-  void PFE::readFilesFromDirectory(const std::string directory)
+  void PFE::readFilesFromDirectory(const std::string& directory)
   {   
     std::vector<Core::FilesystemItem> stack, current, all;
     stack = Core::getFilenamesInDirectory(directory);
@@ -172,9 +185,16 @@ namespace Core
   bool PFE::extractScopesFromFile(Core::File& file, Core::Scope &outScope)
   {
     Core::Scope rootScope(Core::ScopeType::Source);
+    rootScope.file = &file;
+    rootScope.lineNumberStart = 0;
+    rootScope.lineNumberEnd = file.lines.size();
+    rootScope.characterNumberStart = 0;
+    rootScope.characterNumberEnd = 0;
    
-    extractDefines(file, rootScope);
-    
+    // TODO: Review this call. Shouldn't this be part of the rule check? Here for eventual flow replacement?
+    //extractDefines(file, rootScope);
+    extractNamespaces(file, rootScope);
+
     outScope = rootScope;
     
     return true;
@@ -199,7 +219,7 @@ namespace Core
         if(sm.size() > 0)
         {
           scope = Core::Scope(Core::ScopeType::Namespace);
-          scope.lineNumber = lineNo;
+          scope.lineNumberStart = lineNo;
           scope.characterNumberStart = sm.position(0)+charNo;
           scope.file = &file;
           
@@ -229,6 +249,57 @@ namespace Core
       charNo+=line.size()+1;
     }
     
+  }
+
+  void PFE::extractNamespaces(Core::File& file, Core::Scope& parent) {
+    // Regex that match namespace without using in front
+    // The regex supports space or no space after the name, and any kind of return line (UNIX/Windows)
+    std::regex namespaceRegex("^(?!using)\\s*namespace (\\w*)(\\n|\\r\\n)*\\s*(\\{*)");
+    for(int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
+      int lineNumber = i+1;
+      const std::string& line = file.lines[i];
+      std::smatch match;
+      std::regex_match(line, match, namespaceRegex);
+      if(match.size() > 0) {
+        Core::Scope scope(Core::ScopeType::Namespace);
+        scope.name = match[1];
+        scope.parent = &parent;
+        scope.lineNumberStart = lineNumber;
+        scope.characterNumberStart = line.find(match[0]);
+        scope.file = &file;
+
+        //Finding end of namespace
+        //TODO: Not really happy with this.
+        std::stack<char> bracketStack;
+        int offset = scope.characterNumberStart;
+        for(int j = i; j < file.lines.size(); ++j) {
+          int namespaceLineNumber = j+1;
+          const std::string& namespaceLine = file.lines[j];
+          for(unsigned int pos = 0; pos < namespaceLine.size(); ++pos) {
+            const char& c = namespaceLine[pos];
+            if(c == '{') {
+              bracketStack.push('{');
+            } else if(c == '}') {
+              bracketStack.pop();
+              if(bracketStack.size() == 0) {
+                scope.characterNumberEnd = pos;
+                scope.lineNumberEnd = namespaceLineNumber;
+                i = namespaceLineNumber;
+                j = file.lines.size();
+                break;
+              }
+            }
+          }
+        }
+
+        LOG(INFO) << "\n" << scope;
+        //Time to check if the namespace has a namespace
+        extractNamespaces(file, scope);
+
+        //Adding to parent the scope
+        parent.children.push_back(scope);
+      }
+    }
   }
 
   void PFE::applyRules()

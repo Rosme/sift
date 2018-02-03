@@ -67,13 +67,50 @@ namespace Core {
 
     ScopeType type;
     ScopeVector children;
-    unsigned int lineNumber = 0;
+    unsigned int lineNumberStart = 0;
+    unsigned int lineNumberEnd = 0;
     unsigned int characterNumberStart = 0;
     unsigned int characterNumberEnd = 0;
+    std::string name;
     bool isMultiLine = false;
     std::vector<std::string> getScopeLines() const;
-    File* file;
+    File* file = nullptr;
+    Scope* parent = nullptr;
   };
+
+  inline bool operator==(const Scope& lhs, const Scope& rhs) {
+    bool isSameNumbers = lhs.lineNumberStart == rhs.lineNumberEnd
+      && lhs.lineNumberEnd == rhs.lineNumberEnd
+      && lhs.characterNumberStart == rhs.characterNumberStart
+      && lhs.characterNumberEnd == rhs.characterNumberEnd;
+
+    bool sameFile = true;
+    if(lhs.file && rhs.file) {
+      sameFile = lhs.file->filename == rhs.file->filename;
+    } else if(lhs.file && !rhs.file || !lhs.file && rhs.file) {
+      sameFile = false;
+    } else {
+      sameFile = true;
+    }
+
+    return isSameNumbers && sameFile;
+  }
+
+  std::string to_string(ScopeType type);
+  inline std::ostream& operator<<(std::ostream& out, const Scope& scope) {
+    if(!scope.file) {
+      return out;
+    }
+
+    out << "Scope Name: " << scope.name << "\n"
+      << "Type: " << to_string(scope.type) << "\n"
+      << "Content:\n";
+    for(int i = scope.lineNumberStart; i < scope.lineNumberEnd; ++i) {
+      out << scope.file->lines[i] << "\n";
+    }
+
+    return out;
+  }
 
   inline std::string to_string(ScopeType type) {
     switch(type) {

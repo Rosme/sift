@@ -37,6 +37,9 @@ set(TESTS_TESTS
 include_directories(../extlib SYSTEM)
 include_directories(../src)
 
+source_group("PFE_Source" FILES ${SRC})
+source_group("Tests" FILES ${TESTS_TESTS})
+
 add_executable("tests" ${TESTS_INC} ${TESTS_TESTS} ${SRC})
 
 add_custom_command(TARGET tests POST_BUILD
