@@ -56,7 +56,12 @@ namespace Core
     bool extractScopesFromFile(Core::File& file, Core::Scope &outScope);
     void extractDefines(Core::File& file, Core::Scope &outScope);
     void extractNamespaces(Core::File& file, Core::Scope& parent);
+    void extractEnums(Core::File& file, Core::Scope& parent);
+
+    void removeDuplicates(Core::Scope& root);
     
+    int findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine);
+
     // filename : rawText
     std::map<std::string, Core::File> m_files;
     

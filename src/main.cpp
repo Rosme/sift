@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   pfe.setupLogging();
   pfe.setupRules("samples/rules/rules_namespace.json");
   pfe.registerRuleWork();
-  pfe.readSingleSourceFile("samples/src/brightness_manager.cc");
+  pfe.readSingleSourceFile("samples/src/namespace_enum.cpp");
   pfe.extractScopes();
   pfe.applyRules();
   pfe.outputMessages();

@@ -194,6 +194,7 @@ namespace Core
     // TODO: Review this call. Shouldn't this be part of the rule check? Here for eventual flow replacement?
     //extractDefines(file, rootScope);
     extractNamespaces(file, rootScope);
+    extractEnums(file, rootScope);
 
     outScope = rootScope;
     
@@ -269,37 +270,71 @@ namespace Core
         scope.file = &file;
 
         //Finding end of namespace
-        //TODO: Not really happy with this.
-        std::stack<char> bracketStack;
-        int offset = scope.characterNumberStart;
-        for(int j = i; j < file.lines.size(); ++j) {
-          int namespaceLineNumber = j+1;
-          const std::string& namespaceLine = file.lines[j];
-          for(unsigned int pos = 0; pos < namespaceLine.size(); ++pos) {
-            const char& c = namespaceLine[pos];
-            if(c == '{') {
-              bracketStack.push('{');
-            } else if(c == '}') {
-              bracketStack.pop();
-              if(bracketStack.size() == 0) {
-                scope.characterNumberEnd = pos;
-                scope.lineNumberEnd = namespaceLineNumber;
-                i = namespaceLineNumber;
-                j = file.lines.size();
-                break;
-              }
-            }
-          }
-        }
+        i = findEndOfScope(scope, file, i);
 
-        LOG(INFO) << "\n" << scope;
+        LOG(DEBUG) << "\n" << scope;
         //Time to check if the namespace has a namespace
         extractNamespaces(file, scope);
+        extractEnums(file, scope);
 
         //Adding to parent the scope
         parent.children.push_back(scope);
       }
     }
+  }
+
+  void PFE::extractEnums(Core::File& file, Core::Scope& parent) {
+    //std::regex enumRegex("enum( class)? (\\w*)(\\n|\\r\\n)*\\s*:?\\s*\\w*\\s*\{?");
+    std::regex enumRegex("\\s*enum(\\s*class)?\\s*(\\w*)\\s*\\s*:?\\s*(\\w|\\s)*\\s*\\{?");
+    for(int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
+      int lineNumber = i+1;
+      const std::string& line = file.lines[i];
+      std::smatch match;
+      std::regex_match(line, match, enumRegex);
+      if(match.size() > 0) {
+        Core::Scope scope(Core::ScopeType::Enum);
+        scope.name = match[2];
+        scope.parent = &parent;
+        scope.lineNumberStart = lineNumber;
+        scope.characterNumberStart = line.find(match[0]);
+        scope.file = &file;
+
+        i = findEndOfScope(scope, file, i);
+
+        LOG(INFO) << "\n" << scope;
+
+        parent.children.push_back(scope);
+      }
+    }
+  }
+
+  void PFE::removeDuplicates(Core::Scope& root) {}
+
+  int PFE::findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine) {
+    //TODO: Review this. Not really happy with this.
+    std::stack<char> bracketStack;
+    int offset = scope.characterNumberStart;
+    int scopeLineNumber = startingLine;
+    for(int j = startingLine; j < file.lines.size(); ++j) {
+      scopeLineNumber = j+1;
+      const std::string& namespaceLine = file.lines[j];
+      for(unsigned int pos = 0; pos < namespaceLine.size(); ++pos) {
+        const char& c = namespaceLine[pos];
+        if(c == '{') {
+          bracketStack.push('{');
+        } else if(c == '}') {
+          bracketStack.pop();
+          if(bracketStack.size() == 0) {
+            scope.characterNumberEnd = pos;
+            scope.lineNumberEnd = scopeLineNumber;
+            j = file.lines.size();
+            break;
+          }
+        }
+      }
+    }
+
+    return scopeLineNumber;
   }
 
   void PFE::applyRules()

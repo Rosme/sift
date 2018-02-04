@@ -69,6 +69,11 @@ namespace Core {
     }
     return toReturn;
   }
+
+  unsigned int Scope::getDepth() const {
+    unsigned int depth = 0;
+    return depth;
+  }
   
   std::vector<std::string> Core::Scope::getScopeLines() const
   {
