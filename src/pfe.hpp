@@ -58,7 +58,8 @@ namespace Core
     void extractNamespaces(Core::File& file, Core::Scope& parent);
     void extractEnums(Core::File& file, Core::Scope& parent);
 
-    void removeDuplicates(Core::Scope& root);
+    void constructTree(Core::Scope& root);
+    Core::Scope& findBestParent(Core::Scope& root, Core::Scope& toSearch);
     
     int findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine);
 

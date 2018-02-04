@@ -64,6 +64,9 @@ namespace Core {
     
     ScopeVector getDirectChildrenOfType(ScopeType type) const;
     ScopeVector getAllChildrenOfType(ScopeType type) const;
+    unsigned int getDepth() const;
+    std::string getTree() const; //Debug Function
+    bool isWithinOtherScope(const Scope& other);
 
     ScopeType type;
     ScopeVector children;
@@ -79,7 +82,7 @@ namespace Core {
   };
 
   inline bool operator==(const Scope& lhs, const Scope& rhs) {
-    bool isSameNumbers = lhs.lineNumberStart == rhs.lineNumberEnd
+    bool isSameNumbers = lhs.lineNumberStart == rhs.lineNumberStart
       && lhs.lineNumberEnd == rhs.lineNumberEnd
       && lhs.characterNumberStart == rhs.characterNumberStart
       && lhs.characterNumberEnd == rhs.characterNumberEnd;
@@ -96,6 +99,10 @@ namespace Core {
     return isSameNumbers && sameFile;
   }
 
+  inline bool operator!=(const Scope& lhs, const Scope& rhs) {
+    return !(lhs == rhs);
+  }
+
   std::string to_string(ScopeType type);
   inline std::ostream& operator<<(std::ostream& out, const Scope& scope) {
     if(!scope.file) {
@@ -104,6 +111,7 @@ namespace Core {
 
     out << "Scope Name: " << scope.name << "\n"
       << "Type: " << to_string(scope.type) << "\n"
+      << "Depth:" << scope.getDepth() << "\n"
       << "Content:\n";
     for(int i = scope.lineNumberStart; i < scope.lineNumberEnd; ++i) {
       out << scope.file->lines[i] << "\n";

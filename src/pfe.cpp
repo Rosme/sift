@@ -186,15 +186,24 @@ namespace Core
   {
     Core::Scope rootScope(Core::ScopeType::Source);
     rootScope.file = &file;
+    rootScope.name = file.filename;
     rootScope.lineNumberStart = 0;
     rootScope.lineNumberEnd = file.lines.size();
     rootScope.characterNumberStart = 0;
     rootScope.characterNumberEnd = 0;
-   
+
     // TODO: Review this call. Shouldn't this be part of the rule check? Here for eventual flow replacement?
     //extractDefines(file, rootScope);
+
+    //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
+    //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
+    //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
     extractNamespaces(file, rootScope);
     extractEnums(file, rootScope);
+    
+    constructTree(rootScope);
+
+    LOG(INFO) << "\n" << rootScope.getTree();
 
     outScope = rootScope;
     
@@ -269,13 +278,11 @@ namespace Core
         scope.characterNumberStart = line.find(match[0]);
         scope.file = &file;
 
-        //Finding end of namespace
-        i = findEndOfScope(scope, file, i);
+        //Namespace could have a namespace
+        //We still need to parse every line, can't skip to end of namespace
+        findEndOfScope(scope, file, i);
 
         LOG(DEBUG) << "\n" << scope;
-        //Time to check if the namespace has a namespace
-        extractNamespaces(file, scope);
-        extractEnums(file, scope);
 
         //Adding to parent the scope
         parent.children.push_back(scope);
@@ -299,16 +306,82 @@ namespace Core
         scope.characterNumberStart = line.find(match[0]);
         scope.file = &file;
 
+        //An enum can't contain another enum, can skip directly to the end of it
         i = findEndOfScope(scope, file, i);
 
-        LOG(INFO) << "\n" << scope;
+        LOG(DEBUG) << "\n" << scope;
 
         parent.children.push_back(scope);
       }
     }
   }
 
-  void PFE::removeDuplicates(Core::Scope& root) {}
+  void PFE::constructTree(Core::Scope& root) {
+    //Finding the parent of every Scope
+    for(auto it = root.children.rbegin(); it != root.children.rend(); it++) {
+      Core::Scope& bestParent = findBestParent(root, *it);
+      it->parent = &bestParent;
+      //Checking if it's a variable or function, and being more precise about it if it's the case
+      if(it->type == ScopeType::Variable) {
+        if(bestParent.type == ScopeType::Source || bestParent.type == ScopeType::Namespace) {
+          it->type = ScopeType::GlobalVariable;
+        } else if(bestParent.type == ScopeType::Conditionnal || bestParent.type == ScopeType::Function) {
+          it->type = ScopeType::FunctionVariable;
+        } else {
+          it->type = ScopeType::ClassVariable;
+        }
+      } else if(it->type == ScopeType::Function) {
+        if(bestParent.type == ScopeType::Class) {
+          it->type = ScopeType::ClassFunction;
+        } else {
+          it->type = ScopeType::FreeFunction;
+        }
+      }
+    }
+
+    //Recreating the tree with the children
+    for(int i = 0; i < root.children.size(); ++i) {
+      auto& scope = root.children[i];
+
+      if(scope.parent && scope.parent->type != ScopeType::Source) {
+        auto& parentChildren = scope.parent->children;
+        bool isAlreadyIn = false;
+        for(int j = 0; j < parentChildren.size(); ++j) {
+          if(parentChildren[j] == scope) {
+            isAlreadyIn = true;
+            break;
+          }
+        }
+        if(!isAlreadyIn) {
+          parentChildren.push_back(scope);
+          i = -1;
+        }
+      }
+    }
+
+    //Removing superfluous scopes
+    for(auto it = root.children.begin(); it != root.children.end(); ++it) {
+      if(it->parent->type != ScopeType::Source) {
+        root.children.erase(it);
+        it = root.children.begin();
+      }
+    }
+  }
+
+  Core::Scope& PFE::findBestParent(Core::Scope& root, Core::Scope& toSearch) {
+    Core::Scope* bestCandidate = &root;
+
+    for(int i = 0; i < root.children.size(); ++i) {
+      Scope& child = root.children[i];
+      if(toSearch.isWithinOtherScope(child) && toSearch != child) {
+        if(child.isWithinOtherScope(*bestCandidate)) {
+          bestCandidate = &child;
+        }
+      }
+    }
+
+    return *bestCandidate;
+  }
 
   int PFE::findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine) {
     //TODO: Review this. Not really happy with this.

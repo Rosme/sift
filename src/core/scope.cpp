@@ -72,7 +72,47 @@ namespace Core {
 
   unsigned int Scope::getDepth() const {
     unsigned int depth = 0;
+
+    auto currentParent = parent;
+    while(currentParent) {
+      ++depth;
+      currentParent = currentParent->parent;
+    }
+
     return depth;
+  }
+
+  std::string Scope::getTree() const {
+    std::ostringstream tree;
+
+    for(unsigned int i = 0; i < getDepth(); ++i) {
+      tree << "  ";
+    }
+    tree << to_string(type) << " : " << name;
+    for(const auto& child : children) {
+      tree << "\n" << child.getTree();
+    }
+
+    return tree.str();
+  }
+
+  bool Scope::isWithinOtherScope(const Scope& other) {
+    //Start line is before other or end line is after other
+    if(lineNumberStart < other.lineNumberStart || lineNumberEnd > other.lineNumberEnd) {
+      return false;
+    }
+
+    //Same starting line but start character is before other
+    if(lineNumberStart == other.lineNumberStart && characterNumberStart < other.characterNumberStart) {
+      return false;
+    }
+
+    //Same ending line but end character is after other
+    if(lineNumberEnd == other.lineNumberEnd && characterNumberEnd > other.characterNumberEnd) {
+      return false;
+    }
+
+    return true;
   }
   
   std::vector<std::string> Core::Scope::getScopeLines() const
