@@ -198,8 +198,9 @@ namespace Core
     //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
     //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
     //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
-    extractNamespaces(file, rootScope);
-    extractEnums(file, rootScope);
+    //extractNamespaces(file, rootScope);
+    //extractEnums(file, rootScope);
+    extractConditionals(file, rootScope);
     
     constructTree(rootScope);
 
@@ -298,6 +299,7 @@ namespace Core
       const std::string& line = file.lines[i];
       std::smatch match;
       std::regex_match(line, match, enumRegex);
+
       if(match.size() > 0) {
         Core::Scope scope(Core::ScopeType::Enum);
         scope.name = match[2];
@@ -311,6 +313,37 @@ namespace Core
 
         LOG(DEBUG) << "\n" << scope;
 
+        parent.children.push_back(scope);
+      }
+    }
+  }
+
+  void PFE::extractConditionals(Core::File& file, Core::Scope& parent) {
+    std::regex conditionnalRegex("\\s*(if|for|switch|else)(\\(|\\{|\\s|\\n|\\r\\n)");
+    for (int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
+      int lineNumber = i + 1;
+      const std::string& line = file.lines[i];
+      std::smatch match;
+      std::regex_search(line, match, conditionnalRegex);
+      if (match.size() > 0) {
+        Core::Scope scope(Core::ScopeType::Conditionnal);
+        scope.name = match[1];
+        scope.parent = &parent;
+        scope.lineNumberStart = lineNumber;
+        scope.characterNumberStart = line.find(match[0]);
+        scope.file = &file;
+
+        if (scope.name == "for")
+        {
+          findEndOfScopeConditionalFor(scope, file, i, scope.characterNumberStart);
+        } else {
+          findEndOfScope(scope, file, i, scope.characterNumberStart);
+        }
+
+
+        LOG(DEBUG) << "\n" << scope;
+
+        //Adding to parent the scope
         parent.children.push_back(scope);
       }
     }
@@ -408,6 +441,79 @@ namespace Core
     }
 
     return scopeLineNumber;
+  }
+
+  int PFE::findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter) {
+    //TODO: Review this. Not really happy with this.
+    std::stack<char> bracketStack;
+    int offset = scope.characterNumberStart;
+    int scopeLineNumber = startingLine;
+    LOG(INFO) << scopeLineNumber;
+    for (int j = startingLine; j < file.lines.size(); ++j) {
+      scopeLineNumber = j + 1;
+      const std::string& namespaceLine = file.lines[j];
+      int test = 0;
+      if (j == startingLine)
+      {
+        test = startingCharacter;
+      }
+      for (unsigned int pos = test; pos < namespaceLine.size(); ++pos) {
+        const char& c = namespaceLine[pos];
+        if (c == '{') {
+          bracketStack.push('{');
+        } else if (c == '}') {
+          bracketStack.pop();
+          if (bracketStack.size() == 0) {
+            scope.characterNumberEnd = pos;
+            scope.lineNumberEnd = scopeLineNumber;
+            j = file.lines.size();
+            LOG(INFO) << scopeLineNumber;
+            break;
+          }
+        } else if (bracketStack.size() == 0 && c == ';') {
+          //Should only apply for conditonal and variable scope
+          scope.characterNumberEnd = pos;
+          scope.lineNumberEnd = scopeLineNumber;
+          j = file.lines.size();
+          LOG(INFO) << scopeLineNumber;
+          break;
+        }
+      }
+    }
+
+    return scopeLineNumber;
+  }
+
+
+  int PFE::findEndOfScopeConditionalFor(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter) {
+
+    int startingC = 0;
+    int scopeLineNumber = startingLine;
+    std::stack<char> ParenthesisStack;
+    for (int j = startingLine; j < file.lines.size(); ++j) {
+      scopeLineNumber = j + 1;
+      const std::string& namespaceLine = file.lines[j];
+      if (j == startingLine)
+      {
+        startingC = startingCharacter;
+      }
+      for (unsigned int pos = startingC; pos < namespaceLine.size(); ++pos) {
+        const char& c = namespaceLine[pos];
+        if (c == '(') {
+          ParenthesisStack.push('(');
+        }
+        else if (c == ')') {
+          ParenthesisStack.pop();
+          if (ParenthesisStack.size() == 0) {
+            findEndOfScope(scope, file, j, pos);
+            j = file.lines.size();
+            break;
+          }
+        }
+      }
+    }
+    return startingC;
+
   }
 
   void PFE::applyRules()

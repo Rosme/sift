@@ -57,11 +57,14 @@ namespace Core
     void extractDefines(Core::File& file, Core::Scope &outScope);
     void extractNamespaces(Core::File& file, Core::Scope& parent);
     void extractEnums(Core::File& file, Core::Scope& parent);
+    void extractConditionals(Core::File& file, Core::Scope& parent);
 
     void constructTree(Core::Scope& root);
     Core::Scope& findBestParent(Core::Scope& root, Core::Scope& toSearch);
     
     int findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine);
+    int findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter); 
+    int findEndOfScopeConditionalFor(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter);
 
     // filename : rawText
     std::map<std::string, Core::File> m_files;
