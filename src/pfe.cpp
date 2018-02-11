@@ -362,7 +362,7 @@ namespace Core
           scope.characterNumberEnd = declarationEnd;
           scope.lineNumberEnd = scope.lineNumberStart;
         } else {
-          lineNumber = findEndOfScope(scope, file, lineNumber);
+          findEndOfScope(scope, file, lineNumber);
         }
 
         LOG(DEBUG) << "\n" << scope;
@@ -415,6 +415,9 @@ namespace Core
         } else {
           if(it->name.find(':') != std::string::npos) {
             it->type = ScopeType::ClassFunction;
+          } else if(static_cast<unsigned int>(bestParent.type & ScopeType::Function) != 0) {
+            //Declared like a function(e.g. int var(5))
+            it->type = ScopeType::FunctionVariable;
           } else {
             it->type = ScopeType::FreeFunction;
           }

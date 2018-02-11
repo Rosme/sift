@@ -76,6 +76,7 @@ public:
     Obj* llll;
     Obj * kkkk;
     Obj *mmmm;
+    int myVar(5);
   }
 
   int otherFn() const;
