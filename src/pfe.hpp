@@ -65,8 +65,9 @@ namespace Core
     int findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine);
     int findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter); 
     int findEndOfScopeConditionalFor(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter);
-    int findEndOfScopeConditionalWhile(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter);
-    int findBeginOfScopeDoWhile(Core::Scope& scope, Core::File& file, int startingLine);
+    int findEndOfScopeConditionalDoWhile(Core::Scope& scope, Core::File& file, int startingLine);
+
+    bool PFE::isDoWhileLoop(Core::File& file, int startingLine, int startingCharacter);
 
     // filename : rawText
     std::map<std::string, Core::File> m_files;
