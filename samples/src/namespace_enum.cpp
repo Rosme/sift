@@ -32,6 +32,12 @@ namespace OuterNamespace {
     IOValue3
   };
 
+  struct InsideNamespaceStruct {
+    int a;
+    int b;
+    int c;
+  };
+
 }
 
 enum class ECNoSpecialization {
@@ -44,6 +50,48 @@ enum class ECSpecialization : unsigned int {
   ECSValue1,
   ECSValue2,
   ECSValue3
+};
+
+class BaseClass {
+public:
+  BaseClass() {}
+
+  virtual void fn() {
+
+  }
+
+private:
+  int a;
+};
+
+class InheritanceClass 
+  : public BaseClass {
+public:
+  InheritanceClass(int a  = 5) {
+
+  }
+
+  virtual void fn() {
+
+  }
+
+  int otherFn() const;
+
+private:
+  float b;
+};
+
+int InheritanceClass::otherFn() const {
+  return 0;
+}
+
+class OuterClass {
+public:
+  struct InnerStruct {
+
+  };
+
+private:
 };
 
 int main(int argc, char* argv[]) {

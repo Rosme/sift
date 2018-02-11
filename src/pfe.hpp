@@ -57,7 +57,12 @@ namespace Core
     void extractDefines(Core::File& file, Core::Scope &outScope);
     void extractNamespaces(Core::File& file, Core::Scope& parent);
     void extractEnums(Core::File& file, Core::Scope& parent);
+    void extractClasses(Core::File& file, Core::Scope& parent);
+    void extractFunctions(Core::File& file, Core::Scope& parent);
+    void extractVariables(Core::File& file, Core::Scope& parent);
 
+    void removeDuplicates(Core::Scope& root);
+    bool existAlready(const Core::Scope& root, Core::Scope& scope);
     void constructTree(Core::Scope& root);
     Core::Scope& findBestParent(Core::Scope& root, Core::Scope& toSearch);
     

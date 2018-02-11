@@ -40,15 +40,15 @@ namespace Core {
   }*/
 
   ScopeVector Scope::getDirectChildrenOfType(ScopeType type) const {
-    ScopeVector children;
+    ScopeVector directChildren;
 
     for(const auto& child : children) {
       if(static_cast<unsigned int>(child.type & type) != 0) {
-        children.push_back(child);
+        directChildren.push_back(child);
       }
     }
 
-    return children;
+    return directChildren;
   }
   
   ScopeVector Scope::getAllChildrenOfType(ScopeType type) const {
@@ -72,7 +72,7 @@ namespace Core {
 
   unsigned int Scope::getDepth() const {
     unsigned int depth = 0;
-
+    
     auto currentParent = parent;
     while(currentParent) {
       ++depth;
@@ -113,6 +113,22 @@ namespace Core {
     }
 
     return true;
+  }
+
+  ScopeVector::iterator Scope::begin() {
+    return children.begin();
+  }
+
+  ScopeVector::const_iterator Scope::begin() const {
+    return children.begin();
+  }
+
+  ScopeVector::iterator Scope::end() {
+    return children.end();
+  }
+
+  ScopeVector::const_iterator Scope::end() const {
+    return children.end();
   }
   
   std::vector<std::string> Core::Scope::getScopeLines() const

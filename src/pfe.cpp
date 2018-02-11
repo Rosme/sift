@@ -200,6 +200,9 @@ namespace Core
     //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
     extractNamespaces(file, rootScope);
     extractEnums(file, rootScope);
+    extractClasses(file, rootScope);
+    extractFunctions(file, rootScope);
+    extractVariables(file, rootScope);
     
     constructTree(rootScope);
 
@@ -265,9 +268,8 @@ namespace Core
     // Regex that match namespace without using in front
     // The regex supports space or no space after the name, and any kind of return line (UNIX/Windows)
     std::regex namespaceRegex("^(?!using)\\s*namespace (\\w*)(\\n|\\r\\n)*\\s*(\\{*)");
-    for(int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
-      int lineNumber = i+1;
-      const std::string& line = file.lines[i];
+    for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
+      const std::string& line = file.lines[lineNumber];
       std::smatch match;
       std::regex_match(line, match, namespaceRegex);
       if(match.size() > 0) {
@@ -280,9 +282,12 @@ namespace Core
 
         //Namespace could have a namespace
         //We still need to parse every line, can't skip to end of namespace
-        findEndOfScope(scope, file, i);
+        findEndOfScope(scope, file, lineNumber);
 
         LOG(DEBUG) << "\n" << scope;
+
+        /*extractNamespaces(file, scope);
+        extractEnums(file, scope);*/
 
         //Adding to parent the scope
         parent.children.push_back(scope);
@@ -291,11 +296,9 @@ namespace Core
   }
 
   void PFE::extractEnums(Core::File& file, Core::Scope& parent) {
-    //std::regex enumRegex("enum( class)? (\\w*)(\\n|\\r\\n)*\\s*:?\\s*\\w*\\s*\{?");
-    std::regex enumRegex("\\s*enum(\\s*class)?\\s*(\\w*)\\s*\\s*:?\\s*(\\w|\\s)*\\s*\\{?");
-    for(int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
-      int lineNumber = i+1;
-      const std::string& line = file.lines[i];
+    std::regex enumRegex("\\s*enum(\\s*class)?\\s*(\\w*)\\s*:?\\s*(\\w|\\s)*\\s*\\{?");
+    for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
+      const std::string& line = file.lines[lineNumber];
       std::smatch match;
       std::regex_match(line, match, enumRegex);
       if(match.size() > 0) {
@@ -307,13 +310,69 @@ namespace Core
         scope.file = &file;
 
         //An enum can't contain another enum, can skip directly to the end of it
-        i = findEndOfScope(scope, file, i);
+        lineNumber = findEndOfScope(scope, file, lineNumber);
 
         LOG(DEBUG) << "\n" << scope;
 
         parent.children.push_back(scope);
       }
     }
+  }
+
+  void PFE::extractClasses(Core::File & file, Core::Scope & parent) {
+    std::regex classRegex("(?!enum)\\s*(class|struct)\\s*(\\w*)\\s*:?\\s*(\\w|\\s)*\\s*\\{?");
+    for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
+      const std::string& line = file.lines[lineNumber];
+      std::smatch match;
+      std::regex_match(line, match, classRegex);
+      if(match.size() > 0) {
+        Core::Scope scope(Core::ScopeType::Class);
+        scope.name = match[2];
+        scope.parent = &parent;
+        scope.lineNumberStart = lineNumber;
+        scope.characterNumberStart = line.find(match[0]);
+        scope.file = &file;
+
+        //Struct/Class can have Struct/Class inside
+        findEndOfScope(scope, file, lineNumber);
+
+        LOG(DEBUG) << "\n" << scope;
+
+        parent.children.push_back(scope);
+      }
+    }
+  }
+
+  void PFE::extractFunctions(Core::File & file, Core::Scope & parent) {
+    std::regex functionRegex("(\\w*\\s)*((\\w|:)+)\\s*\\((.*),?\\).*");
+    for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
+      const std::string& line = file.lines[lineNumber];
+      std::smatch match;
+      std::regex_match(line, match, functionRegex);
+      if(match.size() > 0) {
+        Core::Scope scope(Core::ScopeType::Function);
+        scope.name = match[2];
+        scope.parent = &parent;
+        scope.lineNumberStart = lineNumber;
+        scope.characterNumberStart = line.find(match[0]);
+
+        std::size_t declarationEnd = line.find(';',scope.characterNumberStart);
+        if(declarationEnd != std::string::npos) {
+          scope.characterNumberEnd = declarationEnd;
+          scope.lineNumberEnd = scope.lineNumberStart;
+        } else {
+          lineNumber = findEndOfScope(scope, file, lineNumber);
+        }
+
+        LOG(INFO) << "\n" << scope;
+
+        parent.children.push_back(scope);
+      }
+    }
+  }
+
+  void PFE::extractVariables(Core::File & file, Core::Scope & parent) {
+
   }
 
   void PFE::constructTree(Core::Scope& root) {
@@ -340,7 +399,7 @@ namespace Core
     }
 
     //Recreating the tree with the children
-    for(int i = 0; i < root.children.size(); ++i) {
+    /*for(int i = 0; i < root.children.size(); ++i) {
       auto& scope = root.children[i];
 
       if(scope.parent && scope.parent->type != ScopeType::Source) {
@@ -357,15 +416,15 @@ namespace Core
           i = -1;
         }
       }
-    }
+    }*/
 
     //Removing superfluous scopes
-    for(auto it = root.children.begin(); it != root.children.end(); ++it) {
+    /*for(auto it = root.children.begin(); it != root.children.end(); ++it) {
       if(it->parent->type != ScopeType::Source) {
         root.children.erase(it);
         it = root.children.begin();
       }
-    }
+    }*/
   }
 
   Core::Scope& PFE::findBestParent(Core::Scope& root, Core::Scope& toSearch) {
