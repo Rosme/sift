@@ -355,6 +355,7 @@ namespace Core
         scope.parent = &parent;
         scope.lineNumberStart = lineNumber;
         scope.characterNumberStart = line.find(match[0]);
+        scope.file = &file;
 
         std::size_t declarationEnd = line.find(';',scope.characterNumberStart);
         if(declarationEnd != std::string::npos) {
@@ -364,7 +365,7 @@ namespace Core
           lineNumber = findEndOfScope(scope, file, lineNumber);
         }
 
-        LOG(INFO) << "\n" << scope;
+        LOG(DEBUG) << "\n" << scope;
 
         parent.children.push_back(scope);
       }
@@ -372,7 +373,26 @@ namespace Core
   }
 
   void PFE::extractVariables(Core::File & file, Core::Scope & parent) {
+    std::regex variableRegex("\\s*(?!return)((\\w+\\*?\\s+)|(\\w+\\s+\\*?)|(\\w+\\s+\\*\\s+))(\\w+)\\s*(=\\s*\\w*)?\\s*;");
+    for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
+      const std::string& line = file.lines[lineNumber];
+      std::smatch match;
+      std::regex_match(line, match, variableRegex);
+      if(match.size() > 0) {
+        Core::Scope scope(Core::ScopeType::Variable);
+        scope.name = match[5];
+        scope.parent = &parent;
+        scope.lineNumberStart = lineNumber;
+        scope.lineNumberEnd = lineNumber;
+        scope.characterNumberStart = line.find(match[0]);
+        scope.characterNumberEnd = line.find(';', scope.characterNumberStart);
+        scope.file = &file;
 
+        LOG(INFO) << "\n" << scope;
+
+        parent.children.push_back(scope);
+      }
+    }
   }
 
   void PFE::constructTree(Core::Scope& root) {
@@ -393,7 +413,11 @@ namespace Core
         if(bestParent.type == ScopeType::Class) {
           it->type = ScopeType::ClassFunction;
         } else {
-          it->type = ScopeType::FreeFunction;
+          if(it->name.find(':') != std::string::npos) {
+            it->type = ScopeType::ClassFunction;
+          } else {
+            it->type = ScopeType::FreeFunction;
+          }
         }
       }
     }

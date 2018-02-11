@@ -121,6 +121,11 @@ namespace Core {
       out << scope.file->lines[i] << "\n";
     }
 
+    if(scope.lineNumberStart == scope.lineNumberEnd) {
+      const std::string& line = scope.file->lines[scope.lineNumberStart];
+      out << line.substr(scope.characterNumberStart, scope.characterNumberEnd-scope.characterNumberStart+1);
+    }
+
     return out;
   }
 

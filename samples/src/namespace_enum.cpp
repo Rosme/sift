@@ -72,7 +72,10 @@ public:
   }
 
   virtual void fn() {
-
+    MonObject ggg;
+    Obj* llll;
+    Obj * kkkk;
+    Obj *mmmm;
   }
 
   int otherFn() const;
@@ -80,6 +83,8 @@ public:
 private:
   float b;
 };
+
+int globalVariable = 5;
 
 int InheritanceClass::otherFn() const {
   return 0;
