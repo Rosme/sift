@@ -34,15 +34,19 @@ namespace Core {
                    Unknown);
 
   struct Message {
-    Message(MessageType type = MessageType::Unknown, const std::string& content = "")
+    Message(MessageType type = MessageType::Unknown, const std::string& content = "", const int line = 0, const int character = 0)
       : type(type)
-      , content(content) {}
+      , content(content)
+      , line(line)
+      , character(character) {}
     MessageType type;
     std::string content;
+    int line;
+    int character;
   };
 
   inline std::ostream& operator<<(std::ostream& out, const Message& message) {
-    out << to_string(message.type) << " : " << message.content;
+    out << to_string(message.type) << "(L" << message.line << "/C" << message.character << ")"  << " : " << message.content;
     return out;
   }
 

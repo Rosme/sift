@@ -50,19 +50,16 @@ namespace Syntax
   void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
     // Get namespace scopes
-    for(auto&& defScope : scope.getAllChildrenOfType(Core::ScopeType::Namespace))
-    {
+    for(auto&& currentScope : scope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
       std::stringstream defineLines;
 
-      for(auto&& line : defScope.getScopeLines())
-      {
+      for(auto&& line : currentScope.getScopeLines()) {
         defineLines << line << "\n";
       }
       
-      //TODO message associated with line/char?
       Core::Message message(Core::MessageType::Error, 
-        SSTR("Define found - " << defScope.file->filename << ":" << defScope.lineNumberStart << " vvvv"
-        "\n -->" << defineLines.str())
+        SSTR("Define found - " << currentScope.file->filename << " vvvv"
+        "\n -->" << defineLines.str()), currentScope.lineNumberStart, currentScope.characterNumberStart
       );
       messageStack.pushMessage(message);
     }
@@ -70,6 +67,15 @@ namespace Syntax
   
   void CPPSyntaxAnalyser::RuleStartWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
-    
+    for(auto&& currentScope : scope.getAllChildrenOfType(rule.getScopeType())) {
+      const auto& param = rule.getParameter();
+      if(currentScope.name.compare(0, param.length(), param) != 0) {
+        Core::Message message(Core::MessageType::Error, 
+          SSTR("Prefix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename << " vvvv"
+          "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
+        );
+        messageStack.pushMessage(message);
+      }
+    }
   }
 };

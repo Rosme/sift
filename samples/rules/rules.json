@@ -6,9 +6,12 @@
       "appliedTo": "Function"
     },
     
+
+    
+    
     {
       "rule" : "StartWithX",
-      "appliedTo" : "Function",
+      "appliedTo" : "Variable",
       "parameter" : "m_"
     }
     
