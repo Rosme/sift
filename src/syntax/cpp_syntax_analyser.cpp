@@ -45,6 +45,7 @@ namespace Syntax
     // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
     REGISTER_RULE(NoDefine);
     REGISTER_RULE(StartWithX);
+    REGISTER_RULE(EndWithX);
   }
   
   void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
@@ -73,6 +74,20 @@ namespace Syntax
         Core::Message message(Core::MessageType::Error, 
           SSTR("Prefix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename << " vvvv"
           "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
+        );
+        messageStack.pushMessage(message);
+      }
+    }
+  }
+  
+  void CPPSyntaxAnalyser::RuleEndWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    for(auto&& currentScope : scope.getAllChildrenOfType(rule.getScopeType())) {
+      const auto& param = rule.getParameter();
+      if(currentScope.name.length() < param.length() || currentScope.name.compare(currentScope.name.length()-param.length(), currentScope.name.length(), param) != 0) {
+        Core::Message message(Core::MessageType::Error, 
+                              SSTR("Suffix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename << " vvvv"
+                              "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(message);
       }

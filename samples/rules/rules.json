@@ -4,15 +4,6 @@
     {
       "rule" : "NoAuto",
       "appliedTo": "Function"
-    },
-    
-
-    
-    
-    {
-      "rule" : "StartWithX",
-      "appliedTo" : "Variable",
-      "parameter" : "m_"
     }
     
   ]
