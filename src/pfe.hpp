@@ -54,7 +54,7 @@ namespace Core
     std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
   private:
     bool extractScopesFromFile(Core::File& file, Core::Scope &outScope);
-    void extractDefines(Core::File& file, Core::Scope &outScope);
+    void extractGlobals(Core::File& file, Core::Scope &parent);
     void extractNamespaces(Core::File& file, Core::Scope& parent);
     void extractEnums(Core::File& file, Core::Scope& parent);
     void extractClasses(Core::File& file, Core::Scope& parent);

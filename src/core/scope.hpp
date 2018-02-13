@@ -46,16 +46,15 @@ namespace Core {
     ClassVariable = 1u << 7,
     FunctionVariable = 1u << 8,
     GlobalVariable = 1u << 9,
-    Global = GlobalVariable | FreeFunction,
+    GlobalDefine = 1u << 10,
+    Global = GlobalVariable | GlobalDefine | FreeFunction,
     Variable = ClassVariable | FunctionVariable | GlobalVariable,
-    Unknown = 1u << 10,
+    Unknown = 1u << 20,
     All = 0xffff
   };
 
   struct Scope;
-//   using ScopePtr = std::shared_ptr<Scope>;
   using ScopeVector = std::vector<Scope>;
-//   using ScopePtrVector = std::vector<ScopePtr>;
 
   struct Scope {
   public:
@@ -157,6 +156,8 @@ namespace Core {
       return "Global";
     case ScopeType::Variable:
       return "Variable";
+    case ScopeType::GlobalDefine:
+      return "Define";
     default:
       return "Unknown";
     }

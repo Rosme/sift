@@ -18,6 +18,12 @@
  Author: zadig
 */
 
+#define one two
+#define my(x) \
+great \
+multiline \
+define
+
 #include <iostream>
 #include <fstream>
 #include "config.h"

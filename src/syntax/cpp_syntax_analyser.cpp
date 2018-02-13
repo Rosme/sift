@@ -44,6 +44,7 @@ namespace Syntax
   {
     // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
     REGISTER_RULE(NoDefine);
+    REGISTER_RULE(StartWithX);
   }
   
   void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
@@ -65,5 +66,10 @@ namespace Syntax
       );
       messageStack.pushMessage(message);
     }
+  }
+  
+  void CPPSyntaxAnalyser::RuleStartWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    
   }
 };

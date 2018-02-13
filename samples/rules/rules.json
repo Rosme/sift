@@ -10,10 +10,7 @@
       "rule" : "StartWithX",
       "appliedTo" : "Function",
       "parameter" : "m_"
-    },
-    
-    {
-      "rule" : "NoDefine"
     }
+    
   ]
 }

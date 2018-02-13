@@ -40,7 +40,8 @@ namespace Syntax {
     virtual ~CPPSyntaxAnalyser();
     
     void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work);
-    void RuleNoDefine(Syntax::Rule&, Core::Scope&, Core::MessageStack&);
+    void RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
+    void RuleStartWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
   };
   
 }

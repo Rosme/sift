@@ -30,14 +30,6 @@ namespace Core {
     : type(type)
   {
   }
-/*
-  void Scope::pushChild(const Scope& child) {
-    children.push_back(child);
-  }
-
-  const ScopeVector& Scope::getChildren() const {
-    return children;
-  }*/
 
   ScopeVector Scope::getDirectChildrenOfType(ScopeType type) const {
     ScopeVector directChildren;

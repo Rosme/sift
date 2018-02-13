@@ -198,6 +198,7 @@ namespace Core
     //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
     //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
     //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
+    extractGlobals(file, rootScope);
     extractNamespaces(file, rootScope);
     extractEnums(file, rootScope);
     extractClasses(file, rootScope);
@@ -213,7 +214,7 @@ namespace Core
     return true;
   }
   
-  void PFE::extractDefines(Core::File& file, Core::Scope& outScope)
+  void PFE::extractGlobals(Core::File& file, Core::Scope& parent)
   {
     // We are 1-indexed
     int lineNo = 1;
@@ -231,7 +232,7 @@ namespace Core
         std::regex_search(line, sm, defineRegex);
         if(sm.size() > 0)
         {
-          scope = Core::Scope(Core::ScopeType::Namespace);
+          scope = Core::Scope(Core::ScopeType::GlobalDefine);
           scope.lineNumberStart = lineNo;
           scope.characterNumberStart = sm.position(0)+charNo;
           scope.file = &file;
@@ -245,7 +246,8 @@ namespace Core
           else
           {
             scope.characterNumberEnd = scope.characterNumberStart + line.size();
-            outScope.children.push_back(scope);
+            scope.name = line;
+            parent.children.push_back(scope);
           }
         }
       }
@@ -254,7 +256,8 @@ namespace Core
         if(line.find("\\") == std::string::npos)
         {
           scope.characterNumberEnd = charNo + line.size()-1;
-          outScope.children.push_back(scope);
+          scope.name = scope.getScopeLines().at(0);
+          parent.children.push_back(scope);
           isStillInDefine = false;
         }
       }
@@ -398,6 +401,11 @@ namespace Core
   void PFE::constructTree(Core::Scope& root) {
     //Finding the parent of every Scope
     for(auto it = root.children.rbegin(); it != root.children.rend(); it++) {
+      if(it->type == ScopeType::GlobalDefine){
+        it->parent = &root;
+        continue;
+      }
+      
       Core::Scope& bestParent = findBestParent(root, *it);
       it->parent = &bestParent;
       //Checking if it's a variable or function, and being more precise about it if it's the case

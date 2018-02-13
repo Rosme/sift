@@ -42,9 +42,9 @@ int main(int argc, char* argv[]) {
   Core::PFE pfe;
   pfe.parseArgv(argc, argv);
   pfe.setupLogging();
-  pfe.setupRules("samples/rules/rules_namespace.json");
+  pfe.setupRules("samples/rules/rules.json");
   pfe.registerRuleWork();
-  pfe.readSingleSourceFile("samples/src/namespace_enum.cpp");
+  pfe.readSingleSourceFile("samples/src/brightness_manager.cc");
   pfe.extractScopes();
   pfe.applyRules();
   pfe.outputMessages();
