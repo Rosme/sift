@@ -55,6 +55,7 @@ namespace Core {
     extractFunctions(file, rootScope);
     extractVariables(file, rootScope);
     extractConditionals(file, rootScope);
+    extractComments(file, rootScope);
 
     //Filtering out reserved keywords
     rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
@@ -244,7 +245,7 @@ namespace Core {
         scope.characterNumberEnd = line.find(';', scope.characterNumberStart);
         scope.file = &file;
 
-        LOG(INFO) << "\n" << scope;
+        LOG(DEBUG) << "\n" << scope;
 
         //Adding to parent the scope
         parent.children.push_back(scope);
@@ -280,10 +281,58 @@ namespace Core {
           findEndOfScope(scope, file, i, scope.characterNumberStart);
         }
 
-
         LOG(DEBUG) << "\n" << scope;
 
         //Adding to parent the scope
+        parent.children.push_back(scope);
+      }
+    }
+  }
+
+  void CppScopeExtractor::extractComments(File & file, Scope & parent) {
+    std::regex singleLineComments(".*(\\/\\/.*)");
+    std::regex multiLineComments(".*(\\/\\*)");
+    for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
+      const std::string& line = file.lines[lineNumber];
+      std::smatch match;
+      if(line.empty()) {
+        continue;
+      }
+      if(std::regex_match(line, match, multiLineComments)) {
+        Scope scope(ScopeType::MultiLineComment);
+        scope.parent = &parent;
+        scope.lineNumberStart = lineNumber;
+        scope.characterNumberStart = line.find(match[1]);
+        scope.file = &file;
+
+        std::string name = "";
+        for(int i = lineNumber; i < file.lines.size(); ++i) {
+          name += file.lines[i];
+          auto endIndex = file.lines[i].find("*/");
+          if(endIndex != std::string::npos) {
+            scope.characterNumberEnd = endIndex+1; // Want to point to / after the star
+            scope.lineNumberEnd = i;
+            lineNumber = i;
+            break;
+          }
+        }
+        scope.name = name;
+
+        LOG(INFO) << "\n" << scope;
+
+        parent.children.push_back(scope);
+      } else if(std::regex_match(line, match, singleLineComments)) {
+        Scope scope(ScopeType::SingleLineComment);
+        scope.name = match[1];
+        scope.parent = &parent;
+        scope.lineNumberStart = lineNumber;
+        scope.lineNumberEnd = lineNumber;
+        scope.characterNumberStart = line.find(match[1]);
+        scope.characterNumberEnd = line.size()-1;
+        scope.file = &file;
+
+        LOG(DEBUG) << "\n" << scope;
+
         parent.children.push_back(scope);
       }
     }

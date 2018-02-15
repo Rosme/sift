@@ -107,6 +107,10 @@ namespace Core {
     return true;
   }
 
+  bool Scope::isOfType(ScopeType typeToVerify) {
+    return static_cast<unsigned int>(type & typeToVerify) != 0;
+  }
+
   ScopeVector::iterator Scope::begin() {
     return children.begin();
   }

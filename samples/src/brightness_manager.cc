@@ -111,6 +111,7 @@ int main(int argc, const char *argv[]) {
     long percent, final;
     long delta;
     bool error = false;
+    //Must have 2 arguments
     if (argc == 2) {
         current = brightnessmanager::get_value(CURRENT_BRIGHTNESS_FILE, -1);
         max = brightnessmanager::get_value(MAX_BRIGHTNESS_FILE, -1);
@@ -118,6 +119,7 @@ int main(int argc, const char *argv[]) {
             std::cerr << "Unable to open " << ((current == -1)?CURRENT_BRIGHTNESS_FILE:MAX_BRIGHTNESS_FILE) << std::endl;
             ret = -1;
         } else {
+            //int variableInComment = 5;
             percent = current * 100 / max;
             delta = brightnessmanager::get_delta(argv[1], &error);
             if (error) {

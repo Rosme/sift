@@ -49,6 +49,9 @@ namespace Core {
     GlobalDefine = 1u << 10,
     Global = GlobalVariable | GlobalDefine | FreeFunction,
     Variable = ClassVariable | FunctionVariable | GlobalVariable,
+    SingleLineComment = 1u << 11,
+    MultiLineComment = 1u << 12,
+    Comment = SingleLineComment | MultiLineComment,
     Unknown = 1u << 20,
     All = 0xffff
   };
@@ -66,6 +69,7 @@ namespace Core {
     unsigned int getDepth() const;
     std::string getTree() const; //Debug Function
     bool isWithinOtherScope(const Scope& other);
+    bool isOfType(ScopeType type);
     ScopeVector::iterator begin();
     ScopeVector::const_iterator begin() const;
     ScopeVector::iterator end();
@@ -115,14 +119,18 @@ namespace Core {
     out << "Scope Name: " << scope.name << "\n"
       << "Type: " << to_string(scope.type) << "\n"
       << "Depth:" << scope.getDepth() << "\n"
+      << "Start Line" << scope.lineNumberStart << "\n"
+      << "End Line" << scope.lineNumberEnd << "\n"
+      << "Character Start" << scope.characterNumberStart << "\n"
+      << "Character End" << scope.characterNumberEnd << "\n"
       << "Content:\n";
-    for(int i = scope.lineNumberStart; i < scope.lineNumberEnd; ++i) {
-      out << scope.file->lines[i] << "\n";
-    }
-
     if(scope.lineNumberStart == scope.lineNumberEnd) {
       const std::string& line = scope.file->lines[scope.lineNumberStart];
       out << line.substr(scope.characterNumberStart, scope.characterNumberEnd-scope.characterNumberStart+1);
+    } else {
+      for(int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
+        out << scope.file->lines[i] << "\n";
+      }
     }
 
     return out;
@@ -158,6 +166,12 @@ namespace Core {
       return "Variable";
     case ScopeType::GlobalDefine:
       return "Define";
+    case ScopeType::SingleLineComment:
+      return "SingleLineComment";
+    case ScopeType::MultiLineComment:
+      return "MultiLineComment";
+    case ScopeType::Comment:
+      return "Comment";
     default:
       return "Unknown";
     }
@@ -214,6 +228,18 @@ namespace Core {
 
     if(string_case_compare(type, "Variable")) {
       return ScopeType::Variable;
+    }
+
+    if(string_case_compare(type, "SingleLineComment")) {
+      return ScopeType::SingleLineComment;
+    }
+
+    if(string_case_compare(type, "MultiLineComment")) {
+      return ScopeType::MultiLineComment;
+    }
+
+    if(string_case_compare(type, "Comment")) {
+      return ScopeType::Comment;
     }
 
     return ScopeType::Unknown;

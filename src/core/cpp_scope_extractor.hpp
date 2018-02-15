@@ -42,6 +42,7 @@ namespace Core {
     void extractFunctions(File& file, Scope& parent);
     void extractVariables(File& file, Scope& parent);
     void extractConditionals(File& file, Scope& parent);
+    void extractComments(File& file, Scope& parent);
 
     void constructTree(Scope& root);
     Scope& findBestParent(Scope& root, Scope& toSearch);
