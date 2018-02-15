@@ -61,6 +61,8 @@ set(SRC_CORE
     ${CMAKE_SOURCE_DIR}/src/core/message_stack.hpp
     ${CMAKE_SOURCE_DIR}/src/core/message_stack.cpp
     ${CMAKE_SOURCE_DIR}/src/core/config.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/scope_extractor.hpp
+    ${CMAKE_SOURCE_DIR}/src/core/scope_extractor.cpp
     )
 
 SET(SRC_SYNTAX
