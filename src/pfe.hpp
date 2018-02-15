@@ -60,6 +60,7 @@ namespace Core
     void extractClasses(Core::File& file, Core::Scope& parent);
     void extractFunctions(Core::File& file, Core::Scope& parent);
     void extractVariables(Core::File& file, Core::Scope& parent);
+    void extractConditionals(Core::File& file, Core::Scope& parent);
 
     void removeDuplicates(Core::Scope& root);
     bool existAlready(const Core::Scope& root, Core::Scope& scope);
@@ -67,6 +68,11 @@ namespace Core
     Core::Scope& findBestParent(Core::Scope& root, Core::Scope& toSearch);
     
     int findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine);
+    int findEndOfScope(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter); 
+    int findEndOfScopeConditionalFor(Core::Scope& scope, Core::File& file, int startingLine, int startingCharacter);
+    int findEndOfScopeConditionalDoWhile(Core::Scope& scope, Core::File& file, int startingLine);
+
+    bool isDoWhileLoop(Core::File& file, int startingLine, int startingCharacter);
 
     // filename : rawText
     std::map<std::string, Core::File> m_files;
