@@ -31,7 +31,7 @@
 
 #include "pfe.hpp"
 #include "core/config.hpp"
-#include "core/scope_extractor.hpp"
+#include "core/cpp_scope_extractor.hpp"
 #include "flow/cpp_flow_analyser.hpp"
 #include "syntax/cpp_syntax_analyser.hpp"
 #include "syntax/rule.hpp"
@@ -163,7 +163,7 @@ void PFE::readFilesFromDirectory(const std::string& directory)
   
 void PFE::extractScopes()
 {
-  Core::ScopeExtractor extractor;
+  Core::CppScopeExtractor extractor;
   // Parse all files found
   for(auto&& filePair : m_files)
   {

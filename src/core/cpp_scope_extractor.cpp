@@ -25,11 +25,15 @@
 #include <stack>
 #include <muflihun/easylogging++.h>
 
-#include "scope_extractor.hpp"
+#include "cpp_scope_extractor.hpp"
+#include "scope.hpp"
 
 namespace Core {
 
-  bool ScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {
+  const std::vector<std::string> CppScopeExtractor::ReservedKeywords({"if", "else", "else if", "while", "do", "new", "delete", "typedef"});
+
+
+  bool CppScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {
     Scope rootScope(ScopeType::Source);
     rootScope.file = &file;
     rootScope.name = file.filename;
@@ -51,6 +55,18 @@ namespace Core {
     extractFunctions(file, rootScope);
     extractVariables(file, rootScope);
     extractConditionals(file, rootScope);
+
+    //Filtering out reserved keywords
+    rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
+      for(const auto& keyword : ReservedKeywords) {
+        if(scope.name == keyword) {
+          return true;
+        }
+      }
+      return false;
+    }), rootScope.children.end());
+
+    //Reconstruct Tree
     constructTree(rootScope);
 
     LOG(INFO) << "\n" << rootScope.getTree();
@@ -60,7 +76,7 @@ namespace Core {
     return true;
   }
 
-  void ScopeExtractor::extractGlobals(File& file, Scope& parent) {
+  void CppScopeExtractor::extractGlobals(File& file, Scope& parent) {
     // We are 1-indexed
     int lineNo = 1;
     int charNo = 1;
@@ -103,7 +119,7 @@ namespace Core {
 
   }
 
-  void ScopeExtractor::extractNamespaces(File& file, Scope& parent) {
+  void CppScopeExtractor::extractNamespaces(File& file, Scope& parent) {
     // Regex that match namespace without using in front
     // The regex supports space or no space after the name, and any kind of return line (UNIX/Windows)
     std::regex namespaceRegex("^(?!using)\\s*namespace (\\w*)(\\n|\\r\\n)*\\s*(\\{*)");
@@ -134,7 +150,7 @@ namespace Core {
     }
   }
 
-  void ScopeExtractor::extractEnums(File& file, Scope& parent) {
+  void CppScopeExtractor::extractEnums(File& file, Scope& parent) {
     std::regex enumRegex("\\s*enum(\\s*class)?\\s*(\\w*)\\s*:?\\s*(\\w|\\s)*\\s*\\{?");
     for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
@@ -159,7 +175,7 @@ namespace Core {
     }
   }
 
-  void ScopeExtractor::extractClasses(File& file, Scope& parent) {
+  void CppScopeExtractor::extractClasses(File& file, Scope& parent) {
     std::regex classRegex("(?!enum)\\s*(class|struct)\\s*(\\w*)\\s*:?\\s*(\\w|\\s)*\\s*\\{?");
     for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
@@ -183,7 +199,7 @@ namespace Core {
     }
   }
 
-  void ScopeExtractor::extractFunctions(File& file, Scope& parent) {
+  void CppScopeExtractor::extractFunctions(File& file, Scope& parent) {
     std::regex functionRegex("(\\w*\\s)*((\\w|:)+)\\s*\\((.*),?\\).*");
     for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
@@ -212,7 +228,7 @@ namespace Core {
     }
   }
 
-  void ScopeExtractor::extractVariables(File& file, Scope& parent) {
+  void CppScopeExtractor::extractVariables(File& file, Scope& parent) {
     std::regex variableRegex("\\s*(?!return)((\\w+\\*?\\s+)|(\\w+\\s+\\*?)|(\\w+\\s+\\*\\s+))(\\w+)\\s*(=\\s*\\w*)?\\s*;");
     for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
@@ -236,7 +252,7 @@ namespace Core {
     }
   }
 
-  void ScopeExtractor::extractConditionals(File& file, Scope& parent) {
+  void CppScopeExtractor::extractConditionals(File& file, Scope& parent) {
     std::regex conditionnalRegex(R"(\s*(if|else|for|switch|while|do)(\(|\{|\s|$))");
     for(int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
       int lineNumber = i + 1;
@@ -273,7 +289,7 @@ namespace Core {
     }
   }
 
-  void ScopeExtractor::constructTree(Scope& root) {
+  void CppScopeExtractor::constructTree(Scope& root) {
     //Finding the parent of every Scope
     for(auto it = root.children.rbegin(); it != root.children.rend(); it++) {
       if(it->type == ScopeType::GlobalDefine) {
@@ -337,7 +353,7 @@ namespace Core {
     }*/
   }
 
-  Scope& ScopeExtractor::findBestParent(Scope& root, Scope& toSearch) {
+  Scope& CppScopeExtractor::findBestParent(Scope& root, Scope& toSearch) {
     Scope* bestCandidate = &root;
 
     for(int i = 0; i < root.children.size(); ++i) {
@@ -352,7 +368,7 @@ namespace Core {
     return *bestCandidate;
   }
 
-  int ScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine) {
+  int CppScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine) {
     //TODO: Review this. Not really happy with this.
     std::stack<char> bracketStack;
     int offset = scope.characterNumberStart;
@@ -379,7 +395,7 @@ namespace Core {
     return scopeLineNumber;
   }
 
-  int ScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine, int startingCharacter) {
+  int CppScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine, int startingCharacter) {
     std::stack<char> bracketStack;
     int offset = scope.characterNumberStart;
     int scopeLineNumber = startingLine;
@@ -414,7 +430,7 @@ namespace Core {
   }
 
 
-  int ScopeExtractor::findEndOfScopeConditionalFor(Scope& scope, File& file, int startingLine, int startingCharacter) {
+  int CppScopeExtractor::findEndOfScopeConditionalFor(Scope& scope, File& file, int startingLine, int startingCharacter) {
     int startingCharForThisLine = startingCharacter;
     int scopeLineNumber = startingLine;
     std::stack<char> ParenthesisStack;
@@ -441,7 +457,7 @@ namespace Core {
   }
 
 
-  int ScopeExtractor::findEndOfScopeConditionalDoWhile(Scope& scope, File& file, int startingLine) {
+  int CppScopeExtractor::findEndOfScopeConditionalDoWhile(Scope& scope, File& file, int startingLine) {
     int counter = 0;
     std::regex conditionnalRegex(R"(\s*(while|do)(\(|\{|\s|$))");
     for(int i = startingLine; i < file.lines.size(); ++i) {
@@ -472,7 +488,7 @@ namespace Core {
     return counter;
   }
 
-  bool ScopeExtractor::isDoWhileLoop(File& file, int startingLine, int startingCharacter) {
+  bool CppScopeExtractor::isDoWhileLoop(File& file, int startingLine, int startingCharacter) {
     int startingCharForThisLine = startingCharacter;
     int scopeLineNumber = startingLine;
     bool foundCondition = false;

@@ -23,14 +23,36 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
+
+#include "scope_extractor.hpp"
+
 namespace Core {
 
-  class File;
-  class Scope;
-
-  class ScopeExtractor {
+  class CppScopeExtractor : public ScopeExtractor {
   public:
-    virtual bool extractScopesFromFile(File& file, Scope &outScope) = 0;
+    bool extractScopesFromFile(File& file, Scope &outScope);
+
+  private:
+    void extractGlobals(File& file, Scope &parent);
+    void extractNamespaces(File& file, Scope& parent);
+    void extractEnums(File& file, Scope& parent);
+    void extractClasses(File& file, Scope& parent);
+    void extractFunctions(File& file, Scope& parent);
+    void extractVariables(File& file, Scope& parent);
+    void extractConditionals(File& file, Scope& parent);
+
+    void constructTree(Scope& root);
+    Scope& findBestParent(Scope& root, Scope& toSearch);
+
+    int findEndOfScope(Scope& scope, File& file, int startingLine);
+    int findEndOfScope(Scope& scope, File& file, int startingLine, int startingCharacter);
+    int findEndOfScopeConditionalFor(Scope& scope, File& file, int startingLine, int startingCharacter);
+    int findEndOfScopeConditionalDoWhile(Scope& scope, File& file, int startingLine);
+    bool isDoWhileLoop(File& file, int startingLine, int startingCharacter);
+
+    static const std::vector<std::string> ReservedKeywords;
   };
 
 }
