@@ -1,5 +1,5 @@
-# TBD PFE 3000
-This is a school project. More info to come.
+# SIFT
+SIFT is a static language analyser.
 
 # Build Status
 [![Build Status](https://img.shields.io/travis/Rosme/pfe.svg?label=linux+and+macOS)](https://travis-ci.org/Rosme/pfe) [![Build Status](https://img.shields.io/appveyor/ci/Rosme/pfe.svg?label=windows)](https://ci.appveyor.com/project/Rosme/pfe)
