@@ -80,9 +80,7 @@ namespace Core {
     //Reconstruct Tree
     constructTree(rootScope);
 
-
     LOG(TRACE) << "\n" << rootScope.getTree();
-    
 
     outScope = rootScope;
 
@@ -99,7 +97,7 @@ namespace Core {
       // Avoid the costly regex if possible
       if(line.find("#define") != std::string::npos) {
         // Should match "     #define" and "   /* some comment */   #define"
-        std::regex defineRegex("^(\\s*|\\s*\\/\\*.*\\*\\/\\s*)#define");
+        std::regex defineRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)#define)");
         std::smatch sm;
         std::regex_search(line, sm, defineRegex);
         if(sm.size() > 0) {
@@ -137,7 +135,7 @@ namespace Core {
   void CppScopeExtractor::extractNamespaces(File& file, Scope& parent) {
     // Regex that match namespace without using in front
     // The regex supports space or no space after the name, and any kind of return line (UNIX/Windows)
-    std::regex namespaceRegex("^(?!using)\\s*namespace (\\w*)(\\n|\\r\\n)*\\s*(\\{*)");
+    std::regex namespaceRegex(R"(^(?!using)\s*namespace (\w*)(\n|\r\n)*\s*(\{*))");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -166,7 +164,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractEnums(File& file, Scope& parent) {
-    std::regex enumRegex("\\s*enum(\\s*class)?\\s*(\\w*)\\s*:?\\s*(\\w|\\s)*\\s*\\{?");
+    std::regex enumRegex(R"(\s*enum(\s*class)?\s*(\w*)\s*:?\s*(\w|\s)*\s*\{?)");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -191,7 +189,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractClasses(File& file, Scope& parent) {
-    std::regex classRegex("(?!enum)\\s*(class|struct)\\s*(\\w*)\\s*:?\\s*(\\w|\\s)*\\s*\\{?");
+    std::regex classRegex(R"((?!enum)\s*(class|struct)\s*(\w*)\s*:?\s*(\w|\s)*\s*\{?)");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -215,7 +213,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractFunctions(File& file, Scope& parent) {
-    std::regex functionRegex("(\\w*\\s)*((\\w|:)+)\\s*\\((.*),?\\).*\\s*(;|\\{)");
+    std::regex functionRegex(R"((\w*\s)*((\w|:)+)\s*\((.*),?\).*\s*(;|\{))");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -244,7 +242,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractVariables(File& file, Scope& parent) {
-    std::regex variableRegex("\\s*(?!return)(((\\w*::)*\\w+\\*?\\s+)|((\\w*::)*\\w+\\s+\\*?)|((\\w*::)*\\w+\\s+\\*\\s+))(\\w+)(\\[\\d*\\])*\\s*(=\\s*\\{*\\w*\\}*)?\\s*;");
+    std::regex variableRegex(R"(\s*(?!return)(((\w*::)*\w+\*?\s+)|((\w*::)*\w+\s+\*?)|((\w*::)*\w+\s+\*\s+))(\w+)(\[\d*\])*\s*(=\s*\{*\w*\}*)?\s*;)");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -304,8 +302,8 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractComments(File & file, Scope & parent) {
-    std::regex singleLineComments(".*(\\/\\/.*)");
-    std::regex multiLineComments(".*(\\/\\*)");
+    std::regex singleLineComments(R"(.*(\/\/.*))");
+    std::regex multiLineComments(R"(.*(\/\*))");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
