@@ -60,7 +60,6 @@ namespace Core {
   using ScopeVector = std::vector<Scope>;
 
   struct Scope {
-  public:
     Scope() {};
     Scope(ScopeType type);
     
@@ -128,7 +127,7 @@ namespace Core {
       const std::string& line = scope.file->lines[scope.lineNumberStart];
       out << line.substr(scope.characterNumberStart, scope.characterNumberEnd-scope.characterNumberStart+1);
     } else {
-      for(int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
+      for(unsigned int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
         out << scope.file->lines[i] << "\n";
       }
     }

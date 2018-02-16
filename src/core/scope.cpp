@@ -130,8 +130,8 @@ namespace Core {
   std::vector<std::string> Core::Scope::getScopeLines() const
   {
     std::vector<std::string> toReturn;
-    int currentLineNo = 1;
-    int currentCharNo = 1;
+    unsigned int currentLineNo = 1;
+    unsigned int currentCharNo = 1;
     for(const auto& line : file->lines)
     {
       if(currentLineNo == lineNumberStart)

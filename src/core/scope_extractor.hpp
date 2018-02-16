@@ -25,8 +25,8 @@
 
 namespace Core {
 
-  class File;
-  class Scope;
+  struct File;
+  struct Scope;
 
   class ScopeExtractor {
   public:
