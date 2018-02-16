@@ -68,7 +68,8 @@ private:
   std::unique_ptr<Syntax::SyntaxAnalyser> m_syntaxAnalyser;
   Core::MessageStack m_messageStack;
     
-  bool m_quietMode = false;
+  bool m_quietMode;
+  bool m_verboseMode;
   std::string m_outputFilename;
   std::string m_loggingSettingsFilename;
   std::string m_ruleFilename;

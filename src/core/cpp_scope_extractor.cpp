@@ -30,7 +30,17 @@
 
 namespace Core {
 
-  const std::vector<std::string> CppScopeExtractor::ReservedKeywords({"if", "else", "else if", "while", "do", "new", "delete", "typedef"});
+  const std::vector<std::string> CppScopeExtractor::ReservedKeywords({
+    "if", 
+    "else", 
+    "else if", 
+    "while", 
+    "do", 
+    "new", 
+    "delete", 
+    "typedef"
+    "delete"
+  });
 
 
   bool CppScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {
@@ -41,10 +51,7 @@ namespace Core {
     rootScope.lineNumberEnd = file.lines.size();
     rootScope.characterNumberStart = 0;
     rootScope.characterNumberEnd = 0;
-
-    // TODO: Review this call. Shouldn't this be part of the rule check? Here for eventual flow replacement?
-    //extractDefines(file, rootScope);
-
+    
     //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
     //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
     //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
@@ -73,7 +80,9 @@ namespace Core {
     //Reconstruct Tree
     constructTree(rootScope);
 
-    LOG(INFO) << "\n" << rootScope.getTree();
+
+    LOG(TRACE) << "\n" << rootScope.getTree();
+    
 
     outScope = rootScope;
 

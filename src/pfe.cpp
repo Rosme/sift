@@ -55,7 +55,8 @@ void PFE::parseArgv(int argc, char** argv)
     
   // How does this even work haha
   options.add_options()
-  ("d,debug", "Enable debugging")
+  ("v,version", "Display version information")
+  ("V,verbose", "Enable verbose mode")
   ("q,quiet", "Enable quiet mode")
   ("l,logconfig", "Specify a easylogging config file to use", cxxopts::value<std::string>())
   ("r,rules", "Specify a rule file to use", cxxopts::value<std::string>())
@@ -70,7 +71,14 @@ void PFE::parseArgv(int argc, char** argv)
       std::cout << options.help({"", "Group"}) << std::endl;
       exit(0);
     }
+    
+    if (result.count("version"))
+    {
+      std::cout << PROGRAM_NAME << ", version: " << VERSION << std::endl;
+      exit(0);
+    }
       
+    CXXOPT("verbose", m_verboseMode, bool, false);
     CXXOPT("quiet", m_quietMode, bool, false);
     CXXOPT("output", m_outputFilename, std::string, "output.txt");
     CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
@@ -90,7 +98,12 @@ void PFE::setupLogging()
   conf.setToDefault();
   conf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
   conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
-  conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
+  
+  if(m_verboseMode) {
+    conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "true");
+  }else{
+    conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
+  }
     
   std::ifstream file(m_loggingSettingsFilename);
     
@@ -100,6 +113,7 @@ void PFE::setupLogging()
   }
     
   el::Loggers::reconfigureLogger("default", conf);
+  
 }
   
 void PFE::setupRules(const std::string filename)
