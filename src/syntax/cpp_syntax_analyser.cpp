@@ -23,6 +23,8 @@
 
 #include "cpp_syntax_analyser.hpp"
 
+#include <regex>
+
 #include "../core/file.hpp"
 #include "../core/message.hpp"
 
@@ -44,13 +46,13 @@ namespace Syntax
   {
     // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
     REGISTER_RULE(NoDefine);
+    REGISTER_RULE(NoMacroFunctions);
     REGISTER_RULE(StartWithX);
     REGISTER_RULE(EndWithX);
   }
   
   void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
-    // Get namespace scopes
     for(auto&& currentScope : scope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
       std::stringstream defineLines;
 
@@ -65,6 +67,37 @@ namespace Syntax
       messageStack.pushMessage(message);
     }
   }
+  
+ void CPPSyntaxAnalyser::RuleNoMacroFunctions(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    for(auto&& currentScope : scope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
+      std::stringstream defineLines;
+
+      std::regex macroRegex(R"(#define\s*\w*\()");
+      for(auto&& line : currentScope.getScopeLines()) {
+        std::smatch match;
+        std::regex_match(line, match, macroRegex);
+        
+        LOG(INFO) << line;
+        if(match.size() > 0) {
+          defineLines << line << "\n";
+          break;
+        }
+      }
+      
+      const std::string result = defineLines.str();
+      if(result.empty()){
+        continue;
+      }
+      
+      Core::Message message(Core::MessageType::Error, 
+        SSTR("Macro function found - " << currentScope.file->filename << " vvvv"
+        "\n -->" << defineLines.str()), currentScope.lineNumberStart, currentScope.characterNumberStart
+      );
+      messageStack.pushMessage(message);
+    }
+  }
+  
   
   void CPPSyntaxAnalyser::RuleStartWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
@@ -86,8 +119,8 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if(currentScope.name.length() < param.length() || currentScope.name.compare(currentScope.name.length()-param.length(), currentScope.name.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
-                              SSTR("Suffix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename << " vvvv"
-                              "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
+          SSTR("Suffix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename << " vvvv"
+          "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(message);
       }

@@ -4,6 +4,10 @@
     {
       "rule" : "NoAuto",
       "appliedTo": "Function"
+    },
+    
+    {
+      "rule" : "NoMacroFunctions"
     }
     
   ]

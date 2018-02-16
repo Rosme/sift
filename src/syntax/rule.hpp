@@ -35,6 +35,7 @@ namespace Syntax {
   smart_enum_class(RuleType,
                    NoAuto,
                    NoDefine,
+                   NoMacroFunctions,
                    StartWithX,
                    EndWithX
                   );

@@ -192,9 +192,6 @@ namespace Core
     rootScope.characterNumberStart = 0;
     rootScope.characterNumberEnd = 0;
 
-    // TODO: Review this call. Shouldn't this be part of the rule check? Here for eventual flow replacement?
-    //extractDefines(file, rootScope);
-
     //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
     //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
     //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
