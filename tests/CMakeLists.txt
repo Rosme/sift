@@ -54,3 +54,4 @@ add_custom_command(TARGET tests POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/tests/rules $<TARGET_FILE_DIR:tests>/rules
                     )
 
+file(COPY ${CMAKE_SOURCE_DIR}/tests/rules DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
