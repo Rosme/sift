@@ -6,9 +6,5 @@
       "appliedTo": "Function"
     },
     
-    {
-      "rule" : "NoMacroFunctions"
-    }
-    
   ]
 }

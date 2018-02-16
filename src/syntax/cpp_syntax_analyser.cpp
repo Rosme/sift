@@ -71,28 +71,24 @@ namespace Syntax
  void CPPSyntaxAnalyser::RuleNoMacroFunctions(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
     for(auto&& currentScope : scope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
-      std::stringstream defineLines;
-
-      std::regex macroRegex(R"(#define\s*\w*\()");
-      for(auto&& line : currentScope.getScopeLines()) {
+      std::string macro;
+      std::regex macroSearch(R"(#define\s*\w*\(.*)");
+      for(const auto& line : currentScope.getScopeLines()) {
         std::smatch match;
-        std::regex_match(line, match, macroRegex);
-        
-        LOG(INFO) << line;
-        if(match.size() > 0) {
-          defineLines << line << "\n";
+        if(std::regex_match(line, match, macroSearch))
+        {
+          macro = line + "\n";
           break;
         }
       }
-      
-      const std::string result = defineLines.str();
-      if(result.empty()){
+
+      if(macro.empty()){
         continue;
       }
       
       Core::Message message(Core::MessageType::Error, 
         SSTR("Macro function found - " << currentScope.file->filename << " vvvv"
-        "\n -->" << defineLines.str()), currentScope.lineNumberStart, currentScope.characterNumberStart
+        "\n -->" << macro), currentScope.lineNumberStart, currentScope.characterNumberStart
       );
       messageStack.pushMessage(message);
     }
