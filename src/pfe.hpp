@@ -49,6 +49,7 @@ public:
   void registerRuleWork();
   void outputMessages();
     
+  const Core::MessageStack getMessageStack(){ return m_messageStack; }
   std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
   std::string getRuleFileName() { return m_ruleFilename; }
 private:
@@ -73,4 +74,5 @@ private:
   std::string m_outputFilename;
   std::string m_loggingSettingsFilename;
   std::string m_ruleFilename;
+  
 };

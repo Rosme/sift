@@ -1,0 +1,9 @@
+
+{
+  "rules": [
+    {
+      "rule" : "StartWithX",
+      "parameter": "m_"
+    }
+  ]
+}

@@ -10,3 +10,6 @@ https://github.com/fmutant/hlml
 
 playground from:
 https://github.com/Nelarius/playground
+
+lgogdownloader from:
+https://github.com/Sude-/lgogdownloader

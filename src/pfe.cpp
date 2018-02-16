@@ -96,8 +96,15 @@ void PFE::setupLogging()
   // Setup defaults
   el::Configurations conf;
   conf.setToDefault();
-  conf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
-  conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
+  
+  if(m_quietMode) {
+    conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");
+    conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
+  }
+  else {
+    conf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
+    conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
+  }
   
   if(m_verboseMode) {
     conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "true");

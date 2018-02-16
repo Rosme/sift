@@ -73,7 +73,7 @@ namespace Syntax
   {
     for(auto&& currentScope : scope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
       std::string macro;
-      std::regex macroSearch(R"(#define\s*\w*\(.*)");
+      std::regex macroSearch(R"(.*#define\s*\w*\(.*)");
       for(const auto& line : currentScope.getScopeLines()) {
         std::smatch match;
         if(std::regex_match(line, match, macroSearch))
