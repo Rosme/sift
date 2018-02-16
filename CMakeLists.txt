@@ -110,6 +110,13 @@ if(UNIX)
   endif()
 endif()
 
+if(CMAKE_COMPILER_IS_GNUCC)
+  set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
+endif()
+if(MSVC)
+  set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W4")
+endif()
+
 include_directories(extlibs SYSTEM)
 
 add_subdirectory(tests)

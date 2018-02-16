@@ -96,7 +96,7 @@ namespace Core {
     bool sameFile = true;
     if(lhs.file && rhs.file) {
       sameFile = lhs.file->filename == rhs.file->filename;
-    } else if(lhs.file && !rhs.file || !lhs.file && rhs.file) {
+    } else if((lhs.file && !rhs.file) || (!lhs.file && rhs.file)) {
       sameFile = false;
     } else {
       sameFile = true;

@@ -426,9 +426,7 @@ namespace Core {
   }
 
   int CppScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine) {
-    //TODO: Review this. Not really happy with this.
     std::stack<char> bracketStack;
-    int offset = scope.characterNumberStart;
     int scopeLineNumber = startingLine;
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
       scopeLineNumber = j+1;
@@ -454,7 +452,6 @@ namespace Core {
 
   int CppScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine, int startingCharacter) {
     std::stack<char> bracketStack;
-    int offset = scope.characterNumberStart;
     int scopeLineNumber = startingLine;
     int startingCharForThisLine = startingCharacter;
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
@@ -489,10 +486,8 @@ namespace Core {
 
   int CppScopeExtractor::findEndOfScopeConditionalFor(Scope& scope, File& file, int startingLine, int startingCharacter) {
     int startingCharForThisLine = startingCharacter;
-    int scopeLineNumber = startingLine;
     std::stack<char> ParenthesisStack;
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
-      scopeLineNumber = j + 1;
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
@@ -547,11 +542,9 @@ namespace Core {
 
   bool CppScopeExtractor::isDoWhileLoop(File& file, int startingLine, int startingCharacter) {
     int startingCharForThisLine = startingCharacter;
-    int scopeLineNumber = startingLine;
     bool foundCondition = false;
     std::stack<char> ParenthesisStack;
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
-      scopeLineNumber = j + 1;
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
