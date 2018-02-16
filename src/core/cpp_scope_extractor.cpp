@@ -242,14 +242,14 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractVariables(File& file, Scope& parent) {
-    std::regex variableRegex(R"(\s*(?!return)(((\w*::)*\w+\*?\s+)|((\w*::)*\w+\s+\*?)|((\w*::)*\w+\s+\*\s+))(\w+)(\[\d*\])*\s*(=\s*\{*\w*\}*)?\s*;)");
+    std::regex variableRegex(R"(\s*(?!return)(((\w*::)*\w+\*?\s+)|(\blong\b|\bsigned\b|\bunsigned\b\s*(\w*::)*\w+\*?\s+)|((\w*::)*\w+\s+\*?)|((\w*::)*\w+\s+\*\s+))(\w+)(\[\d*\])*\s*((\(.*\))|(=[^!=]\s*.*))?\s*;)");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
       std::regex_match(line, match, variableRegex);
       if(match.size() > 0) {
         Scope scope(ScopeType::Variable);
-        scope.name = match[8];
+        scope.name = match[10];
         scope.parent = &parent;
         scope.lineNumberStart = lineNumber;
         scope.lineNumberEnd = lineNumber;
