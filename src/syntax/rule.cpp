@@ -37,7 +37,7 @@ namespace Syntax {
       for(const auto& jsonRule : jsonRules)
       {
         const std::string parameter = (jsonRule.find("parameter") != jsonRule.end()) ? jsonRule["parameter"].get<std::string>() : "";
-        const std::string appliedTo = (jsonRule.find("appliedTo") != jsonRule.end()) ? jsonRule["appliedTo"].get<std::string>() : "Source";
+        const std::string appliedTo = (jsonRule.find("appliedTo") != jsonRule.end()) ? jsonRule["appliedTo"].get<std::string>() : "All";
         Rule rule(Core::ScopeType_to_enum_class(appliedTo),
                   RuleType_to_enum_class(jsonRule["rule"].get<std::string>()),
                   parameter);

@@ -61,14 +61,15 @@ namespace Syntax
       }
       
       Core::Message message(Core::MessageType::Error, 
-        SSTR("Define found - " << currentScope.file->filename << " vvvv"
+        SSTR("Define found - " << currentScope.file->filename <<
         "\n -->" << defineLines.str()), currentScope.lineNumberStart, currentScope.characterNumberStart
       );
       messageStack.pushMessage(message);
     }
   }
   
- void CPPSyntaxAnalyser::RuleNoMacroFunctions(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+
+  void CPPSyntaxAnalyser::RuleNoMacroFunctions(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
     for(auto&& currentScope : scope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
       std::string macro;
@@ -87,7 +88,7 @@ namespace Syntax
       }
       
       Core::Message message(Core::MessageType::Error, 
-        SSTR("Macro function found - " << currentScope.file->filename << " vvvv"
+        SSTR("Macro function found - " << currentScope.file->filename <<
         "\n -->" << macro), currentScope.lineNumberStart, currentScope.characterNumberStart
       );
       messageStack.pushMessage(message);
@@ -97,11 +98,17 @@ namespace Syntax
   
   void CPPSyntaxAnalyser::RuleStartWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
-    for(auto&& currentScope : scope.getAllChildrenOfType(rule.getScopeType())) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable;
+    if(rule.getScopeType() != Core::ScopeType::All)
+    {
+      scopeTypes = rule.getScopeType();
+    }
+    
+    for(auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
       const auto& param = rule.getParameter();
       if(currentScope.name.compare(0, param.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
-          SSTR("Prefix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename << " vvvv"
+          SSTR("Prefix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename <<
           "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(message);
@@ -111,11 +118,17 @@ namespace Syntax
   
   void CPPSyntaxAnalyser::RuleEndWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
-    for(auto&& currentScope : scope.getAllChildrenOfType(rule.getScopeType())) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable;
+    if(rule.getScopeType() != Core::ScopeType::All)
+    {
+      scopeTypes = rule.getScopeType();
+    }
+    
+    for(auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
       const auto& param = rule.getParameter();
       if(currentScope.name.length() < param.length() || currentScope.name.compare(currentScope.name.length()-param.length(), currentScope.name.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
-          SSTR("Suffix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename << " vvvv"
+          SSTR("Suffix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename <<
           "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(message);

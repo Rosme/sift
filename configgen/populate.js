@@ -46,6 +46,7 @@ for(i in ruleNames)
 
 var scopes = 
 [
+  "All",
   "Source",
   "Namespace",
   "Class",
@@ -62,9 +63,7 @@ var scopes =
   "Variable",
   "SingleLineComment",
   "MultiLineComment",
-  "Comment",
-  "Unknown",
-  "All"
+  "Comment"
 ];
 
 var main = $("#main");

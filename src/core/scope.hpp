@@ -171,6 +171,8 @@ namespace Core {
       return "MultiLineComment";
     case ScopeType::Comment:
       return "Comment";
+    case ScopeType::All:
+      return "All";
     default:
       return "Unknown";
     }
@@ -239,6 +241,10 @@ namespace Core {
 
     if(string_case_compare(type, "Comment")) {
       return ScopeType::Comment;
+    }
+    
+    if(string_case_compare(type, "All")) {
+      return ScopeType::All;
     }
 
     return ScopeType::Unknown;
