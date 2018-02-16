@@ -34,7 +34,9 @@ var rulesDef = [];
 var ruleNames = [
   "NoAuto",
   "NoDefine",
-  "Prefix"
+  "NoMacroFunctions",
+  "StartWithX",
+  "EndWithX"
 ];
 
 for(i in ruleNames)
@@ -55,8 +57,14 @@ var scopes =
   "ClassVariable",
   "FunctionVariable",
   "GlobalVariable",
+  "GlobalDefine",
   "Global",
-  "Variable"
+  "Variable",
+  "SingleLineComment",
+  "MultiLineComment",
+  "Comment",
+  "Unknown",
+  "All"
 ];
 
 var main = $("#main");

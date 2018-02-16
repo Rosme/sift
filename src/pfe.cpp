@@ -58,6 +58,7 @@ void PFE::parseArgv(int argc, char** argv)
   ("d,debug", "Enable debugging")
   ("q,quiet", "Enable quiet mode")
   ("l,logconfig", "Specify a easylogging config file to use", cxxopts::value<std::string>())
+  ("r,rules", "Specify a rule file to use", cxxopts::value<std::string>())
   ("o,output", "Output results to file", cxxopts::value<std::string>())
   ("h,help", "Print help")
   ;
@@ -73,6 +74,7 @@ void PFE::parseArgv(int argc, char** argv)
     CXXOPT("quiet", m_quietMode, bool, false);
     CXXOPT("output", m_outputFilename, std::string, "output.txt");
     CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
+    CXXOPT("rules", m_ruleFilename, std::string, "samples/rules/rules.json");
   }
   catch(...)
   {

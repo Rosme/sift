@@ -50,6 +50,7 @@ public:
   void outputMessages();
     
   std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
+  std::string getRuleFileName() { return m_ruleFilename; }
 private:
   // filename : rawText
   std::map<std::string, Core::File> m_files;
@@ -70,4 +71,5 @@ private:
   bool m_quietMode = false;
   std::string m_outputFilename;
   std::string m_loggingSettingsFilename;
+  std::string m_ruleFilename;
 };

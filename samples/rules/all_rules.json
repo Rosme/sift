@@ -1,0 +1,20 @@
+{
+  "rules": [
+    {
+      "rule": "NoDefine",
+      "parameter": ""
+    },
+    {
+      "rule": "NoMacroFunctions",
+      "parameter": ""
+    },
+    {
+      "rule": "StartWithX",
+      "parameter": "m_"
+    },
+    {
+      "rule": "EndWithX",
+      "parameter": "_s"
+    }
+  ]
+}

@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
   PFE pfe;
   pfe.parseArgv(argc, argv);
   pfe.setupLogging();
-  pfe.setupRules("samples/rules/rules.json");
+  pfe.setupRules(pfe.getRuleFileName());
   pfe.registerRuleWork();
   pfe.readSingleSourceFile("samples/src/brightness_manager.cc");
   pfe.extractScopes();
