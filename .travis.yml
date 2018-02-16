@@ -30,4 +30,5 @@ script:
 - cd build
 - cmake ../
 - make
-- "./tests/tests"
+- cd tests
+- "./tests"
