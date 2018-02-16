@@ -60,12 +60,15 @@ namespace Core {
     //Filtering out reserved keywords
     rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
       for(const auto& keyword : ReservedKeywords) {
-        if(scope.name == keyword) {
+        if(scope.name == keyword && scope.type != ScopeType::Conditionnal) {
           return true;
         }
       }
       return false;
     }), rootScope.children.end());
+
+    //Remove scope within comments
+    filterScopes(rootScope);
 
     //Reconstruct Tree
     constructTree(rootScope);
@@ -102,6 +105,7 @@ namespace Core {
             scope.isMultiLine = true;
           } else {
             scope.characterNumberEnd = scope.characterNumberStart + line.size();
+            scope.lineNumberEnd = lineNo;
             scope.name = line;
             parent.children.push_back(scope);
           }
@@ -109,6 +113,7 @@ namespace Core {
       } else if(isStillInDefine) {
         if(line.find("\\") == std::string::npos) {
           scope.characterNumberEnd = charNo + line.size()-1;
+          scope.lineNumberEnd = lineNo;
           scope.name = scope.getScopeLines().at(0);
           parent.children.push_back(scope);
           isStillInDefine = false;
@@ -201,7 +206,8 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractFunctions(File& file, Scope& parent) {
-    std::regex functionRegex("(\\w*\\s)*((\\w|:)+)\\s*\\((.*),?\\).*");
+    //std::regex functionRegex("(\\w*\\s)*((\\w|:)+)\\s*\\((.*),?\\)((\\s|\\w|\\d)*(\\s*=\\s*0)?)");
+    std::regex functionRegex("(\\w*\\s)*((\\w|:)+)\\s*\\((.*),?\\).*\s*(;|\\{)");
     for(int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -318,7 +324,7 @@ namespace Core {
         }
         scope.name = name;
 
-        LOG(INFO) << "\n" << scope;
+        LOG(DEBUG) << "\n" << scope;
 
         parent.children.push_back(scope);
       } else if(std::regex_match(line, match, singleLineComments)) {
@@ -338,7 +344,38 @@ namespace Core {
     }
   }
 
+  void CppScopeExtractor::filterScopes(Scope& root) {
+    
+    auto childrenCopy = root.children;
+    root.children.erase(std::remove_if(root.children.begin(), root.children.end(), [&childrenCopy](const Scope& scope) {
+      for(auto& it : childrenCopy) {
+        if(it == scope) {
+          continue;
+        }
+
+        //Filtering comments
+        if(scope.isWithinOtherScope(it) && it.isOfType(ScopeType::Comment)) {
+          return true;
+        } else if(scope.isOfType(ScopeType::Comment)) {
+          return true;
+        } else if(scope.isOfType(ScopeType::Function) && scope.isWithinOtherScope(it) && (it.isOfType(ScopeType::Function) || it.isOfType(ScopeType::Conditionnal))) {
+          //Filtering function call within a function
+          return true;
+        }
+        
+
+      }
+
+      return false;
+    }), root.children.end());
+  }
+
   void CppScopeExtractor::constructTree(Scope& root) {
+
+    std::sort(root.children.begin(), root.children.end(), [](const Scope& lhs, const Scope& rhs) {
+      return lhs.lineNumberStart <= rhs.lineNumberStart;
+    });
+
     //Finding the parent of every Scope
     for(auto it = root.children.rbegin(); it != root.children.rend(); it++) {
       if(it->type == ScopeType::GlobalDefine) {
@@ -363,7 +400,7 @@ namespace Core {
         } else {
           if(it->name.find(':') != std::string::npos) {
             it->type = ScopeType::ClassFunction;
-          } else if(static_cast<unsigned int>(bestParent.type & ScopeType::Function) != 0) {
+          } else if(bestParent.isOfType(ScopeType::Function)) {
             //Declared like a function(e.g. int var(5))
             it->type = ScopeType::FunctionVariable;
           } else {
@@ -372,34 +409,6 @@ namespace Core {
         }
       }
     }
-
-    //Recreating the tree with the children
-    /*for(int i = 0; i < root.children.size(); ++i) {
-    auto& scope = root.children[i];
-
-    if(scope.parent && scope.parent->type != ScopeType::Source) {
-    auto& parentChildren = scope.parent->children;
-    bool isAlreadyIn = false;
-    for(int j = 0; j < parentChildren.size(); ++j) {
-    if(parentChildren[j] == scope) {
-    isAlreadyIn = true;
-    break;
-    }
-    }
-    if(!isAlreadyIn) {
-    parentChildren.push_back(scope);
-    i = -1;
-    }
-    }
-    }*/
-
-    //Removing superfluous scopes
-    /*for(auto it = root.children.begin(); it != root.children.end(); ++it) {
-    if(it->parent->type != ScopeType::Source) {
-    root.children.erase(it);
-    it = root.children.begin();
-    }
-    }*/
   }
 
   Scope& CppScopeExtractor::findBestParent(Scope& root, Scope& toSearch) {

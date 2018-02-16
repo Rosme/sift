@@ -88,7 +88,7 @@ namespace Core {
     return tree.str();
   }
 
-  bool Scope::isWithinOtherScope(const Scope& other) {
+  bool Scope::isWithinOtherScope(const Scope& other) const {
     //Start line is before other or end line is after other
     if(lineNumberStart < other.lineNumberStart || lineNumberEnd > other.lineNumberEnd) {
       return false;
@@ -107,7 +107,7 @@ namespace Core {
     return true;
   }
 
-  bool Scope::isOfType(ScopeType typeToVerify) {
+  bool Scope::isOfType(ScopeType typeToVerify) const {
     return static_cast<unsigned int>(type & typeToVerify) != 0;
   }
 

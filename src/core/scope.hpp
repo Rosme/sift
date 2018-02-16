@@ -68,8 +68,8 @@ namespace Core {
     ScopeVector getAllChildrenOfType(ScopeType type) const;
     unsigned int getDepth() const;
     std::string getTree() const; //Debug Function
-    bool isWithinOtherScope(const Scope& other);
-    bool isOfType(ScopeType type);
+    bool isWithinOtherScope(const Scope& other) const;
+    bool isOfType(ScopeType type) const;
     ScopeVector::iterator begin();
     ScopeVector::const_iterator begin() const;
     ScopeVector::iterator end();

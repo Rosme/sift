@@ -44,6 +44,7 @@ namespace Core {
     void extractConditionals(File& file, Scope& parent);
     void extractComments(File& file, Scope& parent);
 
+    void filterScopes(Scope& root);
     void constructTree(Scope& root);
     Scope& findBestParent(Scope& root, Scope& toSearch);
 
