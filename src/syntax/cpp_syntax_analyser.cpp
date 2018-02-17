@@ -80,7 +80,7 @@ namespace Syntax
       
       Core::Message message(Core::MessageType::Error, 
         SSTR("Define found - " << currentScope.file->filename <<
-        "\n -->" << defineLines.str()), currentScope.lineNumberStart, currentScope.characterNumberStart
+        "\n -->" << defineLines.str()), currentScope.lineNumberStart+1, currentScope.characterNumberStart
       );
       messageStack.pushMessage(message);
     }
@@ -107,7 +107,7 @@ namespace Syntax
       
       Core::Message message(Core::MessageType::Error, 
         SSTR("Macro function found - " << currentScope.file->filename <<
-        "\n -->" << macro), currentScope.lineNumberStart, currentScope.characterNumberStart
+        "\n -->" << macro), currentScope.lineNumberStart+1, currentScope.characterNumberStart
       );
       messageStack.pushMessage(message);
     }
@@ -127,7 +127,7 @@ namespace Syntax
       if(currentScope.name.compare(0, param.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
           SSTR("Prefix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename <<
-          "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
+          "\n -->" << currentScope.name), currentScope.lineNumberStart+1, currentScope.characterNumberStart
         );
         messageStack.pushMessage(message);
       }
@@ -147,7 +147,7 @@ namespace Syntax
       if(currentScope.name.length() < param.length() || currentScope.name.compare(currentScope.name.length()-param.length(), currentScope.name.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
           SSTR("Suffix does not match (want: " << rule.getParameter() << ") - " << currentScope.file->filename <<
-          "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
+          "\n -->" << currentScope.name), currentScope.lineNumberStart+1, currentScope.characterNumberStart
         );
         messageStack.pushMessage(message);
       }
@@ -160,7 +160,8 @@ namespace Syntax
     for(unsigned int i = 0; i < lines.size(); ++i) {
       if(lines[i].size() > maxCharPerLine) {
         messageStack.pushMessage(Core::Message(Core::MessageType::Error, 
-                                               SSTR("Maximum number of characters exceeded. Want: " << rule.getParameter() << " - Got: " << lines[i].size())
+                                               SSTR("Maximum number of characters exceeded. Want: " << rule.getParameter() << " - Got: " << lines[i].size()),
+                                               i+1, lines[i].size()
                                               ));
       }
     }
