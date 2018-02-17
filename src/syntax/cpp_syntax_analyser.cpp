@@ -45,11 +45,22 @@ namespace Syntax
   void CPPSyntaxAnalyser::registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work)
   {
     // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
+    REGISTER_RULE(NoAuto);
     REGISTER_RULE(NoDefine);
     REGISTER_RULE(NoMacroFunctions);
     REGISTER_RULE(StartWithX);
     REGISTER_RULE(EndWithX);
+    
+    for(int i = 0; i < (int)RuleType::RuleTypeCount; i++)
+    {
+      PFE_ASSERT(work.find((RuleType)i) != work.end(), std::string("Rule '" + to_string((RuleType)i) + "' is defined but has no work registered for it"));
+    }
   }
+  
+  void CPPSyntaxAnalyser::RuleNoAuto(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    
+  } 
   
   void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
