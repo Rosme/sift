@@ -33,6 +33,7 @@
 namespace Syntax {
   
   smart_enum_class(RuleType,
+                   Unknown,
                    NoAuto,
                    NoDefine,
                    NoMacroFunctions,
