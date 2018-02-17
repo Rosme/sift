@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdint>
 #include <iostream>
+#include <algorithm>
+#include <cassert>
 
 namespace smart_enum
 {
@@ -126,6 +128,19 @@ namespace smart_enum
 
         return nameMap;
     }
+
+    inline std::string toLower(const std::string& str) {
+      std::string s;
+
+      for(const auto& c : str) {
+        s.push_back(tolower(c));
+      }
+
+      return s;
+    }
+    inline bool string_case_compare(const std::string& lhs, const std::string& rhs) {
+      return toLower(lhs) == toLower(rhs);
+    }
 }
 
 #define smart_enum(Type, ...) enum Type { __VA_ARGS__}; \
@@ -161,5 +176,13 @@ namespace smart_enum
     \
     inline const Type Type##_to_enum_class(const std::string& name)\
     {\
+        auto it = std::find_if(Type##_enum_values.begin(), Type##_enum_values.end(), [&name](const std::pair<std::string, int32_t>& pair) { \
+          return smart_enum::string_case_compare(name, pair.first); \
+        }); \
+        if(it != Type##_enum_values.end()) { \
+            \
+        } else { \
+          return static_cast<Type>(Type##_enum_values.begin()->second); \
+        } \
         return static_cast<Type>(Type##_enum_values.at(name));\
     }
