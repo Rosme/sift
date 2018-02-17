@@ -450,7 +450,7 @@ namespace Core {
     
     
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
-      scopeLineNumber = j+1;
+      scopeLineNumber = j;
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = 0; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
@@ -481,7 +481,7 @@ namespace Core {
     int startingCharForThisLine = startingCharacter;
 
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
-      scopeLineNumber = j + 1;
+      scopeLineNumber = j;
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
