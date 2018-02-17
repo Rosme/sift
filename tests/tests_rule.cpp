@@ -52,12 +52,12 @@ TEST_CASE("Testing macro related rules", "[rules-macro]") {
   pfe.setupLogging();
   
   SECTION("Test No defines") {
-    const auto stack = doTest(pfe, "rules/nodefines.json", "samples/src/define.hpp");
+    const auto stack = doTest(pfe, "samples/tests/rules/nodefines.json", "samples/src/define.hpp");
     REQUIRE(stack.size() == 8);
   }
   
   SECTION("Test No macro functions") {
-    const auto stack = doTest(pfe, "rules/nomacrofunctions.json", "samples/src/define.hpp");
+    const auto stack = doTest(pfe, "samples/tests/rules/nomacrofunctions.json", "samples/src/define.hpp");
     REQUIRE(stack.size() == 4);
   }
 }
@@ -69,8 +69,21 @@ TEST_CASE("Testing suffix/prefix related rules", "[rules-suffix]") {
   pfe.setupLogging(); 
   
   SECTION("Test Prefix") {
-    const auto stack = doTest(pfe, "rules/prefix.json", "samples/src/prefix.cpp");
+    const auto stack = doTest(pfe, "samples/tests/rules/prefix.json", "samples/src/prefix.cpp");
     DUMP_STACK(stack);
     REQUIRE(stack.size() == 6);
+  }
+}
+
+TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
+  std::vector<std::string> argv = {"program_name", "-V"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test Maximum Characters Per Line") {
+    const auto stack = doTest(pfe, "samples/tests/rules/maxcharactersperline.json", "samples/tests/src/maxcharactersperline.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 3);
   }
 }

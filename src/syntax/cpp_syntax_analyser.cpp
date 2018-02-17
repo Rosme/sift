@@ -51,6 +51,7 @@ namespace Syntax
     REGISTER_RULE(NoMacroFunctions);
     REGISTER_RULE(StartWithX);
     REGISTER_RULE(EndWithX);
+    REGISTER_RULE(MaxCharactersPerLine);
     
     for(const auto& type : RuleType_list)
     {
@@ -59,18 +60,18 @@ namespace Syntax
     }
   }
 
-  void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack) {
+  void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     messageStack.pushMessage(Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
   }
 
-  void CPPSyntaxAnalyser::RuleNoAuto(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleNoAuto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
     
   } 
   
-  void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    for(auto&& currentScope : scope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
+    for(auto&& currentScope : rootScope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
       std::stringstream defineLines;
 
       for(auto&& line : currentScope.getScopeLines()) {
@@ -86,9 +87,9 @@ namespace Syntax
   }
   
 
-  void CPPSyntaxAnalyser::RuleNoMacroFunctions(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleNoMacroFunctions(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    for(auto&& currentScope : scope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
+    for(auto&& currentScope : rootScope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
       std::string macro;
       std::regex macroSearch(R"(.*#define\s*\w*\(.*)");
       for(const auto& line : currentScope.getScopeLines()) {
@@ -113,7 +114,7 @@ namespace Syntax
   }
   
   
-  void CPPSyntaxAnalyser::RuleStartWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleStartWithX(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
     Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable;
     if(rule.getScopeType() != Core::ScopeType::All)
@@ -121,7 +122,7 @@ namespace Syntax
       scopeTypes = rule.getScopeType();
     }
     
-    for(auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+    for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       const auto& param = rule.getParameter();
       if(currentScope.name.compare(0, param.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
@@ -133,7 +134,7 @@ namespace Syntax
     }
   }
   
-  void CPPSyntaxAnalyser::RuleEndWithX(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleEndWithX(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
     Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable;
     if(rule.getScopeType() != Core::ScopeType::All)
@@ -141,7 +142,7 @@ namespace Syntax
       scopeTypes = rule.getScopeType();
     }
     
-    for(auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+    for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       const auto& param = rule.getParameter();
       if(currentScope.name.length() < param.length() || currentScope.name.compare(currentScope.name.length()-param.length(), currentScope.name.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
@@ -149,6 +150,18 @@ namespace Syntax
           "\n -->" << currentScope.name), currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleMaxCharactersPerLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    const auto& lines = rootScope.file->lines;
+    const auto maxCharPerLine = std::stoul(rule.getParameter());
+    for(unsigned int i = 0; i < lines.size(); ++i) {
+      if(lines[i].size() > maxCharPerLine) {
+        messageStack.pushMessage(Core::Message(Core::MessageType::Error, 
+                                               SSTR("Maximum number of characters exceeded. Want: " << rule.getParameter() << " - Got: " << lines[i].size())
+                                              ));
       }
     }
   }

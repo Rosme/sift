@@ -38,7 +38,8 @@ namespace Syntax {
                    NoDefine,
                    NoMacroFunctions,
                    StartWithX,
-                   EndWithX
+                   EndWithX,
+                   MaxCharactersPerLine
                   );
 
   class Rule {

@@ -1,0 +1,9 @@
+
+{
+  "rules": [
+    {
+      "rule" : "MaxCharactersPerLine",
+      "parameter": "40"
+    }
+  ]
+}
