@@ -56,6 +56,7 @@ namespace Syntax
     REGISTER_RULE(CurlyBracketsOpenSeperateLine);
     REGISTER_RULE(CurlyBracketsCloseSameLine);
     REGISTER_RULE(CurlyBracketsCloseSeperateLine);
+    REGISTER_RULE(AlwaysHaveCurlyBrackets);
     
     for(const auto& type : RuleType_list)
     {
@@ -158,7 +159,6 @@ namespace Syntax
     }
   }
 
-
   void CPPSyntaxAnalyser::RuleMaxCharactersPerLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     const auto& lines = rootScope.file->lines;
     const auto maxCharPerLine = std::stoul(rule.getParameter());
@@ -250,6 +250,20 @@ namespace Syntax
     }
   }
 
+  void CPPSyntaxAnalyser::RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    Core::ScopeType scopeTypes = Core::ScopeType::Conditionnal;
+
+    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+      if (!IsScopeUsingCurlyBrackets(currentScope)) {
+        Core::Message message(Core::MessageType::Error,
+          SSTR("Curly brackets not used " <<
+            "\n -->" << currentScope.name), currentScope.lineNumberEnd
+        );
+        messageStack.pushMessage(message);
+      }
+    }
+  }
 
   bool CPPSyntaxAnalyser::IsScopeUsingCurlyBrackets(Core::Scope& scope) {
     const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];

@@ -51,6 +51,7 @@ namespace Syntax {
     void RuleCurlyBracketsOpenSeperateLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
     void RuleCurlyBracketsCloseSameLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
     void RuleCurlyBracketsCloseSeperateLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
+    void RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
     
     bool IsScopeUsingCurlyBrackets(Core::Scope& scope);
     bool IsOpeningCurlyBracketSeparateLine(Core::Scope& scope);

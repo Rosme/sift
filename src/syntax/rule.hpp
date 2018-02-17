@@ -43,7 +43,8 @@ namespace Syntax {
                    CurlyBracketsOpenSameLine,
                    CurlyBracketsOpenSeperateLine,
                    CurlyBracketsCloseSameLine,
-                   CurlyBracketsCloseSeperateLine
+                   CurlyBracketsCloseSeperateLine,
+                   AlwaysHaveCurlyBrackets
                   );
 
   class Rule {
