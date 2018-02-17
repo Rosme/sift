@@ -39,7 +39,11 @@ namespace Syntax {
                    NoMacroFunctions,
                    StartWithX,
                    EndWithX,
-                   MaxCharactersPerLine
+                   MaxCharactersPerLine,
+                   CurlyBracketsOpenSameLine,
+                   CurlyBracketsOpenSeperateLine,
+                   CurlyBracketsCloseSameLine,
+                   CurlyBracketsCloseSeperateLine
                   );
 
   class Rule {

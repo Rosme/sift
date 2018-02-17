@@ -280,7 +280,6 @@ namespace Core {
   void CppScopeExtractor::extractConditionals(File& file, Scope& parent) {
     std::regex conditionnalRegex(R"(\s*(if|else|for|switch|while|do)(\(|\{|\s|$))");
     for(unsigned int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
-      int lineNumber = i + 1;
       const std::string& line = file.lines[i];
       std::smatch match;
       std::regex_search(line, match, conditionnalRegex);
@@ -293,7 +292,7 @@ namespace Core {
         Scope scope(ScopeType::Conditionnal);
         scope.name = match[1];
         scope.parent = &parent;
-        scope.lineNumberStart = lineNumber;
+        scope.lineNumberStart = i;
         scope.characterNumberStart = line.find(match[0]);
         scope.file = &file;
 

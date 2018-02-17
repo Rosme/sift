@@ -52,6 +52,10 @@ namespace Syntax
     REGISTER_RULE(StartWithX);
     REGISTER_RULE(EndWithX);
     REGISTER_RULE(MaxCharactersPerLine);
+    REGISTER_RULE(CurlyBracketsOpenSameLine);
+    REGISTER_RULE(CurlyBracketsOpenSeperateLine);
+    REGISTER_RULE(CurlyBracketsCloseSameLine);
+    REGISTER_RULE(CurlyBracketsCloseSeperateLine);
     
     for(const auto& type : RuleType_list)
     {
@@ -154,6 +158,7 @@ namespace Syntax
     }
   }
 
+
   void CPPSyntaxAnalyser::RuleMaxCharactersPerLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     const auto& lines = rootScope.file->lines;
     const auto maxCharPerLine = std::stoul(rule.getParameter());
@@ -166,4 +171,111 @@ namespace Syntax
       }
     }
   }
+
+  void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSameLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if (rule.getScopeType() != Core::ScopeType::All) {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+      if (IsScopeUsingCurlyBrackets(currentScope) && IsOpeningCurlyBracketSeparateLine(currentScope)) {
+        Core::Message message(Core::MessageType::Error,
+          SSTR("Opening curly bracket not on same line " <<
+            "\n -->" << currentScope.name), currentScope.lineNumberStart
+        );
+        messageStack.pushMessage(message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSeperateLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if (rule.getScopeType() != Core::ScopeType::All)
+    {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+      if (IsScopeUsingCurlyBrackets(currentScope) && !IsOpeningCurlyBracketSeparateLine(currentScope)) {
+        Core::Message message(Core::MessageType::Error,
+          SSTR("Opening curly bracket not on separate line " <<
+            "\n -->" << currentScope.name), currentScope.lineNumberStart
+        );
+        messageStack.pushMessage(message);
+      }
+    }
+  }
+
+
+
+  void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSameLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if (rule.getScopeType() != Core::ScopeType::All)
+    {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+      if (IsScopeUsingCurlyBrackets(currentScope) && IsClosingCurlyBracketSeparateLine(currentScope)) {
+        Core::Message message(Core::MessageType::Error,
+          SSTR("Closing curly bracket not on same line " <<
+            "\n -->" << currentScope.name), currentScope.lineNumberEnd
+        );
+        messageStack.pushMessage(message);
+      }
+
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSeperateLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if (rule.getScopeType() != Core::ScopeType::All)
+    {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+      if (IsScopeUsingCurlyBrackets(currentScope) && !IsClosingCurlyBracketSeparateLine(currentScope)) {
+        Core::Message message(Core::MessageType::Error,
+          SSTR("Closing curly bracket not on separate line " <<
+            "\n -->" << currentScope.name), currentScope.lineNumberEnd
+        );
+        messageStack.pushMessage(message);
+      }
+    }
+  }
+
+
+  bool CPPSyntaxAnalyser::IsScopeUsingCurlyBrackets(Core::Scope& scope) {
+    const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
+    return scopeLine[scope.characterNumberEnd] == '}';
+  }
+
+  bool CPPSyntaxAnalyser::IsOpeningCurlyBracketSeparateLine(Core::Scope& scope) {
+    const std::string& scopeLine = scope.file->lines[scope.lineNumberStart];
+    for (unsigned int pos = scope.characterNumberStart; pos < scopeLine.size(); ++pos) {
+      const char& c = scopeLine[pos];
+      if (c == '{') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool CPPSyntaxAnalyser::IsClosingCurlyBracketSeparateLine(Core::Scope& scope) {
+    const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
+    for (unsigned int pos = 0; pos < scope.characterNumberEnd; ++pos) {
+      const char& c = scopeLine[pos];
+      if (c != ' ' && c != '\r' && c != '\n') {
+        return true;
+      }
+    }
+    return false;
+  }
+
 };
