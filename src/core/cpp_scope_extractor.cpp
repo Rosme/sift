@@ -50,7 +50,7 @@ namespace Core {
   });
 
 
-  bool CppScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {
+  bool CppScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {   
     Scope rootScope(ScopeType::Source);
     rootScope.file = &file;
     rootScope.name = file.filename;
@@ -58,7 +58,7 @@ namespace Core {
     rootScope.lineNumberEnd = file.lines.size();
     rootScope.characterNumberStart = 0;
     rootScope.characterNumberEnd = 0;
-    
+
     try{
       //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
       //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
@@ -391,7 +391,7 @@ namespace Core {
   void CppScopeExtractor::constructTree(Scope& root) {
 
     std::sort(root.children.begin(), root.children.end(), [](const Scope& lhs, const Scope& rhs) {
-      return lhs.lineNumberStart <= rhs.lineNumberStart;
+      return lhs.lineNumberStart < rhs.lineNumberStart;
     });
 
     //Finding the parent of every Scope
