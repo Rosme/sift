@@ -24,12 +24,14 @@
 #pragma once
 
 #include <cassert>
+#include <assert.h>
 #include <muflihun/easylogging++.h>
 
 
 #ifdef USE_PFE_ASSERT
 #define PFE_ASSERT(x, message) if(!(x)) { LOG(ERROR) << message; } assert(x);
-                                
+#define PFE_STATIC_ASSERT(x, message) if(!(x)) { LOG(ERROR) << message; } static_assert(x);
 #else
 #define PFE_ASSERT(x, message)
+#define PFE_STATIC_ASSERT(x, message)
 #endif
