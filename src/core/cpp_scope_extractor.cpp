@@ -25,11 +25,13 @@
 #include <stack>
 #include <muflihun/easylogging++.h>
 
+#include "constants.hpp"
 #include "cpp_scope_extractor.hpp"
 #include "scope.hpp"
 
 namespace Core {
 
+  //http://en.cppreference.com/w/cpp/keyword
   const std::vector<std::string> CppScopeExtractor::ReservedKeywords({
     "if", 
     "else", 
@@ -38,6 +40,12 @@ namespace Core {
     "do", 
     "new", 
     "delete", 
+    "typedef",
+    "try",
+    "catch",
+    "return",
+    "public",
+    "static",
     "typedef"
   });
 
@@ -51,38 +59,43 @@ namespace Core {
     rootScope.characterNumberStart = 0;
     rootScope.characterNumberEnd = 0;
     
-    //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
-    //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
-    //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
-    extractGlobals(file, rootScope);
-    extractNamespaces(file, rootScope);
-    extractEnums(file, rootScope);
-    extractClasses(file, rootScope);
-    extractFunctions(file, rootScope);
-    extractVariables(file, rootScope);
-    extractConditionals(file, rootScope);
-    extractComments(file, rootScope);
+    try{
+      //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
+      //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
+      //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
+      extractGlobals(file, rootScope);
+      extractNamespaces(file, rootScope);
+      extractEnums(file, rootScope);
+      extractClasses(file, rootScope);
+      extractFunctions(file, rootScope);
+      extractVariables(file, rootScope);
+      extractConditionals(file, rootScope);
+      extractComments(file, rootScope);
 
-    //Filtering out reserved keywords
-    rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
-      for(const auto& keyword : ReservedKeywords) {
-        if(scope.name == keyword && scope.type != ScopeType::Conditionnal) {
-          return true;
+      //Filtering out reserved keywords
+      rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
+        for(const auto& keyword : ReservedKeywords) {
+          if(scope.name == keyword && scope.type != ScopeType::Conditionnal) {
+            return true;
+          }
         }
-      }
+        return false;
+      }), rootScope.children.end());
+
+      //Remove scope within comments
+      filterScopes(rootScope);
+
+      //Reconstruct Tree
+      constructTree(rootScope);
+
+      LOG(TRACE) << "\n" << rootScope.getTree();
+
+      outScope = rootScope;
+    }catch(std::overflow_error& e){
+      LOG(ERROR) << e.what();
       return false;
-    }), rootScope.children.end());
-
-    //Remove scope within comments
-    filterScopes(rootScope);
-
-    //Reconstruct Tree
-    constructTree(rootScope);
-
-    LOG(TRACE) << "\n" << rootScope.getTree();
-
-    outScope = rootScope;
-
+    }
+      
     return true;
   }
 
@@ -434,6 +447,8 @@ namespace Core {
   int CppScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine) {
     std::stack<char> bracketStack;
     int scopeLineNumber = startingLine;
+    
+    
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
       scopeLineNumber = j+1;
       const std::string& namespaceLine = file.lines[j];
@@ -451,15 +466,20 @@ namespace Core {
           }
         }
       }
+      
+      if(bracketStack.size() > BRACKET_STACK_GIVEUP){
+        throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
+      }
     }
 
     return scopeLineNumber;
   }
 
-  int CppScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine, int startingCharacter) {
+  int CppScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine, int startingCharacter) {    
     std::stack<char> bracketStack;
     int scopeLineNumber = startingLine;
     int startingCharForThisLine = startingCharacter;
+
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
       scopeLineNumber = j + 1;
       const std::string& namespaceLine = file.lines[j];
@@ -484,6 +504,10 @@ namespace Core {
         }
       }
       startingCharForThisLine = 0;
+      
+      if(bracketStack.size() > BRACKET_STACK_GIVEUP){
+        throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
+      }
     }
 
     return scopeLineNumber;
@@ -493,6 +517,7 @@ namespace Core {
   int CppScopeExtractor::findEndOfScopeConditionalFor(Scope& scope, File& file, int startingLine, int startingCharacter) {
     int startingCharForThisLine = startingCharacter;
     std::stack<char> ParenthesisStack;
+
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
@@ -509,9 +534,14 @@ namespace Core {
         }
       }
       startingCharForThisLine = 0;
+      
+      if(ParenthesisStack.size() > BRACKET_STACK_GIVEUP){
+        throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
+      }
     }
+    
+    
     return startingCharForThisLine;
-
   }
 
 

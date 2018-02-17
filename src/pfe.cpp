@@ -210,7 +210,6 @@ void PFE::extractScopes()
   for(auto&& filePair : m_files)
   {
     Core::Scope scope;
-    //bool success = extractScopesFromFile(filePair.second, scope);
     bool success = extractor.extractScopesFromFile(filePair.second, scope);
     if(success)
     {
