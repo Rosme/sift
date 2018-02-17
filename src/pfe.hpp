@@ -42,16 +42,17 @@ public:
   void parseArgv(int argc, char** argv);
   void setupLogging();
   void setupRules(const std::string filename);
-  void readSingleSourceFile(const std::string& filename);
-  void readFilesFromDirectory(const std::string& directory);
   void extractScopes();
   void applyRules();
   void registerRuleWork();
   void outputMessages();
+  void readPath(const std::string& path);
     
   const Core::MessageStack getMessageStack(){ return m_messageStack; }
   std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
   std::string getRuleFileName() { return m_ruleFilename; }
+  std::string getPathToParse() { return m_pathToParse; }
+  
 private:
   // filename : rawText
   std::map<std::string, Core::File> m_files;
@@ -74,5 +75,8 @@ private:
   std::string m_outputFilename;
   std::string m_loggingSettingsFilename;
   std::string m_ruleFilename;
+  std::string m_pathToParse;
   
+  void readSingleSourceFile(const std::string& filename);
+  void readFilesFromDirectory(const std::string& directory, const std::string& extensions);
 };

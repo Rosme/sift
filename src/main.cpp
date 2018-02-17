@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   pfe.setupLogging();
   pfe.setupRules(pfe.getRuleFileName());
   pfe.registerRuleWork();
-  pfe.readSingleSourceFile("samples/src/brightness_manager.cc");
+  pfe.readPath(pfe.getPathToParse());
   pfe.extractScopes();
   pfe.applyRules();
   pfe.outputMessages();

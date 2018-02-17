@@ -39,7 +39,7 @@ Core::MessageStack doTest(PFE& pfe, const std::string rules, const std::string s
 {
   pfe.setupRules(rules);
   pfe.registerRuleWork();
-  pfe.readSingleSourceFile(source);
+  pfe.readPath(source);
   pfe.extractScopes();
   pfe.applyRules();
   return pfe.getMessageStack();

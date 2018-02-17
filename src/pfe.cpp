@@ -31,6 +31,7 @@
 
 #include "pfe.hpp"
 #include "core/config.hpp"
+#include "core/assert.hpp"
 #include "core/cpp_scope_extractor.hpp"
 #include "flow/cpp_flow_analyser.hpp"
 #include "syntax/cpp_syntax_analyser.hpp"
@@ -62,9 +63,11 @@ void PFE::parseArgv(int argc, char** argv)
   ("r,rules", "Specify a rule file to use", cxxopts::value<std::string>())
   ("o,output", "Output results to file", cxxopts::value<std::string>())
   ("h,help", "Print help")
+  ("p,path", "Specify what path/filename to parse", cxxopts::value<std::string>(m_pathToParse))
   ;
   try
   {
+    options.parse_positional({"path"}); // ./pfe <path>
     auto result = options.parse(argc, argv);
     if (result.count("help"))
     {
@@ -77,12 +80,12 @@ void PFE::parseArgv(int argc, char** argv)
       std::cout << PROGRAM_NAME << ", version: " << VERSION << std::endl;
       exit(0);
     }
-      
     CXXOPT("verbose", m_verboseMode, bool, false);
     CXXOPT("quiet", m_quietMode, bool, false);
     CXXOPT("output", m_outputFilename, std::string, "output.txt");
     CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
     CXXOPT("rules", m_ruleFilename, std::string, "samples/rules/rules.json");
+    CXXOPT("path", m_pathToParse, std::string, "samples/src/EasyCNN/header/EasyCNN/ActivationLayer.h");
   }
   catch(...)
   {
@@ -96,6 +99,7 @@ void PFE::setupLogging()
   // Setup defaults
   el::Configurations conf;
   conf.setToDefault();
+  conf.setGlobally(el::ConfigurationType::Format, "%datetime | %level | %msg");
   
   if(m_quietMode) {
     conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");
@@ -150,8 +154,12 @@ void PFE::readSingleSourceFile(const std::string & filename)
   LOG(INFO) << "Source file '" << filename << "' has been read";
 }
   
-void PFE::readFilesFromDirectory(const std::string& directory)
+void PFE::readFilesFromDirectory(const std::string& directory, const std::string& extensions)
 {   
+  std::vector<std::string> valid_extensions = Core::split(extensions, '|');
+  
+  PFE_ASSERT(valid_extensions.size() > 0, "Not enough valid file extensions provided");
+  
   std::vector<Core::FilesystemItem> stack, current, all;
   stack = Core::getFilenamesInDirectory(directory);
     
@@ -168,6 +176,17 @@ void PFE::readFilesFromDirectory(const std::string& directory)
       }
       else
       {
+        bool found = false;
+        for(auto&& ext : valid_extensions){
+          if(Core::string_ends_with(item.fullPath, ext)){
+            found = true;
+            break;
+          }
+        }
+        if(!found){
+          continue;
+        }
+        
         Core::File file;
         bool success = Core::readSourceFile(item.fullPath, file);
         if(!success)
@@ -242,4 +261,13 @@ void PFE::outputMessages()
   file.close();
     
   LOG(INFO) << "Wrote results to file: " << m_outputFilename;
+}
+
+void PFE::readPath(const std::string& path)
+{
+  if(Core::directoryExists(path)){
+    readFilesFromDirectory(path, "cpp|hpp|h|c|cc|hh"); //TODO standardized way
+  }else{
+    readSingleSourceFile(path);
+  }
 }

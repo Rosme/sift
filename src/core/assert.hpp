@@ -28,7 +28,7 @@
 
 
 #ifdef USE_PFE_ASSERT
-#define PFE_ASSERT(x, message) if(!x) { LOG(ERROR) << message; } assert(x);
+#define PFE_ASSERT(x, message) if(!(x)) { LOG(ERROR) << message; } assert(x);
                                 
 #else
 #define PFE_ASSERT(x, message)

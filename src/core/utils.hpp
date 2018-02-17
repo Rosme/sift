@@ -63,6 +63,21 @@ namespace Core {
 
     return s;
   }
+  
+  inline std::vector<std::string> split(const std::string s, char delim) {
+    std::vector<std::string> to_return;
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+      to_return.push_back(item);
+    }
+    
+    if(to_return.size() == 0)
+      to_return.push_back(s);
+    
+    return to_return;
+  }
 
   inline bool string_case_compare(const std::string& lhs, const std::string& rhs) {
     return toLower(lhs) == toLower(rhs);
@@ -107,12 +122,33 @@ namespace Core {
 
       LOG(DEBUG) << "Read a total of " << file.lines.size() << " lines of code";
     } else {
-      //TODO: Isn't this redundant considering it returns true/false already
-//       LOG(ERROR) << "Could not open file: " << filename;
       return false;
     }
 
     return true;
+  }
+  
+  inline bool directoryExists(const std::string &directory)
+  {
+    if(!directory.empty())
+    {
+      #if defined(UNIX)
+      DIR* pDirectory;
+      if ((pDirectory = opendir(directory.c_str())) != nullptr) {
+        closedir(pDirectory);
+        return true;
+      }
+      #elif defined(WIN32)
+      DWORD pDirectory = GetFileAttributesA(directory.c_str());
+      if(pDirectory & FILE_ATTRIBUTE_DIRECTORY && pDirectory != INVALID_FILE_ATTRIBUTES){
+        return true;
+      }
+      #else
+      #error "Current platform not supported"
+      #endif
+    }
+
+    return false;
   }
 
   struct FilesystemItem
@@ -126,7 +162,6 @@ namespace Core {
   {
     std::vector<FilesystemItem> toReturn;
     #if defined(UNIX)
-
     DIR* pDirectory;
     struct dirent *ent;
     if ((pDirectory = opendir(directory.c_str())) != nullptr)
@@ -164,7 +199,6 @@ namespace Core {
       } while (FindNextFile(hFind, &data));
       FindClose(hFind);
     }
-
     #else
     #error "Current platform not supported"
     #endif
