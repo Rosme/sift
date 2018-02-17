@@ -37,8 +37,7 @@ namespace Syntax {
                    NoDefine,
                    NoMacroFunctions,
                    StartWithX,
-                   EndWithX,
-                   RuleTypeCount
+                   EndWithX
                   );
 
   class Rule {

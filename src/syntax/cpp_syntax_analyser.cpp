@@ -51,9 +51,10 @@ namespace Syntax
     REGISTER_RULE(StartWithX);
     REGISTER_RULE(EndWithX);
     
-    for(int i = 0; i < (int)RuleType::RuleTypeCount; i++)
+    for(const auto& type : RuleType_list)
     {
-      PFE_ASSERT(work.find((RuleType)i) != work.end(), std::string("Rule '" + to_string((RuleType)i) + "' is defined but has no work registered for it"));
+      const std::string typeString = to_string(type);
+      PFE_ASSERT(work.find(type) != work.end(), std::string("Rule '" + typeString + "' is defined but has no work registered for it"));
     }
   }
   
