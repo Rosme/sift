@@ -58,6 +58,8 @@ namespace Syntax
     REGISTER_RULE(CurlyBracketsCloseSeperateLine);
     REGISTER_RULE(AlwaysHaveCurlyBrackets);
     REGISTER_RULE(NoConstCast);
+    REGISTER_RULE(StartWithLowerCase);
+    REGISTER_RULE(StartWithUpperCase);
     
     for(const auto& type : RuleType_list)
     {
@@ -294,12 +296,52 @@ namespace Syntax
           for(const auto& comment : comments) {
             if(!dummy.isWithinOtherScope(comment)) {
               pushErrorMessage(line, dummy);
-              
+
             }
           }
         } else {
           pushErrorMessage(line, dummy);
         }
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleStartWithLowerCase(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
+  {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable;
+    if (rule.getScopeType() != Core::ScopeType::All)
+    {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      const auto& param = rule.getParameter();
+      if (!islower(currentScope.name[0])) {
+        Core::Message message(Core::MessageType::Error,
+          SSTR("Does not start with lower case "
+            "\n -->" << currentScope.name), currentScope.lineNumberStart + 1, currentScope.characterNumberStart
+        );
+        messageStack.pushMessage(message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleStartWithUpperCase(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
+  {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable;
+    if (rule.getScopeType() != Core::ScopeType::All)
+    {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      const auto& param = rule.getParameter();
+      if (!isupper(currentScope.name[0])) {
+        Core::Message message(Core::MessageType::Error,
+          SSTR("Does not start with upper case "
+            "\n -->" << currentScope.name), currentScope.lineNumberStart + 1, currentScope.characterNumberStart
+        );
+        messageStack.pushMessage(message);
       }
     }
   }

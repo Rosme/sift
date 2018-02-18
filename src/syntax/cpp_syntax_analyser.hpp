@@ -53,6 +53,8 @@ namespace Syntax {
     void RuleCurlyBracketsCloseSeperateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleNoConstCast(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleStartWithLowerCase(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleStartWithUpperCase(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     
     bool IsScopeUsingCurlyBrackets(Core::Scope& scope);
     bool IsOpeningCurlyBracketSeparateLine(Core::Scope& scope);

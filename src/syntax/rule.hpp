@@ -45,7 +45,9 @@ namespace Syntax {
                    CurlyBracketsCloseSameLine,
                    CurlyBracketsCloseSeperateLine,
                    AlwaysHaveCurlyBrackets,
-                   NoConstCast
+                   NoConstCast,
+                   StartWithLowerCase,
+                   StartWithUpperCase
                   );
 
   class Rule {
