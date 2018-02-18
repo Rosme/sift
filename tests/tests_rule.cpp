@@ -88,6 +88,38 @@ TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
   }
 }
 
+TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
+  std::vector<std::string> argv = {"program_name", "-V"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test Finding Const CasT Not In Comments") {
+    const auto stack = doTest(pfe, "samples/tests/rules/noconstcast.json", "samples/tests/src/noconstcast.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 1);
+  }
+}
+
+TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
+  std::vector<std::string> argv = {"program_name", "-V"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test Max Character For All") {
+    const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharacterall.json", "samples/tests/src/namemaxcharacter.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 4);
+  }
+
+  SECTION("Test Max Character For Variables Only") {
+    const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharactersvariableonly.json", "samples/tests/src/namemaxcharacter.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 1);
+  }
+}
+
 //TEST CASE rules-curlybracketline won't work until extract scope functions detect functions with brackets on different line
 
 //TEST_CASE("Testing curly brackets on same or seperate line", "[rules-curlybracketline]") {
@@ -119,4 +151,3 @@ TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
 //    DUMP_STACK(stack);
 //    REQUIRE(stack.size() == 4);
 //  }
-//}

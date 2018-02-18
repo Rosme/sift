@@ -45,8 +45,10 @@ namespace Syntax {
                    CurlyBracketsCloseSameLine,
                    CurlyBracketsCloseSeperateLine,
                    AlwaysHaveCurlyBrackets,
+                   NoConstCast,
                    StartWithLowerCase,
-                   StartWithUpperCase
+                   StartWithUpperCase,
+                   NameMaxCharacter
                   );
 
   class Rule {

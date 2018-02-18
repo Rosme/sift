@@ -373,8 +373,6 @@ namespace Core {
         //Filtering comments
         if(scope.isWithinOtherScope(it) && it.isOfType(ScopeType::Comment)) {
           return true;
-        } else if(scope.isOfType(ScopeType::Comment)) {
-          return true;
         } else if(scope.isOfType(ScopeType::Function) && scope.isWithinOtherScope(it) && (it.isOfType(ScopeType::Function) || it.isOfType(ScopeType::Conditionnal))) {
           //Filtering function call within a function
           return true;
