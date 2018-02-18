@@ -1,0 +1,9 @@
+
+{
+  "rules": [
+    {
+      "rule" : "NameMaxCharacter",
+      "parameter" : "15"
+    }
+  ]
+}

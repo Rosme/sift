@@ -60,6 +60,7 @@ namespace Syntax
     REGISTER_RULE(NoConstCast);
     REGISTER_RULE(StartWithLowerCase);
     REGISTER_RULE(StartWithUpperCase);
+    REGISTER_RULE(NameMaxCharacter);
     
     for(const auto& type : RuleType_list)
     {
@@ -341,6 +342,25 @@ namespace Syntax
           SSTR("Does not start with upper case "
             "\n -->" << currentScope.name), currentScope.lineNumberStart + 1, currentScope.characterNumberStart
         );
+        messageStack.pushMessage(message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleNameMaxCharacter(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable;
+    if(rule.getScopeType() != Core::ScopeType::All) {
+      scopeTypes = rule.getScopeType();
+    }
+
+    const auto maxCharPerName = std::stoul(rule.getParameter());
+    for(const auto& scope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      if(scope.name.size() > maxCharPerName) {
+        Core::Message message(Core::MessageType::Error,
+                              SSTR("Max character for name has been exceeded on: " << scope.name
+                                   << ". Want: " << maxCharPerName << " - Got: " << scope.name.size()),
+                              scope.lineNumberStart,
+                              scope.characterNumberStart);
         messageStack.pushMessage(message);
       }
     }

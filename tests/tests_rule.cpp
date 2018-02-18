@@ -100,3 +100,22 @@ TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
     REQUIRE(stack.size() == 1);
   }
 }
+
+TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
+  std::vector<std::string> argv = {"program_name", "-V"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test Max Character For All") {
+    const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharacterall.json", "samples/tests/src/namemaxcharacter.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 4);
+  }
+
+  SECTION("Test Max Character For Variables Only") {
+    const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharactersvariableonly.json", "samples/tests/src/namemaxcharacter.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 1);
+  }
+}

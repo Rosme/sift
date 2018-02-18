@@ -47,7 +47,8 @@ namespace Syntax {
                    AlwaysHaveCurlyBrackets,
                    NoConstCast,
                    StartWithLowerCase,
-                   StartWithUpperCase
+                   StartWithUpperCase,
+                   NameMaxCharacter
                   );
 
   class Rule {

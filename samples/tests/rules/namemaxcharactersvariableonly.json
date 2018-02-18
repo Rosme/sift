@@ -1,0 +1,10 @@
+
+{
+  "rules": [
+    {
+      "rule" : "NameMaxCharacter",
+      "parameter" : "10",
+      "appliedTo" : "Variable"
+    }
+  ]
+}
