@@ -47,11 +47,12 @@ namespace Syntax {
     void RuleStartWithX(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleEndWithX(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleMaxCharactersPerLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
-    void RuleCurlyBracketsOpenSameLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
-    void RuleCurlyBracketsOpenSeperateLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
-    void RuleCurlyBracketsCloseSameLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
-    void RuleCurlyBracketsCloseSeperateLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
-    void RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack);
+    void RuleCurlyBracketsOpenSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleCurlyBracketsOpenSeperateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleCurlyBracketsCloseSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleCurlyBracketsCloseSeperateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleNoConstCast(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     
     bool IsScopeUsingCurlyBrackets(Core::Scope& scope);
     bool IsOpeningCurlyBracketSeparateLine(Core::Scope& scope);

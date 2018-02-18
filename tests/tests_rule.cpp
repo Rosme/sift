@@ -87,3 +87,16 @@ TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
     REQUIRE(stack.size() == 3);
   }
 }
+
+TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
+  std::vector<std::string> argv = {"program_name", "-V"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test Finding Const CasT Not In Comments") {
+    const auto stack = doTest(pfe, "samples/tests/rules/noconstcast.json", "samples/tests/src/noconstcast.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 1);
+  }
+}

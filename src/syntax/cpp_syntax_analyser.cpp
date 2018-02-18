@@ -57,6 +57,7 @@ namespace Syntax
     REGISTER_RULE(CurlyBracketsCloseSameLine);
     REGISTER_RULE(CurlyBracketsCloseSeperateLine);
     REGISTER_RULE(AlwaysHaveCurlyBrackets);
+    REGISTER_RULE(NoConstCast);
     
     for(const auto& type : RuleType_list)
     {
@@ -172,14 +173,14 @@ namespace Syntax
     }
   }
 
-  void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSameLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
     Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
 
-    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && IsOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Opening curly bracket not on same line " <<
@@ -190,7 +191,7 @@ namespace Syntax
     }
   }
 
-  void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSeperateLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSeperateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
     Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
     if (rule.getScopeType() != Core::ScopeType::All)
@@ -198,7 +199,7 @@ namespace Syntax
       scopeTypes = rule.getScopeType();
     }
 
-    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && !IsOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Opening curly bracket not on separate line " <<
@@ -211,7 +212,7 @@ namespace Syntax
 
 
 
-  void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSameLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
     Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
     if (rule.getScopeType() != Core::ScopeType::All)
@@ -219,7 +220,7 @@ namespace Syntax
       scopeTypes = rule.getScopeType();
     }
 
-    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && IsClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Closing curly bracket not on same line " <<
@@ -231,7 +232,7 @@ namespace Syntax
     }
   }
 
-  void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSeperateLine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSeperateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
     Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
     if (rule.getScopeType() != Core::ScopeType::All)
@@ -239,7 +240,7 @@ namespace Syntax
       scopeTypes = rule.getScopeType();
     }
 
-    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && !IsClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Closing curly bracket not on separate line " <<
@@ -250,17 +251,55 @@ namespace Syntax
     }
   }
 
-  void CPPSyntaxAnalyser::RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
+  void CPPSyntaxAnalyser::RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
     Core::ScopeType scopeTypes = Core::ScopeType::Conditionnal;
 
-    for (auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!IsScopeUsingCurlyBrackets(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Curly brackets not used " <<
             "\n -->" << currentScope.name), currentScope.lineNumberEnd
         );
         messageStack.pushMessage(message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleNoConstCast(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    static auto pushErrorMessage = [&messageStack](const std::string& line, const Core::Scope& scope) {
+      const unsigned int errorOffset = 10;
+      int offset = (scope.characterNumberStart <= errorOffset) ? 0 : scope.characterNumberStart - errorOffset;
+      Core::Message message(Core::MessageType::Error,
+                            SSTR("Const Cast found when none expected \n--> " << line.substr(offset, scope.characterNumberEnd - offset + errorOffset)),
+                            scope.lineNumberStart,
+                            scope.characterNumberStart);
+      messageStack.pushMessage(message);
+    };
+
+    auto comments = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
+    std::regex constCastRegex(R"(const_cast<.*>\(.*\))");
+    const auto& lines = rootScope.file->lines;
+    for(unsigned int i = 0; i < lines.size(); ++i) {
+      const auto& line = lines[i];
+      std::smatch match;
+      if(std::regex_search(line, match, constCastRegex)) {
+        Core::Scope dummy;
+        dummy.lineNumberStart = i;
+        dummy.lineNumberEnd = i;
+        dummy.characterNumberStart = line.find(match[0]);
+        dummy.characterNumberEnd = dummy.characterNumberStart+match[0].str().size()-1;
+
+        if(comments.size() > 0) {
+          for(const auto& comment : comments) {
+            if(!dummy.isWithinOtherScope(comment)) {
+              pushErrorMessage(line, dummy);
+              
+            }
+          }
+        } else {
+          pushErrorMessage(line, dummy);
+        }
       }
     }
   }
