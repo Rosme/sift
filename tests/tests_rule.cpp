@@ -87,3 +87,36 @@ TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
     REQUIRE(stack.size() == 3);
   }
 }
+
+//TEST CASE rules-curlybracketline won't work until extract scope functions detect functions with brackets on different line
+
+//TEST_CASE("Testing curly brackets on same or seperate line", "[rules-curlybracketline]") {
+//  std::vector<std::string> argv = { "program_name", "-V" };
+//  PFE pfe;
+//  pfe.parseArgv(argv.size(), convert(argv).data());
+//  pfe.setupLogging();
+//
+//  SECTION("Test opening curly brackets on same line") {
+//    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketsopensameline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+//    DUMP_STACK(stack);
+//    REQUIRE(stack.size() == 6);
+//  }
+//
+//  SECTION("Test opening curly brackets on separate line") {
+//    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketsopenseperateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+//    DUMP_STACK(stack);
+//    REQUIRE(stack.size() == 4);
+//  }
+//
+//  SECTION("Test closing curly brackets on same line") {
+//    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketsclosesameline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+//    DUMP_STACK(stack);
+//    REQUIRE(stack.size() == 6);
+//  }
+//
+//  SECTION("Test closing curly brackets on separate line") {
+//    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketscloseseperateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+//    DUMP_STACK(stack);
+//    REQUIRE(stack.size() == 4);
+//  }
+//}

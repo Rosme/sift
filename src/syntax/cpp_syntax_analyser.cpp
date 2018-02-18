@@ -185,7 +185,7 @@ namespace Syntax
       if (IsScopeUsingCurlyBrackets(currentScope) && IsOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Opening curly bracket not on same line " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberStart
+            "\n -->" << currentScope.name), currentScope.lineNumberStart + 1
         );
         messageStack.pushMessage(message);
       }
@@ -204,7 +204,7 @@ namespace Syntax
       if (IsScopeUsingCurlyBrackets(currentScope) && !IsOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Opening curly bracket not on separate line " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberStart
+            "\n -->" << currentScope.name), currentScope.lineNumberStart + 1
         );
         messageStack.pushMessage(message);
       }
@@ -225,7 +225,7 @@ namespace Syntax
       if (IsScopeUsingCurlyBrackets(currentScope) && IsClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Closing curly bracket not on same line " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberEnd
+            "\n -->" << currentScope.name), currentScope.lineNumberEnd + 1
         );
         messageStack.pushMessage(message);
       }
@@ -245,7 +245,7 @@ namespace Syntax
       if (IsScopeUsingCurlyBrackets(currentScope) && !IsClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Closing curly bracket not on separate line " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberEnd
+            "\n -->" << currentScope.name), currentScope.lineNumberEnd + 1
         );
         messageStack.pushMessage(message);
       }
@@ -260,7 +260,7 @@ namespace Syntax
       if (!IsScopeUsingCurlyBrackets(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Curly brackets not used " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberEnd
+            "\n -->" << currentScope.name), currentScope.lineNumberEnd + 1
         );
         messageStack.pushMessage(message);
       }
@@ -328,10 +328,10 @@ namespace Syntax
     for (unsigned int pos = 0; pos < scope.characterNumberEnd; ++pos) {
       const char& c = scopeLine[pos];
       if (c != ' ' && c != '\r' && c != '\n') {
-        return true;
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
 };
