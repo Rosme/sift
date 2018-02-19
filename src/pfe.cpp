@@ -135,7 +135,7 @@ void PFE::setupRules(const std::string filename)
     
   for(auto&& rule : m_rules)
   {
-    rulesString << rule.second << ", ";
+    rulesString << "\n " << rule.second;
   }
     
   LOG(INFO) << "Parsed " << m_rules.size() << " rules:";
@@ -230,10 +230,11 @@ void PFE::applyRules()
   {
     for(auto& rulePair : m_rules)
     {
-      auto it = m_rulesWork.find(rulePair.first);
+      auto ruleType = rulePair.second.getRuleType();
+      auto it = m_rulesWork.find(ruleType);
       if(it != m_rulesWork.end())
       {
-        m_rulesWork[rulePair.first](rulePair.second, scopePair.second, m_messageStacks[scopePair.second.file->filename]);
+        m_rulesWork[ruleType](rulePair.second, scopePair.second, m_messageStacks[scopePair.second.file->filename]);
       }
     }
   }
@@ -250,11 +251,21 @@ void PFE::outputMessages()
   // Files
   for(auto&& stackPair : m_messageStacks) {
     file << stackPair.first << " ----------\n";
-    
-    // Categories
-    for(const auto& categoryMessagePair : stackPair.second.getMessages()) {
-      file << "  " << Syntax::to_string(static_cast<Syntax::RuleType>(categoryMessagePair.first)) << ":\n";
-      for(const auto& message : categoryMessagePair.second) {
+    if(!m_quietMode)
+    {
+      LOG(INFO) << stackPair.first << " ----------";
+    }
+    // Rules
+    for(const auto& ruleIdMessagesPair : stackPair.second.getMessages()) {
+      const Syntax::Rule& rule = m_rules[ruleIdMessagesPair.first];
+      const std::string ruleString = Syntax::to_string(static_cast<Syntax::RuleType>(rule.getRuleType()));
+      const std::string parameterString = rule.getParameter().empty() ? "" : " (parameter: " + rule.getParameter() + ")";
+      file << "  " << ruleString << parameterString << " - applied on: " << Core::to_string(rule.getScopeType()) << "\n";
+      if(!m_quietMode)
+      {
+        LOG(INFO) << "  " << ruleString << parameterString << " - applied on: " << Core::to_string(rule.getScopeType());
+      }
+      for(const auto& message : ruleIdMessagesPair.second) {
         file << "    " << message << "\n";
         if(!m_quietMode)
         {

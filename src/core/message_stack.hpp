@@ -25,20 +25,20 @@
 #include <vector>
 #include <map>
 #include "message.hpp"
+#include "constants.hpp"
 
 namespace Core {
 
   class MessageStack {
   public:
-    void pushMessage(int category, const Message& message);
+    void pushMessage(RuleId category, const Message& message);
     bool hasMessages() const;
-    const std::map<int, std::vector<Message>>& getMessages() const;
+    const std::map<RuleId, std::vector<Message>>& getMessages() const;
     std::size_t size() const;
     void clear();
 
   private:
-    // message_category (rule), message
-    std::map<int, std::vector<Message>> m_messages;
+    std::map<RuleId, std::vector<Message>> m_messages;
   };
 
 }

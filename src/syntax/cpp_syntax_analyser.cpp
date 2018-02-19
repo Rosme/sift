@@ -70,7 +70,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    messageStack.pushMessage(static_cast<int>(rule.getRuleType()), Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
+    messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
   }
 
   void CPPSyntaxAnalyser::RuleNoAuto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
@@ -91,7 +91,7 @@ namespace Syntax
         SSTR("Define found" <<
         "\n -->" << defineLines.str()), currentScope.lineNumberStart+1, currentScope.characterNumberStart
       );
-      messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+      messageStack.pushMessage(rule.getRuleId(), message);
     }
   }
   
@@ -115,10 +115,9 @@ namespace Syntax
       }
       
       Core::Message message(Core::MessageType::Error, 
-        SSTR("Macro function found" <<
-        "\n -->" << macro), currentScope.lineNumberStart+1, currentScope.characterNumberStart
+        macro, currentScope.lineNumberStart+1, currentScope.characterNumberStart
       );
-      messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+      messageStack.pushMessage(rule.getRuleId(), message);
     }
   }
   
@@ -135,10 +134,9 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if(currentScope.name.compare(0, param.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
-          SSTR("Prefix does not match (want: " << rule.getParameter() << ")" <<
-          "\n -->" << currentScope.name), currentScope.lineNumberStart+1, currentScope.characterNumberStart
+          currentScope.name, currentScope.lineNumberStart+1, currentScope.characterNumberStart
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }
@@ -155,10 +153,9 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if(currentScope.name.length() < param.length() || currentScope.name.compare(currentScope.name.length()-param.length(), currentScope.name.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
-          SSTR("Suffix does not match (want: " << rule.getParameter() << ")" <<
-          "\n -->" << currentScope.name), currentScope.lineNumberStart+1, currentScope.characterNumberStart
+          currentScope.name, currentScope.lineNumberStart+1, currentScope.characterNumberStart
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }
@@ -168,8 +165,8 @@ namespace Syntax
     const auto maxCharPerLine = std::stoul(rule.getParameter());
     for(unsigned int i = 0; i < lines.size(); ++i) {
       if(lines[i].size() > maxCharPerLine) {
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), Core::Message(Core::MessageType::Error, 
-        SSTR("Maximum number of characters exceeded. Want: " << rule.getParameter() << " - Got: " << lines[i].size()),
+        messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Error, 
+        SSTR(rule.getParameter() << " expected - got: " << lines[i].size()),
         i+1, lines[i].size()
       ));
       }
@@ -186,10 +183,9 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && IsOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          SSTR("Opening curly bracket not on same line " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberStart + 1
+          currentScope.name, currentScope.lineNumberStart + 1
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }
@@ -205,10 +201,9 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && !IsOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          SSTR("Opening curly bracket not on separate line " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberStart + 1
+          currentScope.name, currentScope.lineNumberStart + 1
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }
@@ -226,10 +221,9 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && IsClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          SSTR("Closing curly bracket not on same line " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberEnd + 1
+          currentScope.name, currentScope.lineNumberEnd + 1
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
 
     }
@@ -246,10 +240,9 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && !IsClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          SSTR("Closing curly bracket not on separate line " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberEnd + 1
+          currentScope.name, currentScope.lineNumberEnd + 1
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }
@@ -261,10 +254,9 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!IsScopeUsingCurlyBrackets(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          SSTR("Curly brackets not used " <<
-            "\n -->" << currentScope.name), currentScope.lineNumberEnd + 1
+          currentScope.name, currentScope.lineNumberEnd + 1
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }
@@ -274,11 +266,11 @@ namespace Syntax
       const unsigned int errorOffset = 10;
       int offset = (scope.characterNumberStart <= errorOffset) ? 0 : scope.characterNumberStart - errorOffset;
       Core::Message message(Core::MessageType::Error,
-        SSTR("Const Cast found when none expected \n--> " << line.substr(offset, scope.characterNumberEnd - offset + errorOffset)),
+        line.substr(offset, scope.characterNumberEnd - offset + errorOffset),
         scope.lineNumberStart,
         scope.characterNumberStart
       );
-      messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+      messageStack.pushMessage(rule.getRuleId(), message);
     };
 
     auto comments = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
@@ -320,10 +312,9 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if (!islower(currentScope.name[0])) {
         Core::Message message(Core::MessageType::Error,
-          SSTR("Does not start with lower case "
-            "\n -->" << currentScope.name), currentScope.lineNumberStart + 1, currentScope.characterNumberStart
+          currentScope.name, currentScope.lineNumberStart + 1, currentScope.characterNumberStart
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }
@@ -340,10 +331,9 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if (!isupper(currentScope.name[0])) {
         Core::Message message(Core::MessageType::Error,
-          SSTR("Does not start with upper case "
-            "\n -->" << currentScope.name), currentScope.lineNumberStart + 1, currentScope.characterNumberStart
+          currentScope.name, currentScope.lineNumberStart + 1, currentScope.characterNumberStart
         );
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }
@@ -358,11 +348,10 @@ namespace Syntax
     for(const auto& scope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if(scope.name.size() > maxCharPerName) {
         Core::Message message(Core::MessageType::Error,
-                              SSTR("Max character for name has been exceeded on: " << scope.name
-                                   << ". Want: " << maxCharPerName << " - Got: " << scope.name.size()),
+                              SSTR(scope.name << " - Got: " << scope.name.size()),
                               scope.lineNumberStart,
                               scope.characterNumberStart);
-        messageStack.pushMessage(static_cast<int>(rule.getRuleType()), message);
+        messageStack.pushMessage(rule.getRuleId(), message);
       }
     }
   }

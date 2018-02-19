@@ -26,6 +26,7 @@
 #include <functional>
 #include <map>
 
+#include "core/constants.hpp"
 #include "core/message_stack.hpp"
 #include "core/file.hpp"
 #include "core/scope.hpp"
@@ -61,8 +62,8 @@ private:
   // filename : rootScope
   std::map<std::string, Core::Scope> m_rootScopes;
     
-  // ruleType : rule
-  std::map<Syntax::RuleType, Syntax::Rule> m_rules;
+  // id : rule
+  std::map<RuleId, Syntax::Rule> m_rules;
     
   // ruleType : work
   std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>> m_rulesWork;

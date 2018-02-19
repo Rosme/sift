@@ -12,6 +12,11 @@
       "rule": "StartWithX",
       "parameter": "m_"
     },
+        {
+      "rule": "StartWithX",
+      "parameter": "s_",
+      "appliedTo": "Variable"
+    },
     {
       "rule": "EndWithX",
       "parameter": "_s"

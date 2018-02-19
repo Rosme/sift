@@ -25,15 +25,15 @@
 
 namespace Core {
 
-  void MessageStack::pushMessage(int category, const Message & message) {
-    m_messages[category].push_back(message);
+  void MessageStack::pushMessage(RuleId ruleId, const Message & message) {
+    m_messages[ruleId].push_back(message);
   }
 
   bool MessageStack::hasMessages() const {
     return m_messages.size() != 0;
   }
 
-  const std::map<int, std::vector<Message>>& MessageStack::getMessages() const {
+  const std::map<RuleId, std::vector<Message>>& MessageStack::getMessages() const {
     return m_messages;
   }
 

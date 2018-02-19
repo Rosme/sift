@@ -46,7 +46,9 @@ namespace Core {
   };
 
   inline std::ostream& operator<<(std::ostream& out, const Message& message) {
-    out << to_string(message.type) << "(L" << message.line << "/C" << message.character << ")"  << " : " << message.content;
+//     out << to_string(message.type) << "(L" << message.line << "/C" << message.character << ")"  << " : " << message.content;
+    std::string characterString(message.character != 0 ? ", Character: " + std::to_string(message.character) : "");
+    out << "L" << message.line << characterString << ": " << message.content;
     return out;
   }
 

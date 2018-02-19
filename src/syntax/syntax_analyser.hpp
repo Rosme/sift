@@ -33,7 +33,6 @@ namespace Syntax {
   class SyntaxAnalyser {
   public:
     
-    // This might not make sense
     virtual void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work) = 0;
     virtual ~SyntaxAnalyser();
   };

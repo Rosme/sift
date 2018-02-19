@@ -25,8 +25,9 @@
 
 namespace Syntax {
   
-  std::map<RuleType, Rule> readRules(const std::string& rulesFile) {
-    std::map<RuleType, Rule> rules;
+  std::map<RuleId, Rule> readRules(const std::string& rulesFile) {
+    static long long int currentId = 0;
+    std::map<RuleId, Rule> rules;
     
     auto json = Core::readJsonFile(rulesFile);
     
@@ -38,10 +39,11 @@ namespace Syntax {
       {
         const std::string parameter = (jsonRule.find("parameter") != jsonRule.end()) ? jsonRule["parameter"].get<std::string>() : "";
         const std::string appliedTo = (jsonRule.find("appliedTo") != jsonRule.end()) ? jsonRule["appliedTo"].get<std::string>() : "All";
-        Rule rule(Core::ScopeType_to_enum_class(appliedTo),
+        Rule rule(++currentId,
+                  Core::ScopeType_to_enum_class(appliedTo),
                   RuleType_to_enum_class(jsonRule["rule"].get<std::string>()),
                   parameter);
-        rules[rule.getRuleType()] = rule;
+        rules[currentId] = rule;
       }
     }
     
@@ -56,8 +58,9 @@ namespace Syntax {
     return out;
   }
   
-  Rule::Rule(Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter)
-    : m_applyTo(applyTo)
+  Rule::Rule(RuleId id, Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter)
+    : m_id(id)
+    , m_applyTo(applyTo)
     , m_type(type)
     , m_parameter(optionalParameter)
   {
@@ -69,6 +72,11 @@ namespace Syntax {
   
   Syntax::RuleType Rule::getRuleType() const {
     return m_type;
+  }
+  
+  RuleId Rule::getRuleId() const
+  {
+    return m_id;
   }
 
   bool Rule::hasParameter() const {
