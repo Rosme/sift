@@ -136,19 +136,21 @@ namespace Core {
     {
       if(currentLineNo == lineNumberStart)
       {
-        bool multiLine = characterNumberEnd > characterNumberStart + line.size();
-        toReturn.push_back(line.substr(characterNumberStart-currentCharNo, (multiLine ? line.size() : characterNumberEnd-currentCharNo)));
-        if(!multiLine)
+        bool multiLine = lineNumberEnd != lineNumberStart;
+        if(multiLine){
+          toReturn.push_back(line.substr(characterNumberStart, line.size()-1));
+        }else{
+          toReturn.push_back(line.substr(characterNumberStart, characterNumberEnd));  
           break;
-      }
-      else if(currentCharNo > characterNumberStart && currentCharNo + line.size()-1 <= characterNumberEnd) // Line after a '#define \'   
+        }          
+      }else if(currentLineNo != lineNumberEnd) // Guaranteed multiline at this point
       {
         toReturn.push_back(line);
-      }
-      else if(currentCharNo < characterNumberEnd && currentCharNo + line.size()-1 > characterNumberEnd) // Line finishing a multiLine define
+      }else if(currentLineNo == lineNumberEnd)
       {
-        toReturn.push_back(line.substr(0, characterNumberEnd-currentCharNo));
+        toReturn.push_back(line.substr(0, characterNumberEnd));  
       }
+        
       
       currentCharNo+=line.size()+1;
       currentLineNo++;

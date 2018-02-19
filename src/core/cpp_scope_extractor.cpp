@@ -102,7 +102,6 @@ namespace Core {
   void CppScopeExtractor::extractGlobals(File& file, Scope& parent) {
     // We are 1-indexed
     int lineNo = 1;
-    int charNo = 1;
     bool isStillInDefine = false;
     Scope scope;
     for(auto&& line : file.lines) {
@@ -115,7 +114,7 @@ namespace Core {
         if(sm.size() > 0) {
           scope = Scope(ScopeType::GlobalDefine);
           scope.lineNumberStart = lineNo;
-          scope.characterNumberStart = sm.position(0)+charNo;
+          scope.characterNumberStart = sm.position(0);
           scope.file = &file;
 
           // Multiline define TODO: Verify with standard
@@ -131,7 +130,7 @@ namespace Core {
         }
       } else if(isStillInDefine) {
         if(line.find("\\") == std::string::npos) {
-          scope.characterNumberEnd = charNo + line.size()-1;
+          scope.characterNumberEnd = line.size()-1;
           scope.lineNumberEnd = lineNo;
           scope.name = scope.getScopeLines().at(0);
           parent.children.push_back(scope);
@@ -139,7 +138,6 @@ namespace Core {
         }
       }
       lineNo++;
-      charNo += line.size()+1;
     }
 
   }

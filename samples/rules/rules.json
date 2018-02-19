@@ -2,8 +2,7 @@
 {
   "rules": [
     {
-      "rule" : "NoAuto",
-      "appliedTo": "Function"
+      "rule" : "NoAuto"
     }
     
   ]

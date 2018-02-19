@@ -60,7 +60,28 @@ namespace Syntax
   
   void CPPSyntaxAnalyser::RuleNoAuto(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
   {
+    Core::ScopeType scopeTypes = Core::ScopeType::Variable | Core::ScopeType::Function | Core::ScopeType::Global;
+    if(rule.getScopeType() != Core::ScopeType::All)
+    {
+      scopeTypes = rule.getScopeType();
+    }
     
+    std::regex autoRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)auto.*)");
+    for(auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+      const auto firstLine = currentScope.getScopeLines().at(0);
+      std::string autoText;
+      std::smatch match;
+      if(std::regex_match(firstLine, match, autoRegex))
+      {
+        autoText = firstLine + "\n";
+        
+        Core::Message message(Core::MessageType::Error, 
+          SSTR("auto found - " << currentScope.file->filename <<
+          "\n -->" << autoText), currentScope.lineNumberStart, currentScope.characterNumberStart
+        );
+        messageStack.pushMessage(message);
+      }
+    }
   } 
   
   void CPPSyntaxAnalyser::RuleNoDefine(Syntax::Rule& rule, Core::Scope& scope, Core::MessageStack& messageStack)
