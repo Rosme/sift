@@ -278,19 +278,19 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractConditionals(File& file, Scope& parent) {
-    std::regex conditionnalRegex(R"(\s*(if|else|for|switch|while|do)(\(|\{|\s|$))");
+    std::regex conditionnalRegex(R"((^|\s)(if|else|for|switch|while|do)(\(|\{|\s|$))");
     for(unsigned int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
       const std::string& line = file.lines[i];
       std::smatch match;
       std::regex_search(line, match, conditionnalRegex);
       if(match.size() > 0) {
-        if(match[1] == "while") {
+        if(match[2] == "while") {
           if(isDoWhileLoop(file, i, line.find(match[0]))) {
             continue;
           }
         }
         Scope scope(ScopeType::Conditionnal);
-        scope.name = match[1];
+        scope.name = match[2];
         scope.parent = &parent;
         scope.lineNumberStart = i;
         scope.characterNumberStart = line.find(match[0]);
@@ -298,7 +298,7 @@ namespace Core {
 
         if(scope.name == "for") {
           findEndOfScopeConditionalFor(scope, file, i, scope.characterNumberStart);
-        } else if(match[1] == "do") {
+        } else if(scope.name == "do") {
           findEndOfScopeConditionalDoWhile(scope, file, i + 1);
         } else {
           findEndOfScope(scope, file, i, scope.characterNumberStart);
