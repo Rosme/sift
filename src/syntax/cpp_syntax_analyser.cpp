@@ -82,7 +82,7 @@ namespace Syntax
     }
     
     std::regex autoRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)auto.*)");
-    for(auto&& currentScope : scope.getAllChildrenOfType(scopeTypes)) {
+    for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       const auto firstLine = currentScope.getScopeLines().at(0);
       std::string autoText;
       std::smatch match;
@@ -337,7 +337,6 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      const auto& param = rule.getParameter();
       if (!islower(currentScope.name[0])) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Does not start with lower case "
@@ -357,7 +356,6 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      const auto& param = rule.getParameter();
       if (!isupper(currentScope.name[0])) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Does not start with upper case "

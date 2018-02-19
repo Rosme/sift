@@ -221,7 +221,7 @@ void PFE::extractScopes()
     }
   }
     
-  LOG(INFO) << "Extracted " << m_rootScopes.size() << " root scopes";
+  LOG(TRACE) << "Extracted " << m_rootScopes.size() << " root scopes";
 }
 
 void PFE::applyRules()
