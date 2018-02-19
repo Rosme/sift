@@ -85,7 +85,7 @@ void PFE::parseArgv(int argc, char** argv)
     CXXOPT("output", m_outputFilename, std::string, "output.txt");
     CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
     CXXOPT("rules", m_ruleFilename, std::string, "samples/rules/rules.json");
-    CXXOPT("path", m_pathToParse, std::string, "samples/src");
+    CXXOPT("path", m_pathToParse, std::string, "samples/src/define.hpp");
   }
   catch(...)
   {
@@ -278,7 +278,7 @@ void PFE::outputMessages()
       file << "  " << ruleName << " -- " << ruleString << "\n";
       if(!m_quietMode)
       {
-        LOG(INFO) << "  " << ruleString;
+        LOG(INFO) << ruleName << " -- " << ruleString;
       }
       for(const auto& message : ruleIdMessagesPair.second) {
         file << "    " << message << "\n";

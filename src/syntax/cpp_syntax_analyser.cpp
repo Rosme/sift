@@ -100,8 +100,8 @@ namespace Syntax
       const auto& lines = currentScope.getScopeLines();
       for(int i = 0; i < lines.size(); i++) {
         defineLines << lines[i];
-        if(i != lines.size()-1){
-          defineLines << "\n";          
+        if(i < lines.size()-1){
+//           defineLines << "\n";          
         }
       }
       
@@ -122,7 +122,7 @@ namespace Syntax
         std::smatch match;
         if(std::regex_match(line, match, macroSearch))
         {
-          macro = line + "\n";
+          macro = line;
           break;
         }
       }
