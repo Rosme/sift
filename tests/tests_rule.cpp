@@ -52,12 +52,12 @@ TEST_CASE("Testing macro related rules", "[rules-macro]") {
   pfe.setupLogging();
   
   SECTION("Test No defines") {
-    const auto stack = doTest(pfe, "rules/nodefines.json", "samples/src/define.hpp");
+    const auto stack = doTest(pfe, "samples/tests/rules/nodefines.json", "samples/src/define.hpp");
     REQUIRE(stack.size() == 8);
   }
   
   SECTION("Test No macro functions") {
-    const auto stack = doTest(pfe, "rules/nomacrofunctions.json", "samples/src/define.hpp");
+    const auto stack = doTest(pfe, "samples/tests/rules/nomacrofunctions.json", "samples/src/define.hpp");
     REQUIRE(stack.size() == 4);
   }
 }
@@ -69,8 +69,85 @@ TEST_CASE("Testing suffix/prefix related rules", "[rules-suffix]") {
   pfe.setupLogging(); 
   
   SECTION("Test Prefix") {
-    const auto stack = doTest(pfe, "rules/prefix.json", "samples/src/prefix.cpp");
+    const auto stack = doTest(pfe, "samples/tests/rules/prefix.json", "samples/src/prefix.cpp");
     DUMP_STACK(stack);
     REQUIRE(stack.size() == 6);
   }
 }
+
+TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
+  std::vector<std::string> argv = {"program_name", "-V"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test Maximum Characters Per Line") {
+    const auto stack = doTest(pfe, "samples/tests/rules/maxcharactersperline.json", "samples/tests/src/maxcharactersperline.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 3);
+  }
+}
+
+TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
+  std::vector<std::string> argv = {"program_name", "-V"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test Finding Const CasT Not In Comments") {
+    const auto stack = doTest(pfe, "samples/tests/rules/noconstcast.json", "samples/tests/src/noconstcast.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 1);
+  }
+}
+
+TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
+  std::vector<std::string> argv = {"program_name", "-V"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test Max Character For All") {
+    const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharacterall.json", "samples/tests/src/namemaxcharacter.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 4);
+  }
+
+  SECTION("Test Max Character For Variables Only") {
+    const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharactersvariableonly.json", "samples/tests/src/namemaxcharacter.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 1);
+  }
+}
+
+//TEST CASE rules-curlybracketline won't work until extract scope functions detect functions with brackets on different line
+
+//TEST_CASE("Testing curly brackets on same or seperate line", "[rules-curlybracketline]") {
+//  std::vector<std::string> argv = { "program_name", "-V" };
+//  PFE pfe;
+//  pfe.parseArgv(argv.size(), convert(argv).data());
+//  pfe.setupLogging();
+//
+//  SECTION("Test opening curly brackets on same line") {
+//    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketsopensameline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+//    DUMP_STACK(stack);
+//    REQUIRE(stack.size() == 6);
+//  }
+//
+//  SECTION("Test opening curly brackets on separate line") {
+//    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketsopenseperateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+//    DUMP_STACK(stack);
+//    REQUIRE(stack.size() == 4);
+//  }
+//
+//  SECTION("Test closing curly brackets on same line") {
+//    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketsclosesameline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+//    DUMP_STACK(stack);
+//    REQUIRE(stack.size() == 6);
+//  }
+//
+//  SECTION("Test closing curly brackets on separate line") {
+//    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketscloseseperateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+//    DUMP_STACK(stack);
+//    REQUIRE(stack.size() == 4);
+//  }

@@ -278,7 +278,6 @@ namespace Core {
   void CppScopeExtractor::extractConditionals(File& file, Scope& parent) {
     std::regex conditionnalRegex(R"(\s*(if|else|for|switch|while|do)(\(|\{|\s|$))");
     for(unsigned int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
-      int lineNumber = i + 1;
       const std::string& line = file.lines[i];
       std::smatch match;
       std::regex_search(line, match, conditionnalRegex);
@@ -291,7 +290,7 @@ namespace Core {
         Scope scope(ScopeType::Conditionnal);
         scope.name = match[1];
         scope.parent = &parent;
-        scope.lineNumberStart = lineNumber;
+        scope.lineNumberStart = i;
         scope.characterNumberStart = line.find(match[0]);
         scope.file = &file;
 
@@ -372,8 +371,6 @@ namespace Core {
         //Filtering comments
         if(scope.isWithinOtherScope(it) && it.isOfType(ScopeType::Comment)) {
           return true;
-        } else if(scope.isOfType(ScopeType::Comment)) {
-          return true;
         } else if(scope.isOfType(ScopeType::Function) && scope.isWithinOtherScope(it) && (it.isOfType(ScopeType::Function) || it.isOfType(ScopeType::Conditionnal))) {
           //Filtering function call within a function
           return true;
@@ -448,7 +445,7 @@ namespace Core {
     
     
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
-      scopeLineNumber = j+1;
+      scopeLineNumber = j;
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = 0; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
@@ -479,7 +476,7 @@ namespace Core {
     int startingCharForThisLine = startingCharacter;
 
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
-      scopeLineNumber = j + 1;
+      scopeLineNumber = j;
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];

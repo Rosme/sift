@@ -33,11 +33,22 @@
 namespace Syntax {
   
   smart_enum_class(RuleType,
-                   NoAuto = 0,
+                   Unknown = 0,
+                   NoAuto,
                    NoDefine,
                    NoMacroFunctions,
                    StartWithX,
-                   EndWithX
+                   EndWithX,
+                   MaxCharactersPerLine,
+                   CurlyBracketsOpenSameLine,
+                   CurlyBracketsOpenSeperateLine,
+                   CurlyBracketsCloseSameLine,
+                   CurlyBracketsCloseSeperateLine,
+                   AlwaysHaveCurlyBrackets,
+                   NoConstCast,
+                   StartWithLowerCase,
+                   StartWithUpperCase,
+                   NameMaxCharacter
                   );
 
   class Rule {
