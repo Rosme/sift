@@ -151,3 +151,35 @@ TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
 //    DUMP_STACK(stack);
 //    REQUIRE(stack.size() == 4);
 //  }
+
+TEST_CASE("Testing start with upper/lower case", "[rules-upperlower]") {
+  std::vector<std::string> argv = { "program_name", "-V" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test start with lower case") {
+    const auto stack = doTest(pfe, "samples/tests/rules/startwithlowercase.json", "samples/tests/src/startwithloweruppercase.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 3);
+  }
+
+  SECTION("Test start with upper case") {
+    const auto stack = doTest(pfe, "samples/tests/rules/startwithuppercase.json", "samples/tests/src/startwithloweruppercase.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 4);
+  }
+}
+
+TEST_CASE("Testing always have curly brackets", "[rules-alwayscurlybrackets]") {
+  std::vector<std::string> argv = { "program_name", "-V" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test always have curly brackets") {
+    const auto stack = doTest(pfe, "samples/tests/rules/alwayshavecurlybrackets.json", "samples/tests/src/alwayshavecurlybrackets.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 4);
+  }
+}
