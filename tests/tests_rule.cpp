@@ -183,3 +183,16 @@ TEST_CASE("Testing always have curly brackets", "[rules-alwayscurlybrackets]") {
     REQUIRE(stack.size() == 4);
   }
 }
+
+TEST_CASE("Testing single return", "[rules-singlereturn]") {
+  std::vector<std::string> argv = { "program_name", "-V" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test single return") {
+    const auto stack = doTest(pfe, "samples/tests/rules/singlereturn.json", "samples/tests/src/singlereturn.cpp");
+    DUMP_STACK(stack);
+    REQUIRE(stack.size() == 1);
+  }
+}

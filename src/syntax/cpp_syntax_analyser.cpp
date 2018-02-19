@@ -61,6 +61,7 @@ namespace Syntax
     REGISTER_RULE(StartWithLowerCase);
     REGISTER_RULE(StartWithUpperCase);
     REGISTER_RULE(NameMaxCharacter);
+    REGISTER_RULE(SingleReturn);
     
     for(const auto& type : RuleType_list)
     {
@@ -316,7 +317,6 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      const auto& param = rule.getParameter();
       if (!islower(currentScope.name[0])) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Does not start with lower case "
@@ -336,7 +336,6 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      const auto& param = rule.getParameter();
       if (!isupper(currentScope.name[0])) {
         Core::Message message(Core::MessageType::Error,
           SSTR("Does not start with upper case "
@@ -362,6 +361,32 @@ namespace Syntax
                               scope.lineNumberStart,
                               scope.characterNumberStart);
         messageStack.pushMessage(message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleSingleReturn(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Function;
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+
+      int counter = 0;
+      std::regex returnRegex(R"((^|\s)(return)(\(|;|\s|$))");
+      for (unsigned int i = currentScope.lineNumberStart; i <= currentScope.lineNumberEnd; ++i) {
+        const std::string& line = currentScope.file->lines[i];
+        std::smatch match;
+        std::regex_search(line, match, returnRegex);
+        if (match.size() > 0) {
+          counter++;
+          if (counter > 1) {
+            Core::Message message(Core::MessageType::Error,
+              SSTR("Function has multiple return "
+                "\n -->" << currentScope.name), currentScope.lineNumberStart + 1, currentScope.characterNumberStart
+            );
+            messageStack.pushMessage(message);
+            break;
+          }
+        }
       }
     }
   }
