@@ -69,6 +69,20 @@ namespace Syntax
     }
   }
 
+  std::string CPPSyntaxAnalyser::getRuleMessage(const Syntax::Rule& rule){
+    // %rp: rule parameter, %rn: rule name, %rs: rule scope
+    std::string ruleMessage = "%rs";
+
+    switch(rule.getRuleType())
+    {
+      case Syntax::RuleType::StartWithX: ruleMessage = "Expect scopes of type '%rs' to begin with '%rp'"; break;
+      case Syntax::RuleType::EndWithX: ruleMessage = "Expect scopes of type '%rs' to end with '%rp'"; break;
+      default: break;
+    }
+        
+    return ruleMessage;
+  }
+  
   void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
   }
@@ -83,13 +97,16 @@ namespace Syntax
     for(auto&& currentScope : rootScope.getAllChildrenOfType(Core::ScopeType::GlobalDefine)) {
       std::stringstream defineLines;
 
-      for(auto&& line : currentScope.getScopeLines()) {
-        defineLines << line << "\n";
+      const auto& lines = currentScope.getScopeLines();
+      for(int i = 0; i < lines.size(); i++) {
+        defineLines << lines[i];
+        if(i != lines.size()-1){
+          defineLines << "\n";          
+        }
       }
       
       Core::Message message(Core::MessageType::Error, 
-        SSTR("Define found" <<
-        "\n -->" << defineLines.str()), currentScope.lineNumberStart+1, currentScope.characterNumberStart
+        defineLines.str(), currentScope.lineNumberStart, currentScope.characterNumberStart
       );
       messageStack.pushMessage(rule.getRuleId(), message);
     }
@@ -115,7 +132,7 @@ namespace Syntax
       }
       
       Core::Message message(Core::MessageType::Error, 
-        macro, currentScope.lineNumberStart+1, currentScope.characterNumberStart
+        macro, currentScope.lineNumberStart, currentScope.characterNumberStart
       );
       messageStack.pushMessage(rule.getRuleId(), message);
     }
@@ -134,7 +151,7 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if(currentScope.name.compare(0, param.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
-          currentScope.name, currentScope.lineNumberStart+1, currentScope.characterNumberStart
+          currentScope.name, currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -153,7 +170,7 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if(currentScope.name.length() < param.length() || currentScope.name.compare(currentScope.name.length()-param.length(), currentScope.name.length(), param) != 0) {
         Core::Message message(Core::MessageType::Error, 
-          currentScope.name, currentScope.lineNumberStart+1, currentScope.characterNumberStart
+          currentScope.name, currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -167,7 +184,7 @@ namespace Syntax
       if(lines[i].size() > maxCharPerLine) {
         messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Error, 
         SSTR(rule.getParameter() << " expected - got: " << lines[i].size()),
-        i+1, lines[i].size()
+        i, lines[i].size()
       ));
       }
     }
@@ -183,7 +200,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && IsOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberStart + 1
+          currentScope.name, currentScope.lineNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -201,7 +218,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && !IsOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberStart + 1
+          currentScope.name, currentScope.lineNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -221,7 +238,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && IsClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberEnd + 1
+          currentScope.name, currentScope.lineNumberEnd
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -240,7 +257,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (IsScopeUsingCurlyBrackets(currentScope) && !IsClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberEnd + 1
+          currentScope.name, currentScope.lineNumberEnd
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -254,7 +271,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!IsScopeUsingCurlyBrackets(currentScope)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberEnd + 1
+          currentScope.name, currentScope.lineNumberEnd
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -312,7 +329,7 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if (!islower(currentScope.name[0])) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberStart + 1, currentScope.characterNumberStart
+          currentScope.name, currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -331,7 +348,7 @@ namespace Syntax
       const auto& param = rule.getParameter();
       if (!isupper(currentScope.name[0])) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberStart + 1, currentScope.characterNumberStart
+          currentScope.name, currentScope.lineNumberStart, currentScope.characterNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }

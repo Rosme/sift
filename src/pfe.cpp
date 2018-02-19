@@ -247,6 +247,13 @@ void PFE::registerRuleWork()
   
 void PFE::outputMessages()
 {    
+  auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace){
+    auto index = from.find(find);
+    if(index != std::string::npos){
+      from.replace(index, find.length(), replace);
+    }
+  };
+  
   std::ofstream file(m_outputFilename);
   // Files
   for(auto&& stackPair : m_messageStacks) {
@@ -258,12 +265,20 @@ void PFE::outputMessages()
     // Rules
     for(const auto& ruleIdMessagesPair : stackPair.second.getMessages()) {
       const Syntax::Rule& rule = m_rules[ruleIdMessagesPair.first];
-      const std::string ruleString = Syntax::to_string(static_cast<Syntax::RuleType>(rule.getRuleType()));
-      const std::string parameterString = rule.getParameter().empty() ? "" : " (parameter: " + rule.getParameter() + ")";
-      file << "  " << ruleString << parameterString << " - applied on: " << Core::to_string(rule.getScopeType()) << "\n";
+      
+      std::string ruleString = m_syntaxAnalyser->getRuleMessage(rule);
+      
+      std::string ruleName = Syntax::to_string(rule.getRuleType());
+      std::string ruleScope = Core::to_string(rule.getScopeType());
+      std::string ruleParameter = rule.getParameter();
+            
+      findReplaceFn(ruleString, "%rs", ruleScope);      
+      findReplaceFn(ruleString, "%rp", ruleParameter.empty() ? "" : ruleParameter);
+
+      file << "  " << ruleName << " -- " << ruleString << "\n";
       if(!m_quietMode)
       {
-        LOG(INFO) << "  " << ruleString << parameterString << " - applied on: " << Core::to_string(rule.getScopeType());
+        LOG(INFO) << "  " << ruleString;
       }
       for(const auto& message : ruleIdMessagesPair.second) {
         file << "    " << message << "\n";
