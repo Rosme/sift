@@ -85,7 +85,7 @@ void PFE::parseArgv(int argc, char** argv)
     CXXOPT("output", m_outputFilename, std::string, "output.txt");
     CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
     CXXOPT("rules", m_ruleFilename, std::string, "samples/rules/rules.json");
-    CXXOPT("path", m_pathToParse, std::string, "samples/src/define.hpp");
+    CXXOPT("path", m_pathToParse, std::string, "samples/src");
   }
   catch(...)
   {
@@ -245,6 +245,13 @@ void PFE::registerRuleWork()
   m_syntaxAnalyser->registerRuleWork(m_rulesWork);
 }
   
+  
+#define OUTPUT(msg) file << msg << "\n"; \
+  if(!m_quietMode) \
+  { \
+    LOG(INFO) << msg; \
+  }
+  
 void PFE::outputMessages()
 {    
   auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace){
@@ -257,11 +264,13 @@ void PFE::outputMessages()
   std::ofstream file(m_outputFilename);
   // Files
   for(auto&& stackPair : m_messageStacks) {
-    file << stackPair.first << " ----------\n";
-    if(!m_quietMode)
+    if(stackPair.second.size() == 0)
     {
-      LOG(INFO) << stackPair.first << " ----------";
+      continue; // Don't bother displaying error-free files
     }
+    
+    OUTPUT("+ " << stackPair.first << " ----------");
+
     // Rules
     for(const auto& ruleIdMessagesPair : stackPair.second.getMessages()) {
       const Syntax::Rule& rule = m_rules[ruleIdMessagesPair.first];
@@ -275,17 +284,10 @@ void PFE::outputMessages()
       findReplaceFn(ruleString, "%rs", ruleScope);      
       findReplaceFn(ruleString, "%rp", ruleParameter.empty() ? "" : ruleParameter);
 
-      file << "  " << ruleName << " -- " << ruleString << "\n";
-      if(!m_quietMode)
-      {
-        LOG(INFO) << ruleName << " -- " << ruleString;
-      }
+      OUTPUT("  " << ruleName << " -- " << ruleString);
+      
       for(const auto& message : ruleIdMessagesPair.second) {
-        file << "    " << message << "\n";
-        if(!m_quietMode)
-        {
-          LOG(INFO) << message;
-        }
+        OUTPUT("    " << message);
       }
     }
   }

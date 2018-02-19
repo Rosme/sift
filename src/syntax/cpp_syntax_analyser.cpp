@@ -99,10 +99,7 @@ namespace Syntax
 
       const auto& lines = currentScope.getScopeLines();
       for(int i = 0; i < lines.size(); i++) {
-        defineLines << lines[i];
-        if(i < lines.size()-1){
-//           defineLines << "\n";          
-        }
+        defineLines << lines[i] << "\t";
       }
       
       Core::Message message(Core::MessageType::Error, 
