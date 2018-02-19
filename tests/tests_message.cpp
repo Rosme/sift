@@ -42,6 +42,6 @@ TEST_CASE("Testing Message Stack", "[message]") {
   SECTION("Pushing on the stack") {
     auto stack = createMessageStack(10);
 
-    REQUIRE(stack.size() == 10);
+    REQUIRE(stack.getMessages().at(0).size() == 10);
   }
 }

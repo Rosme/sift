@@ -55,6 +55,7 @@ public:
   std::string getRuleFileName() { return m_ruleFilename; }
   std::string getPathToParse() { return m_pathToParse; }
   
+  const std::map<RuleId, Syntax::Rule>& getRules() { return m_rules; }
 private:
   // filename : rawText
   std::map<std::string, Core::File> m_files;

@@ -25,7 +25,7 @@
 #include "pfe.hpp"
 
 #define DUMP_STACK(stack) for(auto&& mp : stack.getMessages()){ \
-  std::cout << "Category: " << mp.first << std::endl; \
+  std::cout << "RuleId: " << mp.first << ", " << pfe.getRules().at(mp.first) << std::endl; \
   for(auto&& m : mp.second) \
   { \
     std::cout << "\t" << m << std::endl;\
@@ -59,17 +59,19 @@ TEST_CASE("Testing macro related rules", "[rules-macro]") {
   
   SECTION("Test No defines") {
     const auto stack = doTest(pfe, "samples/tests/rules/nodefines.json", "samples/src/define.hpp");
-    REQUIRE(stack.size() == 8);
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 8);
   }
   
   SECTION("Test No macro functions") {
     const auto stack = doTest(pfe, "samples/tests/rules/nomacrofunctions.json", "samples/src/define.hpp");
-    REQUIRE(stack.size() == 4);
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
 }
 
 TEST_CASE("Testing suffix/prefix related rules", "[rules-suffix]") {
-  std::vector<std::string> argv = {"program_name", "-V"};
+  std::vector<std::string> argv = {"program_name", "-q"};
   PFE pfe;
   pfe.parseArgv(argv.size(), convert(argv).data());
   pfe.setupLogging(); 
@@ -77,12 +79,13 @@ TEST_CASE("Testing suffix/prefix related rules", "[rules-suffix]") {
   SECTION("Test Prefix") {
     const auto stack = doTest(pfe, "samples/tests/rules/prefix.json", "samples/src/prefix.cpp");
     DUMP_STACK(stack);
-    REQUIRE(stack.size() == 6);
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 6);
   }
 }
 
 TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
-  std::vector<std::string> argv = {"program_name", "-V"};
+  std::vector<std::string> argv = {"program_name", "-q"};
   PFE pfe;
   pfe.parseArgv(argv.size(), convert(argv).data());
   pfe.setupLogging();
@@ -90,12 +93,13 @@ TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
   SECTION("Test Maximum Characters Per Line") {
     const auto stack = doTest(pfe, "samples/tests/rules/maxcharactersperline.json", "samples/tests/src/maxcharactersperline.cpp");
     DUMP_STACK(stack);
-    REQUIRE(stack.size() == 3);
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 3);
   }
 }
 
 TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
-  std::vector<std::string> argv = {"program_name", "-V"};
+  std::vector<std::string> argv = {"program_name", "-q"};
   PFE pfe;
   pfe.parseArgv(argv.size(), convert(argv).data());
   pfe.setupLogging();
@@ -104,11 +108,12 @@ TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
     const auto stack = doTest(pfe, "samples/tests/rules/noconstcast.json", "samples/tests/src/noconstcast.cpp");
     DUMP_STACK(stack);
     REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
 }
 
 TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
-  std::vector<std::string> argv = {"program_name", "-V"};
+  std::vector<std::string> argv = {"program_name", "-q"};
   PFE pfe;
   pfe.parseArgv(argv.size(), convert(argv).data());
   pfe.setupLogging();
@@ -116,13 +121,15 @@ TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
   SECTION("Test Max Character For All") {
     const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharacterall.json", "samples/tests/src/namemaxcharacter.cpp");
     DUMP_STACK(stack);
-    REQUIRE(stack.size() == 4);
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
 
   SECTION("Test Max Character For Variables Only") {
     const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharactersvariableonly.json", "samples/tests/src/namemaxcharacter.cpp");
     DUMP_STACK(stack);
-    REQUIRE(stack.size() == 1);
+REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
 }
 
