@@ -233,7 +233,7 @@ void PFE::applyRules()
       auto it = m_rulesWork.find(rulePair.first);
       if(it != m_rulesWork.end())
       {
-        m_rulesWork[rulePair.first](rulePair.second, scopePair.second, m_messageStack);
+        m_rulesWork[rulePair.first](rulePair.second, scopePair.second, m_messageStacks[scopePair.second.file->filename]);
       }
     }
   }
@@ -247,13 +247,20 @@ void PFE::registerRuleWork()
 void PFE::outputMessages()
 {    
   std::ofstream file(m_outputFilename);
-  while(m_messageStack.hasMessages())
-  {
-    auto message = m_messageStack.popMessage();
-    file << message << "\n";
-    if(!m_quietMode)
-    {
-      LOG(INFO) << message;
+  // Files
+  for(auto&& stackPair : m_messageStacks) {
+    file << stackPair.first << " ----------\n";
+    
+    // Categories
+    for(const auto& categoryMessagePair : stackPair.second.getMessages()) {
+      file << "  " << Syntax::to_string(static_cast<Syntax::RuleType>(categoryMessagePair.first)) << ":\n";
+      for(const auto& message : categoryMessagePair.second) {
+        file << "    " << message << "\n";
+        if(!m_quietMode)
+        {
+          LOG(INFO) << message;
+        }
+      }
     }
   }
     

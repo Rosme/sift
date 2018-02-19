@@ -24,6 +24,7 @@
 #pragma once
 #include <memory>
 #include <functional>
+#include <map>
 
 #include "core/message_stack.hpp"
 #include "core/file.hpp"
@@ -48,7 +49,7 @@ public:
   void outputMessages();
   void readPath(const std::string& path);
     
-  const Core::MessageStack getMessageStack(){ return m_messageStack; }
+  const std::map<const std::string, Core::MessageStack> getMessageStacks(){ return m_messageStacks; }
   std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
   std::string getRuleFileName() { return m_ruleFilename; }
   std::string getPathToParse() { return m_pathToParse; }
@@ -68,7 +69,7 @@ private:
     
   std::unique_ptr<Flow::FlowAnalyser> m_flowAnalyser;
   std::unique_ptr<Syntax::SyntaxAnalyser> m_syntaxAnalyser;
-  Core::MessageStack m_messageStack;
+  std::map<const std::string, Core::MessageStack> m_messageStacks;
     
   bool m_quietMode;
   bool m_verboseMode;

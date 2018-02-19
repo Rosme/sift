@@ -29,9 +29,9 @@ Core::MessageStack createMessageStack(int size) {
   Core::MessageStack stack;
   for(int i = 0; i < size; ++i) {
     if(i % 2 == 0) {
-      stack.pushMessage({Core::MessageType::Warning, std::to_string(i)});
+      stack.pushMessage(0, {Core::MessageType::Warning, std::to_string(i)});
     } else {
-      stack.pushMessage({Core::MessageType::Error, std::to_string(i)});
+      stack.pushMessage(0, {Core::MessageType::Error, std::to_string(i)});
     }
   }
   return stack;
@@ -44,38 +44,4 @@ TEST_CASE("Testing Message Stack", "[message]") {
 
     REQUIRE(stack.size() == 10);
   }
-
-  SECTION("Popping 5 of the stack") {
-    auto stack = createMessageStack(10);
-    REQUIRE(stack.size() == 10);
-
-    REQUIRE(stack.popMessage().type == Core::MessageType::Warning);
-    REQUIRE(stack.popMessage().type == Core::MessageType::Error);
-    REQUIRE(stack.popMessage().type == Core::MessageType::Warning);
-    REQUIRE(stack.popMessage().type == Core::MessageType::Error);
-    REQUIRE(stack.popMessage().type == Core::MessageType::Warning);
-
-
-    REQUIRE(stack.size() == 5);
-  }
-
-  SECTION("Pushing 5 after pop") {
-    auto stack = createMessageStack(10);
-    for(int i = 0; i < 5; ++i) {
-      stack.popMessage();
-    }
-
-    REQUIRE(stack.size() == 5);
-
-    for(int i = 0; i < 5; ++i) {
-      if(i % 2 == 0) {
-        stack.pushMessage({Core::MessageType::Warning, std::to_string(i)});
-      } else {
-        stack.pushMessage({Core::MessageType::Error, std::to_string(i)});
-      }
-    }
-
-    REQUIRE(stack.size() == 10);
-  }
-
 }
