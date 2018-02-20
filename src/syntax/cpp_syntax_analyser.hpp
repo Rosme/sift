@@ -60,9 +60,9 @@ namespace Syntax {
     void RuleNameMaxCharacter(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleSingleReturn(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     
-    bool IsScopeUsingCurlyBrackets(Core::Scope& scope);
-    bool IsOpeningCurlyBracketSeparateLine(Core::Scope& scope);
-    bool IsClosingCurlyBracketSeparateLine(Core::Scope& scope);
+    bool isScopeUsingCurlyBrackets(Core::Scope& scope);
+    bool isOpeningCurlyBracketSeparateLine(Core::Scope& scope);
+    bool isClosingCurlyBracketSeparateLine(Core::Scope& scope);
   };
   
 }

@@ -217,7 +217,7 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (IsScopeUsingCurlyBrackets(currentScope) && IsOpeningCurlyBracketSeparateLine(currentScope)) {
+      if (isScopeUsingCurlyBrackets(currentScope) && isOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberStart
         );
@@ -235,7 +235,7 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (IsScopeUsingCurlyBrackets(currentScope) && !IsOpeningCurlyBracketSeparateLine(currentScope)) {
+      if (isScopeUsingCurlyBrackets(currentScope) && !isOpeningCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberStart
         );
@@ -255,7 +255,7 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (IsScopeUsingCurlyBrackets(currentScope) && IsClosingCurlyBracketSeparateLine(currentScope)) {
+      if (isScopeUsingCurlyBrackets(currentScope) && isClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberEnd
         );
@@ -274,7 +274,7 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (IsScopeUsingCurlyBrackets(currentScope) && !IsClosingCurlyBracketSeparateLine(currentScope)) {
+      if (isScopeUsingCurlyBrackets(currentScope) && !isClosingCurlyBracketSeparateLine(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberEnd
         );
@@ -288,7 +288,7 @@ namespace Syntax
     Core::ScopeType scopeTypes = Core::ScopeType::Conditionnal;
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (!IsScopeUsingCurlyBrackets(currentScope)) {
+      if (!isScopeUsingCurlyBrackets(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberEnd
         );
@@ -415,12 +415,12 @@ namespace Syntax
     }
   }
 
-  bool CPPSyntaxAnalyser::IsScopeUsingCurlyBrackets(Core::Scope& scope) {
+  bool CPPSyntaxAnalyser::isScopeUsingCurlyBrackets(Core::Scope& scope) {
     const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
     return scopeLine[scope.characterNumberEnd] == '}';
   }
 
-  bool CPPSyntaxAnalyser::IsOpeningCurlyBracketSeparateLine(Core::Scope& scope) {
+  bool CPPSyntaxAnalyser::isOpeningCurlyBracketSeparateLine(Core::Scope& scope) {
     const std::string& scopeLine = scope.file->lines[scope.lineNumberStart];
     for (unsigned int pos = scope.characterNumberStart; pos < scopeLine.size(); ++pos) {
       const char& c = scopeLine[pos];
@@ -431,7 +431,7 @@ namespace Syntax
     return true;
   }
 
-  bool CPPSyntaxAnalyser::IsClosingCurlyBracketSeparateLine(Core::Scope& scope) {
+  bool CPPSyntaxAnalyser::isClosingCurlyBracketSeparateLine(Core::Scope& scope) {
     const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
     for (unsigned int pos = 0; pos < scope.characterNumberEnd; ++pos) {
       const char& c = scopeLine[pos];
