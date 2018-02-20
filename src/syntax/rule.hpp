@@ -33,6 +33,7 @@
 
 namespace Syntax {
   
+  /* RULE_DEFINE_ENUM */
   smart_enum_class(RuleType,
                    Unknown = 0,
                    NoAuto,
@@ -52,7 +53,8 @@ namespace Syntax {
                    NameMaxCharacter,
                    SingleReturn
                   );
-
+  /* END_RULE_DEFINE_ENUM */
+  
   class Rule {
   public:
     Rule() { }

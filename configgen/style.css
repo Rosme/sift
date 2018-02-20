@@ -28,3 +28,31 @@ body
   background-color: #000;
   color: #fff;
 }
+
+#rules{
+  width: 100%;
+}
+
+.row{
+  width: 100%;
+  border-bottom: 1px solid gray;
+}
+
+.title {
+  font-size:1.5em;
+}
+
+.one{
+  width: 40%;
+  display: inline-block;
+}
+
+.checkbox{
+  min-width: 9%;
+  display: inline-block;
+}
+
+.other{
+  width: 25%;
+  display: inline-block;
+}

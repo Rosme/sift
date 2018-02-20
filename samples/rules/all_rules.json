@@ -1,25 +1,54 @@
 {
   "rules": [
     {
-      "rule": "NoDefine",
-      "parameter": ""
+      "rule": "NoAuto"
     },
     {
-      "rule": "NoMacroFunctions",
-      "parameter": ""
+      "rule": "NoDefine"
     },
     {
-      "rule": "StartWithX",
-      "parameter": "m_"
-    },
-        {
-      "rule": "StartWithX",
-      "parameter": "s_",
-      "appliedTo": "Variable"
+      "rule": "NoMacroFunctions"
     },
     {
-      "rule": "EndWithX",
-      "parameter": "_s"
+      "rule": "StartWithX"
+    },
+    {
+      "rule": "EndWithX"
+    },
+    {
+      "rule": "MaxCharactersPerLine",
+      "parameter": "80"
+    },
+    {
+      "rule": "CurlyBracketsOpenSameLine"
+    },
+    {
+      "rule": "CurlyBracketsOpenSeperateLine"
+    },
+    {
+      "rule": "CurlyBracketsCloseSameLine"
+    },
+    {
+      "rule": "CurlyBracketsCloseSeperateLine"
+    },
+    {
+      "rule": "AlwaysHaveCurlyBrackets"
+    },
+    {
+      "rule": "NoConstCast"
+    },
+    {
+      "rule": "StartWithLowerCase"
+    },
+    {
+      "rule": "StartWithUpperCase"
+    },
+    {
+      "rule": "NameMaxCharacter",
+      "parameter": "80"
+    },
+    {
+      "rule": "SingleReturn"
     }
   ]
 }
