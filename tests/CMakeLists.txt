@@ -33,8 +33,12 @@ set(TESTS_TESTS
   tests_message.cpp
   tests_scope.cpp
   tests_rule.cpp
-  tests_system.cpp
   )
+
+if(RUN_SYSTEM_TESTS)
+  message("Will run system tests")
+  list(APPEND TESTS_TESTS tests_system.cpp)
+endif(RUN_SYSTEM_TESTS)
 
 include_directories(../extlib SYSTEM)
 include_directories(../src)
