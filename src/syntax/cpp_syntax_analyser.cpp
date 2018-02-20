@@ -436,9 +436,6 @@ namespace Syntax
     for (unsigned int pos = 0; pos < scope.characterNumberEnd; ++pos) {
       const char& c = scopeLine[pos];
       if (!isspace(c)) {
-        if (c == '}') {
-          return true;
-        }
         return false;
       }
     }
