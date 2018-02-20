@@ -85,7 +85,7 @@ void PFE::parseArgv(int argc, char** argv)
     CXXOPT("output", m_outputFilename, std::string, "output.txt");
     CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
     CXXOPT("rules", m_ruleFilename, std::string, "samples/rules/rules.json");
-    CXXOPT("path", m_pathToParse, std::string, "../src");
+    CXXOPT("path", m_pathToParse, std::string, "samples/src");
   }
   catch(...)
   {

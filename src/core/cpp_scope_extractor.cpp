@@ -481,11 +481,12 @@ namespace Core {
             break;
           }
         }
+        
+        if(bracketStack.size() > BRACKET_STACK_GIVEUP){
+          throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
+        }
       }
-      
-      if(bracketStack.size() > BRACKET_STACK_GIVEUP){
-        throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
-      }
+
     }
 
     return scopeLineNumber;
@@ -519,12 +520,12 @@ namespace Core {
           j = file.lines.size();
           break;
         }
+        
+        if(bracketStack.size() > BRACKET_STACK_GIVEUP){
+          throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
+        }
       }
       startingCharForThisLine = 0;
-      
-      if(bracketStack.size() > BRACKET_STACK_GIVEUP){
-        throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
-      }
     }
 
     return scopeLineNumber;
@@ -549,12 +550,12 @@ namespace Core {
             break;
           }
         }
+        
+        if(ParenthesisStack.size() > BRACKET_STACK_GIVEUP){
+          throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
+        }
       }
       startingCharForThisLine = 0;
-      
-      if(ParenthesisStack.size() > BRACKET_STACK_GIVEUP){
-        throw std::overflow_error("Reached maximum bracket size, something is probably wrong");
-      }
     }
     
     
