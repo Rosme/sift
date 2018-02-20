@@ -610,7 +610,7 @@ namespace Core {
             }
           }
         } else {
-          if(c != ' ' && c != '\r' && c != '\n') {
+          if(!isspace(c)) {
             if(c == ';') {
               return true;
             } else {

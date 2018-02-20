@@ -435,7 +435,10 @@ namespace Syntax
     const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
     for (unsigned int pos = 0; pos < scope.characterNumberEnd; ++pos) {
       const char& c = scopeLine[pos];
-      if (c != ' ' && c != '\r' && c != '\n') {
+      if (!isspace(c)) {
+        if (c == '}') {
+          return true;
+        }
         return false;
       }
     }
