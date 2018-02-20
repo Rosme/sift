@@ -1,5 +1,5 @@
 src/core/config.hpp
-tests/config.hpp
+tests/testconfig.hpp
 temp-system-tests
 .DS_STORE
 
