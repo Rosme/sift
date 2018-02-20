@@ -128,7 +128,7 @@ TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
   }
 }
 
-TEST_CASE("Testing curly brackets on same or seperate line", "[rules-curlybracketline]") {
+TEST_CASE("Testing curly brackets on same or separate line", "[rules-curlybracketline]") {
   std::vector<std::string> argv = {"program_name", "-q"};
   PFE pfe;
   pfe.parseArgv(argv.size(), convert(argv).data());
@@ -141,7 +141,7 @@ TEST_CASE("Testing curly brackets on same or seperate line", "[rules-curlybracke
   }
 
   SECTION("Test opening curly brackets on separate line") {
-    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketsopenseperateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketsopenseparateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
@@ -153,7 +153,7 @@ TEST_CASE("Testing curly brackets on same or seperate line", "[rules-curlybracke
   }
 
   SECTION("Test closing curly brackets on separate line") {
-    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketscloseseperateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+    const auto stack = doTest(pfe, "samples/tests/rules/curlybracketscloseseparateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }

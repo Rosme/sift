@@ -23,13 +23,13 @@
       "rule": "CurlyBracketsOpenSameLine"
     },
     {
-      "rule": "CurlyBracketsOpenSeperateLine"
+      "rule": "CurlyBracketsOpenSeparateLine"
     },
     {
       "rule": "CurlyBracketsCloseSameLine"
     },
     {
-      "rule": "CurlyBracketsCloseSeperateLine"
+      "rule": "CurlyBracketsCloseSeparateLine"
     },
     {
       "rule": "AlwaysHaveCurlyBrackets"

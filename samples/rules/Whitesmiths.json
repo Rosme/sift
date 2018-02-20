@@ -2,11 +2,11 @@
 {
   "rules": [
     {
-      "rule" : "CurlyBracketsOpenSeperateLine",
+      "rule" : "CurlyBracketsOpenSeparateLine",
       "appliedTo": "Class"
     },
     {
-      "rule" : "CurlyBracketsCloseSeperateLine",
+      "rule" : "CurlyBracketsCloseSeparateLine",
       "appliedTo": "Class"
     },
 	

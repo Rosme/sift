@@ -29,7 +29,7 @@
     },
 	
     {
-      "rule" : "CurlyBracketsCloseSeperateLine",
+      "rule" : "CurlyBracketsCloseSeparateLine",
       "appliedTo": "Source",
     },
 	
