@@ -111,6 +111,10 @@ namespace Core {
 
     return true;
   }
+  
+  bool Scope::isLineWithinScope(unsigned int line) const {
+    return line >= lineNumberStart && line <= lineNumberEnd;
+  }
 
   bool Scope::isOfType(ScopeType typeToVerify) const {
     return static_cast<unsigned int>(type & typeToVerify) != 0;

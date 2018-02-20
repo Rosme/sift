@@ -68,6 +68,7 @@ namespace Core {
     unsigned int getDepth() const;
     std::string getTree() const; //Debug Function
     bool isWithinOtherScope(const Scope& other) const;
+    bool isLineWithinScope(unsigned int line) const;
     bool isOfType(ScopeType type) const;
     bool isMultiline() const;
     ScopeVector::iterator begin();

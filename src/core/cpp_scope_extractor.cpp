@@ -221,11 +221,25 @@ namespace Core {
 
   void CppScopeExtractor::extractFunctions(File& file, Scope& parent) {
     std::regex functionRegex(R"((\w*\s)*((\w|:)+)\s*\((.*),?\).*\s*(;|\{)?)");
+    
+    const auto& defineScopes = parent.getAllChildrenOfType(Core::ScopeType::GlobalDefine);
+    bool skipMatch = false;
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
       std::regex_match(line, match, functionRegex);
       if(match.size() > 0) {
+        for(const auto& defineScope : defineScopes){
+          if(defineScope.isLineWithinScope(lineNumber)){
+            skipMatch = true;
+            break;
+          }
+        }
+        
+        if(skipMatch){
+          continue;
+        }
+        
         Scope scope(ScopeType::Function);
         scope.name = match[2];
         scope.parent = &parent;
@@ -254,6 +268,8 @@ namespace Core {
         parent.children.push_back(scope);
       }
     }
+    
+    
   }
 
   void CppScopeExtractor::extractVariables(File& file, Scope& parent) {
