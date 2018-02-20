@@ -33,6 +33,7 @@ set(TESTS_TESTS
   tests_message.cpp
   tests_scope.cpp
   tests_rule.cpp
+  tests_system.cpp
   )
 
 include_directories(../extlib SYSTEM)
@@ -47,5 +48,11 @@ add_executable("tests" ${TESTS_INC} ${TESTS_TESTS}
 )
 
 add_custom_command(TARGET tests POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:tests>/temp-system-tests"
+)
+add_custom_command(TARGET tests POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:tests>/temp-system-tests"
+)
+add_custom_command(TARGET tests POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:tests>/samples
-                    )
+)

@@ -30,6 +30,7 @@ set(VERSION_PATCH 0)
 
 option(USE_PFE_ASSERT "Use PFE defined assert" ON)
 option(GENERATE_JAVASCRIPT "Generate/populate the .js with rules" OFF)
+option(RUN_SYSTEM_TESTS "Run the (lengthy) system tests" OFF)
 
 # Default to debug for now
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
