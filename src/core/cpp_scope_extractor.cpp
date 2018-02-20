@@ -225,7 +225,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractFunctions(File& file, Scope& parent) {
-    std::regex functionRegex(R"((\w*\s)*((\w|:)+)\s*\((.*),?\).*\s*(;|\{))");
+    std::regex functionRegex(R"((\w*\s)*((\w|:)+)\s*\((.*),?\).*\s*(;|\{)?)");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -238,9 +238,17 @@ namespace Core {
         scope.characterNumberStart = line.find(match[0]);
         scope.file = &file;
 
-        std::size_t declarationEnd = line.find(';', scope.characterNumberStart);
-        if(declarationEnd != std::string::npos) {
-          scope.characterNumberEnd = declarationEnd;
+        std::size_t semicolonPos = line.find(';', scope.characterNumberStart);
+        std::size_t curlyBracketPos = line.find('{', scope.characterNumberStart);
+
+        for(int j = lineNumber; semicolonPos == std::string::npos && curlyBracketPos == std::string::npos; ++j) {
+          const std::string& nextLine = file.lines[j];
+          semicolonPos = nextLine.find(';', scope.characterNumberStart);
+          curlyBracketPos = nextLine.find('{', scope.characterNumberStart);
+        }
+
+        if(semicolonPos != std::string::npos) {
+          scope.characterNumberEnd = semicolonPos;
           scope.lineNumberEnd = scope.lineNumberStart;
         } else {
           findEndOfScope(scope, file, lineNumber);
