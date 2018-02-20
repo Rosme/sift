@@ -28,7 +28,8 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 set(VERSION_PATCH 0)
 
-set(USE_PFE_ASSERT true CACHE BOOL "Use PFE defined assert")
+option(USE_PFE_ASSERT "Use PFE defined assert" ON)
+option(GENERATE_JAVASCRIPT "Generate/populate the .js with rules" OFF)
 
 # Default to debug for now
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -125,6 +126,10 @@ add_subdirectory(tests)
 if(USE_PFE_ASSERT)
     add_definitions(-DUSE_PFE_ASSERT)
 endif(USE_PFE_ASSERT)
+
+if(GENERATE_JAVASCRIPT)
+  execute_process(COMMAND python generate_rules.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/configgen/)
+endif(GENERATE_JAVASCRIPT)
 
 add_executable(${PROJECT_NAME} ${SRC_MAIN} ${SRC})
 
