@@ -83,7 +83,8 @@ void runTest(std::string args, int& outCode, std::vector<std::string>& outOutput
 
 TEST_CASE("Testing sift itself like a blackbox", "[system]") {
   int code = -1;
-  std::vector<std::string> output, stdout;
+  std::vector<std::string> output;
+  std::vector<std::string> stdout;
   
   SECTION("All green quiet test") {
     runTest("-q -r samples/tests/rules/empty.json -p samples/src/define.hpp", code, output, stdout);
