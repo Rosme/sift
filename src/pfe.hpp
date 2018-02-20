@@ -24,7 +24,9 @@
 #pragma once
 #include <memory>
 #include <functional>
+#include <map>
 
+#include "core/constants.hpp"
 #include "core/message_stack.hpp"
 #include "core/file.hpp"
 #include "core/scope.hpp"
@@ -48,11 +50,12 @@ public:
   void outputMessages();
   void readPath(const std::string& path);
     
-  const Core::MessageStack getMessageStack(){ return m_messageStack; }
+  const std::map<const std::string, Core::MessageStack> getMessageStacks(){ return m_messageStacks; }
   std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
   std::string getRuleFileName() { return m_ruleFilename; }
   std::string getPathToParse() { return m_pathToParse; }
   
+  const std::map<RuleId, Syntax::Rule>& getRules() { return m_rules; }
 private:
   // filename : rawText
   std::map<std::string, Core::File> m_files;
@@ -60,15 +63,15 @@ private:
   // filename : rootScope
   std::map<std::string, Core::Scope> m_rootScopes;
     
-  // ruleType : rule
-  std::map<Syntax::RuleType, Syntax::Rule> m_rules;
+  // id : rule
+  std::map<RuleId, Syntax::Rule> m_rules;
     
   // ruleType : work
   std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>> m_rulesWork;
     
   std::unique_ptr<Flow::FlowAnalyser> m_flowAnalyser;
   std::unique_ptr<Syntax::SyntaxAnalyser> m_syntaxAnalyser;
-  Core::MessageStack m_messageStack;
+  std::map<const std::string, Core::MessageStack> m_messageStacks;
     
   bool m_quietMode;
   bool m_verboseMode;

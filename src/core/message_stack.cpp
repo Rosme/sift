@@ -25,27 +25,24 @@
 
 namespace Core {
 
-  void MessageStack::pushMessage(const Message & message) {
-    m_messages.push_back(message);
+  void MessageStack::pushMessage(RuleId ruleId, const Message & message) {
+    m_messages[ruleId].push_back(message);
   }
 
   bool MessageStack::hasMessages() const {
     return m_messages.size() != 0;
   }
 
-  const std::vector<Message>& MessageStack::getMessages() const {
+  const std::map<RuleId, std::vector<Message>>& MessageStack::getMessages() const {
     return m_messages;
   }
 
   std::size_t MessageStack::size() const {
     return m_messages.size();
   }
-
-  Message MessageStack::popMessage() {
-    PFE_ASSERT(hasMessages(), "Empty messages stack")
-    Message message = m_messages[0];
-    m_messages.erase(m_messages.begin());
-    return message;
+  
+  void MessageStack::clear()
+  {
+    m_messages.clear();
   }
-
 }

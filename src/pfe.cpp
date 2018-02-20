@@ -135,7 +135,7 @@ void PFE::setupRules(const std::string filename)
     
   for(auto&& rule : m_rules)
   {
-    rulesString << rule.second << ", ";
+    rulesString << "\n " << rule.second;
   }
     
   LOG(INFO) << "Parsed " << m_rules.size() << " rules:";
@@ -230,10 +230,11 @@ void PFE::applyRules()
   {
     for(auto& rulePair : m_rules)
     {
-      auto it = m_rulesWork.find(rulePair.first);
+      auto ruleType = rulePair.second.getRuleType();
+      auto it = m_rulesWork.find(ruleType);
       if(it != m_rulesWork.end())
       {
-        m_rulesWork[rulePair.first](rulePair.second, scopePair.second, m_messageStack);
+        m_rulesWork[ruleType](rulePair.second, scopePair.second, m_messageStacks[scopePair.second.file->filename]);
       }
     }
   }
@@ -244,16 +245,50 @@ void PFE::registerRuleWork()
   m_syntaxAnalyser->registerRuleWork(m_rulesWork);
 }
   
+  
+#define OUTPUT(msg) file << msg << "\n"; \
+  if(!m_quietMode) \
+  { \
+    LOG(INFO) << msg; \
+  }
+  
 void PFE::outputMessages()
 {    
+  auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace){
+    auto index = from.find(find);
+    if(index != std::string::npos){
+      from.replace(index, find.length(), replace);
+    }
+  };
+  
   std::ofstream file(m_outputFilename);
-  while(m_messageStack.hasMessages())
-  {
-    auto message = m_messageStack.popMessage();
-    file << message << "\n";
-    if(!m_quietMode)
+  // Files
+  for(auto&& stackPair : m_messageStacks) {
+    if(stackPair.second.size() == 0)
     {
-      LOG(INFO) << message;
+      continue; // Don't bother displaying error-free files
+    }
+    
+    OUTPUT("+ " << stackPair.first << " ----------");
+
+    // Rules
+    for(const auto& ruleIdMessagesPair : stackPair.second.getMessages()) {
+      const Syntax::Rule& rule = m_rules[ruleIdMessagesPair.first];
+      
+      std::string ruleString = m_syntaxAnalyser->getRuleMessage(rule);
+      
+      std::string ruleName = Syntax::to_string(rule.getRuleType());
+      std::string ruleScope = Core::to_string(rule.getScopeType());
+      std::string ruleParameter = rule.getParameter();
+            
+      findReplaceFn(ruleString, "%rs", ruleScope);      
+      findReplaceFn(ruleString, "%rp", ruleParameter.empty() ? "" : ruleParameter);
+
+      OUTPUT("  " << ruleName << " -- " << ruleString);
+      
+      for(const auto& message : ruleIdMessagesPair.second) {
+        OUTPUT("    " << message);
+      }
     }
   }
     

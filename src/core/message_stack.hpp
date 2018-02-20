@@ -23,20 +23,22 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include "message.hpp"
+#include "constants.hpp"
 
 namespace Core {
 
   class MessageStack {
   public:
-    void pushMessage(const Message& message);
+    void pushMessage(RuleId category, const Message& message);
     bool hasMessages() const;
-    const std::vector<Message>& getMessages() const;
+    const std::map<RuleId, std::vector<Message>>& getMessages() const;
     std::size_t size() const;
-    Message popMessage();
+    void clear();
 
   private:
-    std::vector<Message> m_messages;
+    std::map<RuleId, std::vector<Message>> m_messages;
   };
 
 }

@@ -100,12 +100,10 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractGlobals(File& file, Scope& parent) {
-    // We are 1-indexed
     int lineNo = 1;
     bool isStillInDefine = false;
     Scope scope;
     for(auto&& line : file.lines) {
-      // Avoid the costly regex if possible
       if(line.find("#define") != std::string::npos) {
         // Should match "     #define" and "   /* some comment */   #define"
         std::regex defineRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)#define)");
@@ -120,7 +118,6 @@ namespace Core {
           // Multiline define TODO: Verify with standard
           if(line.at(line.size()-1) == '\\') {
             isStillInDefine = true;
-            scope.isMultiLine = true;
           } else {
             scope.characterNumberEnd = scope.characterNumberStart + line.size();
             scope.lineNumberEnd = lineNo;

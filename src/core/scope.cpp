@@ -30,6 +30,11 @@ namespace Core {
     : type(type)
   {
   }
+  
+  bool Scope::isMultiline() const {
+    return lineNumberEnd != lineNumberStart;
+  }
+  
 
   ScopeVector Scope::getDirectChildrenOfType(ScopeType type) const {
     ScopeVector directChildren;
@@ -131,28 +136,24 @@ namespace Core {
   {
     std::vector<std::string> toReturn;
     unsigned int currentLineNo = 1;
-    unsigned int currentCharNo = 1;
     for(const auto& line : file->lines)
     {
       if(currentLineNo == lineNumberStart)
       {
-        bool multiLine = lineNumberEnd != lineNumberStart;
-        if(multiLine){
+        if(isMultiline()){
           toReturn.push_back(line.substr(characterNumberStart, line.size()-1));
         }else{
           toReturn.push_back(line.substr(characterNumberStart, characterNumberEnd));  
           break;
         }          
-      }else if(currentLineNo != lineNumberEnd) // Guaranteed multiline at this point
-      {
+
+      }else if(currentLineNo != lineNumberEnd && currentLineNo > lineNumberStart && currentLineNo < lineNumberEnd){ // Guaranteed multiline at this point
         toReturn.push_back(line);
-      }else if(currentLineNo == lineNumberEnd)
-      {
+      }else if(currentLineNo == lineNumberEnd){
         toReturn.push_back(line.substr(0, characterNumberEnd));  
+        break;
       }
-        
       
-      currentCharNo+=line.size()+1;
       currentLineNo++;
     }
     

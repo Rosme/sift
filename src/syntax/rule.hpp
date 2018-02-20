@@ -28,6 +28,7 @@
 
 #include <rosme/smartenum.hpp>
 
+#include "../core/constants.hpp"
 #include "../core/scope.hpp"
 
 namespace Syntax {
@@ -54,20 +55,22 @@ namespace Syntax {
   class Rule {
   public:
     Rule() { }
-    Rule(Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter = "");
+    Rule(RuleId id, Core::ScopeType applyTo, RuleType type, const std::string& optionalParameter = "");
     
     Core::ScopeType getScopeType() const;
     RuleType getRuleType() const;
+    RuleId getRuleId() const;
     bool hasParameter() const;
     const std::string& getParameter() const;
 
   private:
+    RuleId m_id;
     Core::ScopeType m_applyTo;
     RuleType m_type;
     std::string m_parameter;
   };
 
   std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule);
-  std::map<RuleType, Rule> readRules(const std::string& rulesFile);
+  std::map<RuleId, Rule> readRules(const std::string& rulesFile);
   
 }

@@ -69,6 +69,7 @@ namespace Core {
     std::string getTree() const; //Debug Function
     bool isWithinOtherScope(const Scope& other) const;
     bool isOfType(ScopeType type) const;
+    bool isMultiline() const;
     ScopeVector::iterator begin();
     ScopeVector::const_iterator begin() const;
     ScopeVector::iterator end();
@@ -81,7 +82,6 @@ namespace Core {
     unsigned int characterNumberStart = 0;
     unsigned int characterNumberEnd = 0;
     std::string name;
-    bool isMultiLine = false;
     std::vector<std::string> getScopeLines() const;
     File* file = nullptr;
     Scope* parent = nullptr;
