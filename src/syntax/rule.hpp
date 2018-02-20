@@ -49,7 +49,8 @@ namespace Syntax {
                    NoConstCast,
                    StartWithLowerCase,
                    StartWithUpperCase,
-                   NameMaxCharacter
+                   NameMaxCharacter,
+                   SingleReturn
                   );
 
   class Rule {

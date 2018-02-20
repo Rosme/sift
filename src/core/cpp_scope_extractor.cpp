@@ -220,7 +220,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractFunctions(File& file, Scope& parent) {
-    std::regex functionRegex(R"((\w*\s)*((\w|:)+)\s*\((.*),?\).*\s*(;|\{))");
+    std::regex functionRegex(R"((\w*\s)*((\w|:)+)\s*\((.*),?\).*\s*(;|\{)?)");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -233,9 +233,17 @@ namespace Core {
         scope.characterNumberStart = line.find(match[0]);
         scope.file = &file;
 
-        std::size_t declarationEnd = line.find(';', scope.characterNumberStart);
-        if(declarationEnd != std::string::npos) {
-          scope.characterNumberEnd = declarationEnd;
+        std::size_t semicolonPos = line.find(';', scope.characterNumberStart);
+        std::size_t curlyBracketPos = line.find('{', scope.characterNumberStart);
+
+        for(int j = lineNumber; semicolonPos == std::string::npos && curlyBracketPos == std::string::npos; ++j) {
+          const std::string& nextLine = file.lines[j];
+          semicolonPos = nextLine.find(';', scope.characterNumberStart);
+          curlyBracketPos = nextLine.find('{', scope.characterNumberStart);
+        }
+
+        if(semicolonPos != std::string::npos) {
+          scope.characterNumberEnd = semicolonPos;
           scope.lineNumberEnd = scope.lineNumberStart;
         } else {
           findEndOfScope(scope, file, lineNumber);
@@ -273,19 +281,19 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractConditionals(File& file, Scope& parent) {
-    std::regex conditionnalRegex(R"(\s*(if|else|for|switch|while|do)(\(|\{|\s|$))");
+    std::regex conditionnalRegex(R"((^|\s)(if|else|for|switch|while|do)(\(|\{|\s|$))");
     for(unsigned int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
       const std::string& line = file.lines[i];
       std::smatch match;
       std::regex_search(line, match, conditionnalRegex);
       if(match.size() > 0) {
-        if(match[1] == "while") {
+        if(match[2] == "while") {
           if(isDoWhileLoop(file, i, line.find(match[0]))) {
             continue;
           }
         }
         Scope scope(ScopeType::Conditionnal);
-        scope.name = match[1];
+        scope.name = match[2];
         scope.parent = &parent;
         scope.lineNumberStart = i;
         scope.characterNumberStart = line.find(match[0]);
@@ -293,7 +301,7 @@ namespace Core {
 
         if(scope.name == "for") {
           findEndOfScopeConditionalFor(scope, file, i, scope.characterNumberStart);
-        } else if(match[1] == "do") {
+        } else if(scope.name == "do") {
           findEndOfScopeConditionalDoWhile(scope, file, i + 1);
         } else {
           findEndOfScope(scope, file, i, scope.characterNumberStart);

@@ -61,6 +61,7 @@ namespace Syntax
     REGISTER_RULE(StartWithLowerCase);
     REGISTER_RULE(StartWithUpperCase);
     REGISTER_RULE(NameMaxCharacter);
+    REGISTER_RULE(SingleReturn);
     
     for(const auto& type : RuleType_list)
     {
@@ -77,6 +78,7 @@ namespace Syntax
     {
       case Syntax::RuleType::StartWithX: ruleMessage = "Expect scopes of type '%rs' to begin with '%rp'"; break;
       case Syntax::RuleType::EndWithX: ruleMessage = "Expect scopes of type '%rs' to end with '%rp'"; break;
+      case Syntax::RuleType::SingleReturn: ruleMessage = "Expect functions to have a single return"; break;
       default: break;
     }
         
@@ -384,6 +386,31 @@ namespace Syntax
                               scope.lineNumberStart,
                               scope.characterNumberStart);
         messageStack.pushMessage(rule.getRuleId(), message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleSingleReturn(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Function;
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+
+      int counter = 0;
+      std::regex returnRegex(R"((^|\s)(return)(\(|;|\s|$))");
+      for (unsigned int i = currentScope.lineNumberStart; i <= currentScope.lineNumberEnd; ++i) {
+        const std::string& line = currentScope.file->lines[i];
+        std::smatch match;
+        std::regex_search(line, match, returnRegex);
+        if (match.size() > 0) {
+          counter++;
+          if (counter > 1) {
+            Core::Message message(Core::MessageType::Error,
+              currentScope.name, currentScope.lineNumberStart + 1, currentScope.characterNumberStart
+            );
+            messageStack.pushMessage(rule.getRuleId(), message);
+            break;
+          }
+        }
       }
     }
   }
