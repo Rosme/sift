@@ -34,7 +34,7 @@
 #ifdef WIN32
   #define BIN_NAME "PFE.exe"
 #else
-  #define BIN_NAME "PFE"
+  #define BIN_NAME "./PFE"
 #endif
 
 #define TESTS_DIR "temp-system-tests/"
