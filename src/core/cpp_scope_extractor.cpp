@@ -501,6 +501,7 @@ namespace Core {
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
+        
         if(c == '{') {
           bracketStack.push('{');
         } else if(c == '}') {

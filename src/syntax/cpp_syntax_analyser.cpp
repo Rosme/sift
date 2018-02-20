@@ -203,7 +203,7 @@ namespace Syntax
       if(lines[i].size() > maxCharPerLine) {
         messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Error, 
         SSTR(rule.getParameter() << " expected - got: " << lines[i].size()),
-        i, lines[i].size()
+        i, 0
       ));
       }
     }

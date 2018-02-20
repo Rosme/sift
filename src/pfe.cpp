@@ -85,7 +85,7 @@ void PFE::parseArgv(int argc, char** argv)
     CXXOPT("output", m_outputFilename, std::string, "output.txt");
     CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
     CXXOPT("rules", m_ruleFilename, std::string, "samples/rules/rules.json");
-    CXXOPT("path", m_pathToParse, std::string, "samples/src");
+    CXXOPT("path", m_pathToParse, std::string, "../src");
   }
   catch(...)
   {
@@ -99,7 +99,7 @@ void PFE::setupLogging()
   // Setup defaults
   el::Configurations conf;
   conf.setToDefault();
-  conf.setGlobally(el::ConfigurationType::Format, "%datetime | %level | %msg");
+  conf.setGlobally(el::ConfigurationType::Format, "%level | %msg");
   
   if(m_quietMode) {
     conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");
