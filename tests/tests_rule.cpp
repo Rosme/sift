@@ -216,3 +216,16 @@ TEST_CASE("Testing no auto", "[rules-noauto]") {
     REQUIRE(stack.getMessages().begin()->second.size() == 2);
   }
 }
+
+TEST_CASE("Testing no goto", "[rules-nogoto]") {
+  std::vector<std::string> argv = { "program_name", "-q" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test no goto") {
+    const auto stack = doTest(pfe, "samples/tests/rules/nogoto.json", "samples/tests/src/nogoto.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 1);
+  }
+}

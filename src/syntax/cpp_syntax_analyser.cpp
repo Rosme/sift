@@ -62,6 +62,7 @@ namespace Syntax
     REGISTER_RULE(StartWithUpperCase);
     REGISTER_RULE(NameMaxCharacter);
     REGISTER_RULE(SingleReturn);
+    REGISTER_RULE(NoGoto);
     
     for(const auto& type : RuleType_list)
     {
@@ -410,6 +411,26 @@ namespace Syntax
             messageStack.pushMessage(rule.getRuleId(), message);
             break;
           }
+        }
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleNoGoto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Function;
+
+    std::regex gotoRegex(R"(\b(goto)\b)");
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      for (unsigned int i = currentScope.lineNumberStart; i <= currentScope.lineNumberEnd; ++i) {
+        const std::string& line = currentScope.file->lines[i];
+        std::smatch match;
+        if (std::regex_search(line, match, gotoRegex)) {
+
+          Core::Message message(Core::MessageType::Error,
+            line + "\n", currentScope.lineNumberStart, currentScope.characterNumberStart
+          );
+          messageStack.pushMessage(rule.getRuleId(), message);
+          break;
         }
       }
     }
