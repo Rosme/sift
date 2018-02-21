@@ -203,3 +203,16 @@ TEST_CASE("Testing single return", "[rules-singlereturn]") {
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
 }
+
+TEST_CASE("Testing no auto", "[rules-noauto]") {
+  std::vector<std::string> argv = { "program_name", "-q" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test no auto") {
+    const auto stack = doTest(pfe, "samples/tests/rules/noauto.json", "samples/tests/src/noauto.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  }
+}

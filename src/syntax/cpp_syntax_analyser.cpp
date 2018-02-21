@@ -89,27 +89,27 @@ namespace Syntax
     messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
   }
 
-  void CPPSyntaxAnalyser::RuleNoAuto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
-  {
+  void CPPSyntaxAnalyser::RuleNoAuto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     Core::ScopeType scopeTypes = Core::ScopeType::Variable | Core::ScopeType::Function | Core::ScopeType::Global;
-    if(rule.getScopeType() != Core::ScopeType::All)
-    {
+    if(rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
     
-    std::regex autoRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)auto.*)");
+    std::regex autoRegex(R"(\b(auto)\b)");
     for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      const auto firstLine = currentScope.getScopeLines().at(0);
-      std::string autoText;
-      std::smatch match;
-      if(std::regex_match(firstLine, match, autoRegex))
-      {
-        autoText = firstLine + "\n";
+      for (unsigned int i = currentScope.lineNumberStart; i <= currentScope.lineNumberEnd; ++i) {
+        const std::string& line = currentScope.file->lines[i];
+        std::string autoText;
+        std::smatch match;
+        if(std::regex_search(line, match, autoRegex)) {
+          autoText = line + "\n";
         
-        Core::Message message(Core::MessageType::Error, 
-          autoText, currentScope.lineNumberStart, currentScope.characterNumberStart
-        );
-        messageStack.pushMessage(rule.getRuleId(), message);
+          Core::Message message(Core::MessageType::Error, 
+            autoText, currentScope.lineNumberStart, currentScope.characterNumberStart
+          );
+          messageStack.pushMessage(rule.getRuleId(), message);
+          break;
+        }
       }
     }
   } 
