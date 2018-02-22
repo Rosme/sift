@@ -94,6 +94,11 @@ TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 3);
   }
+
+  SECTION("Test Maximum Characters Per Line") {
+    const auto stack = doTest(pfe, "samples/tests/rules/maxcharactersperlinenoparam.json", "samples/tests/src/maxcharactersperline.cpp");
+    REQUIRE(stack.size() == 0);
+  }
 }
 
 TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
@@ -125,6 +130,11 @@ TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
     const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharactersvariableonly.json", "samples/tests/src/namemaxcharacter.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
+  }
+
+  SECTION("Test Max Character For Variables Only") {
+    const auto stack = doTest(pfe, "samples/tests/rules/namemaxcharacternoparam.json", "samples/tests/src/namemaxcharacter.cpp");
+    REQUIRE(stack.size() == 0);
   }
 }
 

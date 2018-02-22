@@ -199,15 +199,21 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleMaxCharactersPerLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     const auto& lines = rootScope.file->lines;
-    const auto maxCharPerLine = std::stoul(rule.getParameter());
-    for(unsigned int i = 0; i < lines.size(); ++i) {
-      if(lines[i].size() > maxCharPerLine) {
-        messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Error, 
-        SSTR(rule.getParameter() << " expected - got: " << lines[i].size()),
-        i, 0
-      ));
+
+    try {
+      const auto maxCharPerLine = std::stoul(rule.getParameter());
+      for(unsigned int i = 0; i < lines.size(); ++i) {
+        if(lines[i].size() > maxCharPerLine) {
+          messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Error,
+                                                                   SSTR(rule.getParameter() << " expected - got: " << lines[i].size()),
+                                                                   i, 0
+          ));
+        }
       }
+    } catch(const std::exception& e) {
+      LOG(ERROR) << "MaxCharactersPerLine rule requires a valid numerical character parameter";
     }
+    
   }
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
@@ -379,15 +385,19 @@ namespace Syntax
       scopeTypes = rule.getScopeType();
     }
 
-    const auto maxCharPerName = std::stoul(rule.getParameter());
-    for(const auto& scope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if(scope.name.size() > maxCharPerName) {
-        Core::Message message(Core::MessageType::Error,
-                              SSTR(scope.name << " - Got: " << scope.name.size()),
-                              scope.lineNumberStart,
-                              scope.characterNumberStart);
-        messageStack.pushMessage(rule.getRuleId(), message);
+    try {
+      const auto maxCharPerName = std::stoul(rule.getParameter());
+      for(const auto& scope : rootScope.getAllChildrenOfType(scopeTypes)) {
+        if(scope.name.size() > maxCharPerName) {
+          Core::Message message(Core::MessageType::Error,
+                                SSTR(scope.name << " - Got: " << scope.name.size()),
+                                scope.lineNumberStart,
+                                scope.characterNumberStart);
+          messageStack.pushMessage(rule.getRuleId(), message);
+        }
       }
+    } catch(const std::exception& e) {
+      LOG(ERROR) << "NameMaxCharacter rule requires a valid numerical character parameter";
     }
   }
 
