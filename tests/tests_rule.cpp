@@ -52,7 +52,7 @@ const Core::MessageStack doTest(PFE& pfe, const std::string rules, const std::st
 }
 
 TEST_CASE("Testing macro related rules", "[rules-macro]") {
-  std::vector<std::string> argv = {"program_name", "-q"};
+  std::vector<std::string> argv = {"program_name", ""};
   PFE pfe;
   pfe.parseArgv(argv.size(), convert(argv).data());
   pfe.setupLogging();

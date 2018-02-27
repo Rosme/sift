@@ -139,13 +139,13 @@ namespace Core {
   std::vector<std::string> Core::Scope::getScopeLines() const
   {
     std::vector<std::string> toReturn;
-    unsigned int currentLineNo = 1;
+    unsigned int currentLineNo = 0;
     for(const auto& line : file->lines)
     {
       if(currentLineNo == lineNumberStart)
       {
         if(isMultiline()){
-          toReturn.push_back(line.substr(characterNumberStart, line.size()-1));
+          toReturn.push_back(line.substr(characterNumberStart, line.size()));
         }else{
           toReturn.push_back(line.substr(characterNumberStart, characterNumberEnd));  
           break;

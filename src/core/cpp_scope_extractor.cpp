@@ -130,7 +130,7 @@ namespace Core {
         }
       } else if(isStillInDefine) {
         if(line.find("\\") == std::string::npos) {
-          scope.characterNumberEnd = line.size()-1;
+          scope.characterNumberEnd = line.size();
           scope.lineNumberEnd = lineNo;
           scope.name = scope.getScopeLines().at(0);
           parent.children.push_back(scope);
