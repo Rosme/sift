@@ -30,6 +30,8 @@ set(VERSION_PATCH 0)
 
 option(USE_PFE_ASSERT "Use PFE defined assert" ON)
 option(GENERATE_JAVASCRIPT "Generate/populate the .js with rules" OFF)
+option(RUN_UNIT_TESTS "Run the unit tests" ON)
+option(RUN_SYSTEM_TESTS "Run the (lengthy) system tests" OFF)
 
 # Default to debug for now
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -121,8 +123,6 @@ endif()
 
 include_directories(extlibs SYSTEM)
 
-add_subdirectory(tests)
-
 if(USE_PFE_ASSERT)
     add_definitions(-DUSE_PFE_ASSERT)
 endif(USE_PFE_ASSERT)
@@ -137,3 +137,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:${PROJECT_NAME}>/samples
                     )
 file(COPY ${CMAKE_SOURCE_DIR}/samples DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+if(RUN_UNIT_TESTS)
+  add_subdirectory(tests)
+endif(RUN_UNIT_TESTS)

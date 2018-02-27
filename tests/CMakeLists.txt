@@ -35,6 +35,11 @@ set(TESTS_TESTS
   tests_rule.cpp
   )
 
+if(RUN_SYSTEM_TESTS)
+  message("Will run system tests")
+  list(APPEND TESTS_TESTS tests_system.cpp)
+endif(RUN_SYSTEM_TESTS)
+
 include_directories(../extlib SYSTEM)
 include_directories(../src)
 
@@ -47,5 +52,18 @@ add_executable("tests" ${TESTS_INC} ${TESTS_TESTS}
 )
 
 add_custom_command(TARGET tests POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:tests>/temp-system-tests"
+)
+add_custom_command(TARGET tests POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:tests>/temp-system-tests"
+)
+
+add_custom_command(TARGET tests POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:PFE>" "$<TARGET_FILE_DIR:tests>"
+)
+add_custom_command(TARGET tests POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:tests>/samples
-                    )
+)
+add_custom_command(TARGET tests POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src $<TARGET_FILE_DIR:tests>/samples/SIFT
+)

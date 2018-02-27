@@ -1,5 +1,6 @@
 src/core/config.hpp
-
+tests/testconfig.hpp
+temp-system-tests
 .DS_STORE
 
 # Created by https://www.gitignore.io/api/c++,cmake,xcode,ninja,kdevelop4,visualstudio
