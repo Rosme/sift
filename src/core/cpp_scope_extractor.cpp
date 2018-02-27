@@ -63,7 +63,10 @@ namespace Core {
       //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
       //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
       //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
-      extractGlobals(file, rootScope);
+      extractDefines(file, rootScope);
+      
+      m_defineScopes[file.filename] = rootScope.getAllChildrenOfType(Core::ScopeType::GlobalDefine);
+      
       extractNamespaces(file, rootScope);
       extractEnums(file, rootScope);
       extractClasses(file, rootScope);
@@ -99,8 +102,8 @@ namespace Core {
     return true;
   }
 
-  void CppScopeExtractor::extractGlobals(File& file, Scope& parent) {
-    int lineNo = 1;
+  void CppScopeExtractor::extractDefines(File& file, Scope& parent) {
+    int lineNo = 0;
     bool isStillInDefine = false;
     Scope scope;
     for(auto&& line : file.lines) {
@@ -222,24 +225,15 @@ namespace Core {
   void CppScopeExtractor::extractFunctions(File& file, Scope& parent) {
     std::regex functionRegex(R"((\w*\s)*((\w|:)+)\s*\((.*),?\).*\s*(;|\{)?)");
     
-    const auto& defineScopes = parent.getAllChildrenOfType(Core::ScopeType::GlobalDefine);
-    bool skipMatch = false;
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
       std::regex_match(line, match, functionRegex);
       if(match.size() > 0) {
-        for(const auto& defineScope : defineScopes){
-          if(defineScope.isLineWithinScope(lineNumber)){
-            skipMatch = true;
-            break;
-          }
+        if(isLineWithinDefine(file.filename, lineNumber)){
+          break;
         }
-        
-        if(skipMatch){
-          continue;
-        }
-        
+    
         Scope scope(ScopeType::Function);
         scope.name = match[2];
         scope.parent = &parent;
@@ -279,6 +273,10 @@ namespace Core {
       std::smatch match;
       std::regex_match(line, match, variableRegex);
       if(match.size() > 0) {
+        if(isLineWithinDefine(file.filename, lineNumber)){
+          break;
+        }
+        
         Scope scope(ScopeType::Variable);
         scope.name = match[10];
         scope.parent = &parent;
@@ -303,6 +301,10 @@ namespace Core {
       std::smatch match;
       std::regex_search(line, match, conditionnalRegex);
       if(match.size() > 0) {
+        if(isLineWithinDefine(file.filename, i)){
+          break;
+        }
+        
         if(match[2] == "while") {
           if(isDoWhileLoop(file, i, line.find(match[0]))) {
             continue;
@@ -626,4 +628,14 @@ namespace Core {
     return false;
   }
 
+  bool CppScopeExtractor::isLineWithinDefine(const std::string& filename, int lineNumber){
+    for(const auto& scope : m_defineScopes[filename]){
+      if(scope.isLineWithinScope(lineNumber)){
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
 }

@@ -35,7 +35,7 @@ namespace Core {
     bool extractScopesFromFile(File& file, Scope &outScope);
 
   private:
-    void extractGlobals(File& file, Scope &parent);
+    void extractDefines(File& file, Scope &parent);
     void extractNamespaces(File& file, Scope& parent);
     void extractEnums(File& file, Scope& parent);
     void extractClasses(File& file, Scope& parent);
@@ -53,8 +53,12 @@ namespace Core {
     int findEndOfScopeConditionalFor(Scope& scope, File& file, int startingLine, int startingCharacter);
     int findEndOfScopeConditionalDoWhile(Scope& scope, File& file, int startingLine);
     bool isDoWhileLoop(File& file, int startingLine, int startingCharacter);
+    
+    
+    bool isLineWithinDefine(const std::string& filename, int line);
 
     static const std::vector<std::string> ReservedKeywords;
+    std::map<std::string, std::vector<Core::Scope>> m_defineScopes;
   };
 
 }

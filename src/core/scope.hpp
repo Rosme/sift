@@ -41,19 +41,19 @@ namespace Core {
     Enum = 1u << 3,
     FreeFunction = 1u << 4,
     ClassFunction = 1u << 5,
-    Function = FreeFunction | ClassFunction,
     Conditionnal = 1u << 6,
     ClassVariable = 1u << 7,
     FunctionVariable = 1u << 8,
     GlobalVariable = 1u << 9,
     GlobalDefine = 1u << 10,
-    Global = GlobalVariable | GlobalDefine | FreeFunction,
-    Variable = ClassVariable | FunctionVariable | GlobalVariable,
     SingleLineComment = 1u << 11,
     MultiLineComment = 1u << 12,
-    Comment = SingleLineComment | MultiLineComment,
     Unknown = 1u << 20,
-    All = 0xffff
+    All = 0xffff,
+    Global = GlobalVariable | GlobalDefine | FreeFunction,
+    Variable = ClassVariable | FunctionVariable | GlobalVariable,
+    Comment = SingleLineComment | MultiLineComment,
+    Function = FreeFunction | ClassFunction
   };
 
   struct Scope;

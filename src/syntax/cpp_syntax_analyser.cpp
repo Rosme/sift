@@ -86,15 +86,35 @@ namespace Syntax
     return ruleMessage;
   }
   
+  Core::ScopeType CPPSyntaxAnalyser::computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes){
+    Core::ScopeType computed = defaultAll;
+    if(input != Core::ScopeType::All)
+    {
+      computed = input;
+    }
+    
+    unsigned int i = static_cast<unsigned int>(Core::ScopeType::Unknown);
+    do{
+      if((i & static_cast<unsigned int>(ignoredTypes)) != 0){
+        computed = computed & static_cast<Core::ScopeType>(~i); // Remove ignored flag
+      }
+      
+      i >>= 1;
+    }while(i != 0);
+    
+    return computed;
+  }
+  
   void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
   }
 
   void CPPSyntaxAnalyser::RuleNoAuto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Variable | Core::ScopeType::Function | Core::ScopeType::Global;
-    if(rule.getScopeType() != Core::ScopeType::All) {
-      scopeTypes = rule.getScopeType();
-    }
+    Core::ScopeType scopeTypes = computeApplicableScopeTypes(rule.getScopeType(), 
+      Core::ScopeType::Variable | Core::ScopeType::Function | Core::ScopeType::Global,
+      Core::ScopeType::Unknown
+    );
+    
     
     std::regex autoRegex(R"(\b(auto)\b)");
     for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
@@ -103,7 +123,7 @@ namespace Syntax
         std::string autoText;
         std::smatch match;
         if(std::regex_search(line, match, autoRegex)) {
-          autoText = line + "\n";
+          autoText = line;
         
           Core::Message message(Core::MessageType::Error, 
             autoText, currentScope.lineNumberStart, currentScope.characterNumberStart
@@ -161,11 +181,10 @@ namespace Syntax
   
   void CPPSyntaxAnalyser::RuleStartWithX(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable;
-    if(rule.getScopeType() != Core::ScopeType::All)
-    {
-      scopeTypes = rule.getScopeType();
-    }
+    Core::ScopeType scopeTypes = computeApplicableScopeTypes(rule.getScopeType(), 
+      Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable,
+      Core::ScopeType::Unknown
+    );
     
     for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       const auto& param = rule.getParameter();

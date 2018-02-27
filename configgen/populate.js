@@ -42,15 +42,16 @@ var ruleNames = [
   "EndWithX",
   "MaxCharactersPerLine",
   "CurlyBracketsOpenSameLine",
-  "CurlyBracketsOpenSeperateLine",
+  "CurlyBracketsOpenSeparateLine",
   "CurlyBracketsCloseSameLine",
-  "CurlyBracketsCloseSeperateLine",
+  "CurlyBracketsCloseSeparateLine",
   "AlwaysHaveCurlyBrackets",
   "NoConstCast",
   "StartWithLowerCase",
   "StartWithUpperCase",
   "NameMaxCharacter",
   "SingleReturn",
+  "NoGoto",
 ];
 /* RULE_END */
 
