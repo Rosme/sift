@@ -51,6 +51,7 @@ namespace Syntax {
         }
         if(!found){
           ruleType = RuleType::Unknown;
+          LOG(ERROR) << "Rule with name '" << ruleText << "' has not been recognized, it will default to 'Unknown'";
         }
         
         Rule rule(++currentId,

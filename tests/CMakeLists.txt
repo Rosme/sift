@@ -33,6 +33,7 @@ set(TESTS_TESTS
   tests_message.cpp
   tests_scope.cpp
   tests_rule.cpp
+  tests_samples.cpp
   )
 
 if(RUN_SYSTEM_TESTS)
