@@ -39,9 +39,23 @@ namespace Syntax {
       {
         const std::string parameter = (jsonRule.find("parameter") != jsonRule.end()) ? jsonRule["parameter"].get<std::string>() : "";
         const std::string appliedTo = (jsonRule.find("appliedTo") != jsonRule.end()) ? jsonRule["appliedTo"].get<std::string>() : "All";
+        std::string ruleText = jsonRule["rule"].get<std::string>();
+        RuleType ruleType = RuleType_to_enum_class(ruleText);
+        
+        bool found = false;
+        for(const auto& ruleNamePair : RuleType_enum_names){
+          if(Core::string_case_compare(ruleText, ruleNamePair.second)){
+            found = true;
+            break;
+          }
+        }
+        if(!found){
+          ruleType = RuleType::Unknown;
+        }
+        
         Rule rule(++currentId,
                   Core::ScopeType_to_enum_class(appliedTo),
-                  RuleType_to_enum_class(jsonRule["rule"].get<std::string>()),
+                  ruleType,
                   parameter);
         rules[currentId] = rule;
       }
