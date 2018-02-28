@@ -60,10 +60,12 @@ namespace Syntax {
     void RuleNameMaxCharacter(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleSingleReturn(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleNoGoto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleSpaceBetweenOperandsInternal(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     
     bool isScopeUsingCurlyBrackets(Core::Scope& scope);
     bool isOpeningCurlyBracketSeparateLine(Core::Scope& scope);
     bool isClosingCurlyBracketSeparateLine(Core::Scope& scope);
+    bool isSpaceBetweenOperandsInternalConditional(Core::Scope& scope);
     
     Core::ScopeType computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes);
   };
