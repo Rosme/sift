@@ -22,34 +22,7 @@
  */
 
 #include "catch.hh"
-#include "pfe.hpp"
-
-#define DUMP_STACK(stack) for(auto&& mp : stack.getMessages()){ \
-  std::cout << "RuleId: " << mp.first << ", " << pfe.getRules().at(mp.first) << std::endl; \
-  for(auto&& m : mp.second) \
-  { \
-    std::cout << "\t" << m << std::endl;\
-  } \
-}
-
-std::vector<char*> convert(std::vector<std::string>& base)
-{
-  std::vector<char*> argv;
-  for (const auto& arg : base)
-    argv.push_back((char*)arg.data());
-  argv.push_back(nullptr);
-  return argv;
-}
-
-const Core::MessageStack doTest(PFE& pfe, const std::string rules, const std::string source)
-{
-  pfe.setupRules(rules);
-  pfe.registerRuleWork();
-  pfe.readPath(source);
-  pfe.extractScopes();
-  pfe.applyRules();
-  return pfe.getMessageStacks().at(source);
-}
+#include "utils.hpp"
 
 TEST_CASE("Testing macro related rules", "[rules-macro]") {
   std::vector<std::string> argv = {"program_name", "-q"};
