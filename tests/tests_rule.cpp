@@ -23,6 +23,7 @@
 
 #include "catch.hh"
 #include "utils.hpp"
+<<<<<<< HEAD
 #include "syntax/rule.hpp"
 
 Syntax::Rule RULE(Syntax::RuleType rule, Core::ScopeType appliedTo, std::string parameter = ""){
@@ -32,6 +33,8 @@ Syntax::Rule RULE(Syntax::RuleType rule, Core::ScopeType appliedTo, std::string 
 Syntax::Rule RULE(Syntax::RuleType rule){
   return RULE(rule, Core::ScopeType::All, "");
 }
+=======
+>>>>>>> 6a1e31938b66f4d9e0a26e6e31d878af6fdeb36b
 
 TEST_CASE("Testing macro related rules", "[rules-macro]") {
   std::vector<std::string> argv = {"program_name", "-q"};
