@@ -23,6 +23,37 @@
 
 #include "catch.hh"
 #include "utils.hpp"
+#include "syntax/rule.hpp"
+
+static RuleId ruleId = 0;
+inline const Core::MessageStack doUnitTest(PFE& pfe, std::map<RuleId, Syntax::Rule> rules, const std::vector<std::string>& source)
+{
+  pfe.setupRules(rules);
+  pfe.registerRuleWork();
+  pfe.readSource("Dummy", source);
+  pfe.extractScopes();
+  pfe.applyRules();
+  return pfe.getMessageStacks().at("Dummy");
+}
+
+inline const Core::MessageStack doUnitTest(PFE& pfe, std::map<RuleId, Syntax::Rule> rules, const std::string& source)
+{
+  pfe.setupRules(rules);
+  pfe.registerRuleWork();
+  pfe.readPath(source);
+  pfe.extractScopes();
+  pfe.applyRules();
+  return pfe.getMessageStacks().at(source);
+}
+
+
+Syntax::Rule RULE(Syntax::RuleType rule, Core::ScopeType appliedTo, std::string parameter = ""){
+  return Syntax::Rule(ruleId++, appliedTo, rule, parameter);
+}
+
+Syntax::Rule RULE(Syntax::RuleType rule){
+  return RULE(rule, Core::ScopeType::All, "");
+}
 
 TEST_CASE("Testing macro related rules", "[rules-macro]") {
   std::vector<std::string> argv = {"program_name", "-q"};
@@ -212,3 +243,27 @@ TEST_CASE("Testing no goto", "[rules-nogoto]") {
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
 }
+
+TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
+  std::vector<std::string> argv = { "program_name", "-q" };
+
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+  
+  SECTION("Test TabIndentation") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {ruleId, RULE(Syntax::RuleType::TabIndentation)}
+    };
+    std::vector<std::string> source = {
+      "\tHello",
+      "  spaces are evil",
+      "\t this is wrong still",
+    };
+    
+    const auto stack = doUnitTest(pfe, ruleMap, source);
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  }
+}
+

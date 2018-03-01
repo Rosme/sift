@@ -44,6 +44,7 @@ public:
   void parseArgv(int argc, char** argv);
   void setupLogging();
   void setupRules(const std::string filename);
+  void setupRules(std::map<RuleId, Syntax::Rule> rules);
   void extractScopes();
   void applyRules();
   void registerRuleWork();
@@ -56,6 +57,7 @@ public:
   std::string getPathToParse() { return m_pathToParse; }
   
   const std::map<RuleId, Syntax::Rule>& getRules() { return m_rules; }
+  void readSource(const std::string & filename, const std::vector<std::string>& source);
 private:
   // filename : rawText
   std::map<std::string, Core::File> m_files;
