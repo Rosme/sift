@@ -52,6 +52,7 @@ var ruleNames = [
   "NameMaxCharacter",
   "SingleReturn",
   "NoGoto",
+  "SpaceBetweenOperandsInternal",
 ];
 /* RULE_END */
 

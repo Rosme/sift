@@ -555,6 +555,8 @@ namespace Syntax
       }
       initialPosition = 0;
     }
+    
+    return false;
   }
 
 };
