@@ -65,7 +65,7 @@ namespace Syntax {
     bool isScopeUsingCurlyBrackets(Core::Scope& scope);
     bool isOpeningCurlyBracketSeparateLine(Core::Scope& scope);
     bool isClosingCurlyBracketSeparateLine(Core::Scope& scope);
-    bool isSpaceBetweenOperandsInternalConditional(Core::Scope& scope);
+    bool isSpaceBetweenOperandsInternal(Core::Scope& scope);
     
     Core::ScopeType computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes);
   };

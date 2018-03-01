@@ -473,7 +473,7 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (!isSpaceBetweenOperandsInternalConditional(currentScope)) {
+      if (!isSpaceBetweenOperandsInternal(currentScope)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberEnd
         );
@@ -510,7 +510,7 @@ namespace Syntax
     return true;
   }
 
-  bool CPPSyntaxAnalyser::isSpaceBetweenOperandsInternalConditional(Core::Scope& scope) {
+  bool CPPSyntaxAnalyser::isSpaceBetweenOperandsInternal(Core::Scope& scope) {
     int initialPosition = scope.characterNumberStart + scope.name.size();
     int parenthesisCounter = 0;
     for (unsigned int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
@@ -555,6 +555,7 @@ namespace Syntax
       }
       initialPosition = 0;
     }
+    return true;
   }
 
 };
