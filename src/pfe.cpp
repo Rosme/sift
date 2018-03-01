@@ -328,3 +328,10 @@ void PFE::readPath(const std::string& path)
     readSingleSourceFile(path);
   }
 }
+
+void PFE::clearState(){
+  m_rootScopes.clear();
+  m_files.clear();
+  m_rules.clear();
+  m_rulesWork.clear();
+}

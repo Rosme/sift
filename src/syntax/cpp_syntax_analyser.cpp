@@ -497,17 +497,16 @@ namespace Syntax
         for(const auto& commentScope : commentScopes){
           if(commentScope.isLineWithinScope(i)){
             isInComment = true;
+            break;
           }
         }
         
-        if(isInComment){
-          continue;
+        if(!isInComment){
+          Core::Message message(Core::MessageType::Error,
+                                line, i, 0
+          );
+          messageStack.pushMessage(rule.getRuleId(), message);
         }
-        
-        Core::Message message(Core::MessageType::Error,
-                              line, i, 0
-        );
-        messageStack.pushMessage(rule.getRuleId(), message);
       }
       ++i;
     }

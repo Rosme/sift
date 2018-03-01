@@ -50,6 +50,7 @@ public:
   void registerRuleWork();
   void outputMessages();
   void readPath(const std::string& path);
+  void clearState();
     
   const std::map<const std::string, Core::MessageStack> getMessageStacks(){ return m_messageStacks; }
   std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
