@@ -79,7 +79,7 @@ TEST_CASE("Testing suffix/prefix related rules", "[rules-suffix]") {
   SECTION("Test Prefix") {
     const auto stack = doTest(pfe, "samples/tests/rules/prefix.json", "samples/src/prefix.cpp");
     REQUIRE(stack.size() == 1);
-    REQUIRE(stack.getMessages().begin()->second.size() == 10);
+    REQUIRE(stack.getMessages().begin()->second.size() == 11);
   }
 }
 
