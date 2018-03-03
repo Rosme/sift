@@ -12,12 +12,11 @@
 	
     {
       "rule" : "ElseSeparateLineFromCurlyBracketClose",
-      "appliedTo": "Conditional"
+      "appliedTo": "Conditionnal"
     },
     
     {
-      "rule" : "TabIndentation",
-      "appliedTo" : "Source"
+      "rule" : "TabIndentation"
     },
 	
     {
@@ -27,12 +26,11 @@
 	
     {
       "rule" : "AlwaysHaveCurlyBrackets",
-      "appliedTo": "Conditional"
+      "appliedTo": "Conditionnal"
     },
 	
     {
-      "rule" : "SpaceBetweenOperandsInternal",
-      "appliedTo": "Source"
+      "rule" : "SpaceBetweenOperandsInternal"
     }
   ]
 }

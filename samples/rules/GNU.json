@@ -13,23 +13,21 @@
 	
     {
       "rule" : "ElseSeparateLineFromCurlyBracketClose",
-      "appliedTo": "Conditional"
+      "appliedTo": "Conditionnal"
     },
 	
     {
       "rule" : "SpaceIndentation",
-      "appliedTo": "Source",
       "parameter" : "2"
     },
 	
     {
       "rule" : "CurlyBracketsIndentationUnique",
-      "appliedTo": "Conditional"
+      "appliedTo": "Conditionnal"
     },
 	
     {
-      "rule" : "SpaceBetweenOperandsInternal",
-      "appliedTo": "Source"
+      "rule" : "SpaceBetweenOperandsInternal"
     }
   ]
 }
