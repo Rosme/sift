@@ -12,7 +12,7 @@
 	
     {
       "rule" : "ElseSeparateLineFromCurlyBracketClose",
-      "appliedTo": "Conditional"
+      "appliedTo": "Conditionnal"
     },
     
     {
@@ -27,12 +27,11 @@
 	
     {
       "rule" : "AlwaysHaveCurlyBrackets",
-      "appliedTo": "Conditional"
+      "appliedTo": "Conditionnal"
     },
 	
     {
-      "rule" : "SpaceBetweenOperandsInternal",
-      "appliedTo": "Source"
+      "rule" : "SpaceBetweenOperandsInternal"
     }
   ]
 }
