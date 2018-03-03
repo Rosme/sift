@@ -48,6 +48,7 @@ namespace Core {
     GlobalDefine = 1u << 10,
     SingleLineComment = 1u << 11,
     MultiLineComment = 1u << 12,
+    StringLiteral = 1u << 13,
     Unknown = 1u << 20,
     All = 0xffff,
     Global = GlobalVariable | GlobalDefine | FreeFunction,

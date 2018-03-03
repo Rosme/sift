@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "scope_extractor.hpp"
 
@@ -43,6 +44,7 @@ namespace Core {
     void extractVariables(File& file, Scope& parent);
     void extractConditionals(File& file, Scope& parent);
     void extractComments(File& file, Scope& parent);
+    void extractStringLiterals(File& file, Scope& parent);
 
     void filterScopes(Scope& root);
     void constructTree(Scope& root);
@@ -53,12 +55,15 @@ namespace Core {
     int findEndOfScopeConditionalFor(Scope& scope, File& file, int startingLine, int startingCharacter);
     int findEndOfScopeConditionalDoWhile(Scope& scope, File& file, int startingLine);
     bool isDoWhileLoop(File& file, int startingLine, int startingCharacter);
+    bool isWithinStringLiteral(unsigned int pos, unsigned int line, File& file) const;
     
     
     bool isLineWithinDefine(const std::string& filename, int line);
 
     static const std::vector<std::string> ReservedKeywords;
     std::map<std::string, std::vector<Core::Scope>> m_defineScopes;
+
+    std::map<std::string, std::vector<Scope>> stringLiterals;
   };
 
 }

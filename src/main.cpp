@@ -51,6 +51,5 @@ int main(int argc, char* argv[]) {
 
   std::chrono::time_point<std::chrono::system_clock> after = std::chrono::system_clock::now();
   LOG(INFO) << "Ran in " << std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count() << "ms";
-
   return 0;
 }

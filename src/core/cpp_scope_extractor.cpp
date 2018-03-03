@@ -60,6 +60,9 @@ namespace Core {
     rootScope.characterNumberEnd = 0;
 
     try{
+      extractComments(file, rootScope); //This is needed, because we don't want to consider string literals in comments
+      extractStringLiterals(file, rootScope);
+
       //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
       //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
       //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
@@ -73,7 +76,6 @@ namespace Core {
       extractFunctions(file, rootScope);
       extractVariables(file, rootScope);
       extractConditionals(file, rootScope);
-      extractComments(file, rootScope);
 
       //Filtering out reserved keywords
       rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
@@ -223,7 +225,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractFunctions(File& file, Scope& parent) {
-    std::regex functionRegex(R"((\w*\s)*((\w|:)+)\s*\((.*),?\).*\s*(;|\{)?)");
+    std::regex functionRegex(R"(((\w|:)*\s)*((\w|:~?)+)\s*\((.*),?\).*\s*(;|\{)?)");
     
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
@@ -235,7 +237,7 @@ namespace Core {
         }
     
         Scope scope(ScopeType::Function);
-        scope.name = match[2];
+        scope.name = match[3];
         scope.parent = &parent;
         scope.lineNumberStart = lineNumber;
         scope.characterNumberStart = line.find(match[0]);
@@ -301,7 +303,7 @@ namespace Core {
       std::smatch match;
       std::regex_search(line, match, conditionnalRegex);
       if(match.size() > 0) {
-        if(isLineWithinDefine(file.filename, i)){
+        if(isLineWithinDefine(file.filename, i) || isWithinStringLiteral(line.find(match[0]), i, file)){
           break;
         }
         
@@ -311,7 +313,7 @@ namespace Core {
           }
         }
         Scope scope(ScopeType::Conditionnal);
-        scope.name = match[2];
+        scope.name = match[0];
         scope.parent = &parent;
         scope.lineNumberStart = i;
         scope.characterNumberStart = line.find(match[0]);
@@ -379,6 +381,94 @@ namespace Core {
 
         parent.children.push_back(scope);
       }
+    }
+  }
+
+  void CppScopeExtractor::extractStringLiterals(File& file, Scope& parent) {
+    auto comments = parent.getAllChildrenOfType(ScopeType::Comment);
+    //TODO: This is ugly, fix this
+    std::size_t startIndex = 0;
+    for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
+      const std::string& line = file.lines[lineNumber];
+      startIndex = line.find('"', startIndex);
+      if(startIndex == std::string::npos) {
+        startIndex = 0;
+        continue;
+      }
+
+      if(startIndex > 0 && line[startIndex-1] == '\\') {
+        --lineNumber;
+        continue;
+      }
+
+      Scope scope(ScopeType::StringLiteral);
+      scope.lineNumberStart = lineNumber;
+      scope.lineNumberEnd = lineNumber;
+      scope.characterNumberStart = startIndex;
+
+      auto endIndex = line.find('"', startIndex+1);
+      while(endIndex != std::string::npos && line[endIndex-1] == '\\' && (endIndex >= 2 && line[endIndex-2] != '\\')) {
+        endIndex = line.find('"', endIndex);
+      }
+
+      if(endIndex == std::string::npos) {
+        scope.characterNumberEnd = line.size()-1;
+      } else {
+        scope.characterNumberEnd = endIndex;
+      }
+
+      scope.name = line.substr(startIndex, scope.characterNumberEnd-startIndex);
+      scope.file = &file;
+
+      if(scope.characterNumberEnd != line.size()-1) {
+        --lineNumber;
+        startIndex = scope.characterNumberEnd+1;
+      } else {
+        startIndex = 0;
+      }
+
+      stringLiterals[file.filename].push_back(scope);   
+    }
+
+    startIndex = 0;
+    for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
+      const std::string& line = file.lines[lineNumber];
+      startIndex = line.find('\'', startIndex);
+      if(startIndex == std::string::npos) {
+        startIndex = 0;
+        continue;
+      }
+
+      if(startIndex > 0 && line[startIndex-1] == '\\') {
+        --lineNumber;
+        continue;
+      }
+
+      Scope scope(ScopeType::StringLiteral);
+      scope.lineNumberStart = lineNumber;
+      scope.lineNumberEnd = lineNumber;
+      scope.characterNumberStart = startIndex;
+
+      //Line ends with it
+      if(startIndex == line.size()-1) {
+        scope.characterNumberEnd = startIndex;
+      } else if(line[startIndex+1] == '\\') {
+        scope.characterNumberEnd = startIndex + 3;
+      } else {
+        scope.characterNumberEnd = startIndex + 2;
+      }
+
+      scope.name = line.substr(startIndex, scope.characterNumberEnd-startIndex);
+      scope.file = &file;
+
+      if(scope.characterNumberEnd < line.size()-1) {
+        --lineNumber;
+        startIndex = scope.characterNumberEnd+1;
+      } else {
+        startIndex = 0;
+      }
+
+      stringLiterals[file.filename].push_back(scope);
     }
   }
 
@@ -462,10 +552,28 @@ namespace Core {
     return *bestCandidate;
   }
 
+  bool CppScopeExtractor::isWithinStringLiteral(unsigned int pos, unsigned int line, File& file) const {
+    Scope dummy;
+    dummy.characterNumberStart = pos;
+    dummy.characterNumberEnd = pos;
+    dummy.lineNumberStart = line;
+    dummy.lineNumberEnd = line;
+    dummy.file = &file;
+
+    auto it = stringLiterals.find(file.filename);
+    if(it != stringLiterals.end()) {
+      return std::find_if(it->second.begin(), it->second.end(), [&dummy](const Scope& stringScope) {
+        return dummy.isWithinOtherScope(stringScope);
+      }) != it->second.end();
+    }
+
+    return false;
+  }
+
   int CppScopeExtractor::findEndOfScope(Scope& scope, File& file, int startingLine) {
+   
     std::stack<char> bracketStack;
     int scopeLineNumber = startingLine;
-    
     
     for(unsigned int j = startingLine; j < file.lines.size(); ++j) {
       scopeLineNumber = j;
@@ -473,14 +581,18 @@ namespace Core {
       for(unsigned int pos = 0; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
         if(c == '{') {
-          bracketStack.push('{');
+          if(!isWithinStringLiteral(pos, scopeLineNumber, file)) {
+            bracketStack.push('{');
+          }
         } else if(c == '}') {
-          bracketStack.pop();
-          if(bracketStack.size() == 0) {
-            scope.characterNumberEnd = pos;
-            scope.lineNumberEnd = scopeLineNumber;
-            j = file.lines.size();
-            break;
+          if(!isWithinStringLiteral(pos, scopeLineNumber, file)) {
+            bracketStack.pop();
+            if(bracketStack.size() == 0) {
+              scope.characterNumberEnd = pos;
+              scope.lineNumberEnd = scopeLineNumber;
+              j = file.lines.size();
+              break;
+            }
           }
         }
         
@@ -506,14 +618,18 @@ namespace Core {
         const char& c = namespaceLine[pos];
         
         if(c == '{') {
-          bracketStack.push('{');
+          if(!isWithinStringLiteral(pos, scopeLineNumber, file)) {
+            bracketStack.push('{');
+          }
         } else if(c == '}') {
-          bracketStack.pop();
-          if(bracketStack.size() == 0) {
-            scope.characterNumberEnd = pos;
-            scope.lineNumberEnd = scopeLineNumber;
-            j = file.lines.size();
-            break;
+          if(!isWithinStringLiteral(pos, scopeLineNumber, file)) {
+            bracketStack.pop();
+            if(bracketStack.size() == 0) {
+              scope.characterNumberEnd = pos;
+              scope.lineNumberEnd = scopeLineNumber;
+              j = file.lines.size();
+              break;
+            }
           }
         } else if(bracketStack.size() == 0 && c == ';') {
           //Should only apply for conditonal and variable scope
@@ -543,13 +659,17 @@ namespace Core {
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
         if(c == '(') {
-          ParenthesisStack.push('(');
+          if(!isWithinStringLiteral(pos, j, file)) {
+            ParenthesisStack.push('(');
+          }
         } else if(c == ')') {
-          ParenthesisStack.pop();
-          if(ParenthesisStack.size() == 0) {
-            findEndOfScope(scope, file, j, pos);
-            j = file.lines.size();
-            break;
+          if(!isWithinStringLiteral(pos, j, file)) {
+            ParenthesisStack.pop();
+            if(ParenthesisStack.size() == 0) {
+              findEndOfScope(scope, file, j, pos);
+              j = file.lines.size();
+              break;
+            }
           }
         }
         
@@ -606,11 +726,15 @@ namespace Core {
         const char& c = namespaceLine[pos];
         if(!foundCondition) {
           if(c == '(') {
-            ParenthesisStack.push('(');
+            if(!isWithinStringLiteral(pos, j, file)) {
+              ParenthesisStack.push('(');
+            }
           } else if(c == ')') {
-            ParenthesisStack.pop();
-            if(ParenthesisStack.size() == 0) {
-              foundCondition = true;
+            if(!isWithinStringLiteral(pos, j, file)) {
+              ParenthesisStack.pop();
+              if(ParenthesisStack.size() == 0) {
+                foundCondition = true;
+              }
             }
           }
         } else {

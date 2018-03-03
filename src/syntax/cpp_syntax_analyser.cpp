@@ -186,7 +186,7 @@ namespace Syntax
       Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable,
       Core::ScopeType::Unknown
     );
-    
+
     for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       const auto& param = rule.getParameter();
       if(currentScope.name.compare(0, param.length(), param) != 0) {
