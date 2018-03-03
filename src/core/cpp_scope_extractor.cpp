@@ -60,7 +60,7 @@ namespace Core {
     rootScope.characterNumberEnd = 0;
 
     try{
-      extractComments(file, rootScope); //This is needed, because we don't want to consider string literals in comments
+      extractComments(file, rootScope); //This is needed for later use
       extractStringLiterals(file, rootScope);
 
       //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
@@ -303,8 +303,8 @@ namespace Core {
       std::smatch match;
       std::regex_search(line, match, conditionnalRegex);
       if(match.size() > 0) {
-        if(isLineWithinDefine(file.filename, i) || isWithinStringLiteral(line.find(match[0]), i, file)){
-          break;
+        if(isLineWithinDefine(file.filename, i) || isWithinStringLiteral(line.find(match[0]), i, file) || isWithinComment(line.find(match[0]), i, file, parent)) {
+          continue;
         }
         
         if(match[2] == "while") {
@@ -344,7 +344,7 @@ namespace Core {
       if(line.empty()) {
         continue;
       }
-      if(std::regex_match(line, match, multiLineComments)) {
+      if(std::regex_search(line, match, multiLineComments)) {
         Scope scope(ScopeType::MultiLineComment);
         scope.parent = &parent;
         scope.lineNumberStart = lineNumber;
@@ -390,7 +390,7 @@ namespace Core {
     std::size_t startIndex = 0;
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
-      startIndex = line.find('"', startIndex);
+      startIndex = line.find('"', startIndex+1);
       if(startIndex == std::string::npos) {
         startIndex = 0;
         continue;
@@ -408,7 +408,7 @@ namespace Core {
 
       auto endIndex = line.find('"', startIndex+1);
       while(endIndex != std::string::npos && line[endIndex-1] == '\\' && (endIndex >= 2 && line[endIndex-2] != '\\')) {
-        endIndex = line.find('"', endIndex);
+        endIndex = line.find('"', endIndex+1);
       }
 
       if(endIndex == std::string::npos) {
@@ -566,6 +566,22 @@ namespace Core {
         return dummy.isWithinOtherScope(stringScope);
       }) != it->second.end();
     }
+
+    return false;
+  }
+
+  bool CppScopeExtractor::isWithinComment(unsigned int pos, unsigned int line, File& file, Scope& parent) const {
+    Scope dummy;
+    dummy.characterNumberStart = pos;
+    dummy.characterNumberEnd = pos;
+    dummy.lineNumberStart = line;
+    dummy.lineNumberEnd = line;
+    dummy.file = &file;
+
+    auto comments = parent.getAllChildrenOfType(ScopeType::Comment);
+    return std::find_if(comments.begin(), comments.end(), [&dummy](const Scope& commentScope) {
+      return dummy.isWithinOtherScope(commentScope);
+    }) != comments.end();
 
     return false;
   }

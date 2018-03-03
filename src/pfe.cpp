@@ -207,6 +207,7 @@ void PFE::extractScopes()
 {
   Core::CppScopeExtractor extractor;
   // Parse all files found
+  int i = 1;
   for(auto&& filePair : m_files)
   {
     Core::Scope scope;
@@ -214,6 +215,8 @@ void PFE::extractScopes()
     if(success)
     {
       m_rootScopes[filePair.first] = scope;
+      LOG(INFO) << "[" << i << "/" << m_files.size() << "] Finished Parsing " << filePair.second.filename;
+      ++i;
     }
     else
     {
