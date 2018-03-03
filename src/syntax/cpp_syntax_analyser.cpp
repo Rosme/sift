@@ -63,6 +63,7 @@ namespace Syntax
     REGISTER_RULE(NameMaxCharacter);
     REGISTER_RULE(SingleReturn);
     REGISTER_RULE(NoGoto);
+    REGISTER_RULE(SpaceBetweenOperandsInternal);
     
     for(const auto& type : RuleType_list)
     {
@@ -185,7 +186,7 @@ namespace Syntax
       Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Enum | Core::ScopeType::Variable,
       Core::ScopeType::Unknown
     );
-    
+
     for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       const auto& param = rule.getParameter();
       if(currentScope.name.compare(0, param.length(), param) != 0) {
@@ -465,6 +466,23 @@ namespace Syntax
     }
   }
 
+  void CPPSyntaxAnalyser::RuleSpaceBetweenOperandsInternal(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if (rule.getScopeType() != Core::ScopeType::All) {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      if (!isSpaceBetweenOperandsInternal(currentScope)) {
+        Core::Message message(Core::MessageType::Error,
+          currentScope.name, currentScope.lineNumberEnd
+        );
+        messageStack.pushMessage(rule.getRuleId(), message);
+      }
+      
+    }
+  }
+
   bool CPPSyntaxAnalyser::isScopeUsingCurlyBrackets(Core::Scope& scope) {
     const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
     return scopeLine[scope.characterNumberEnd] == '}';
@@ -488,6 +506,54 @@ namespace Syntax
       if (!isspace(c)) {
         return false;
       }
+    }
+    return true;
+  }
+
+  bool CPPSyntaxAnalyser::isSpaceBetweenOperandsInternal(Core::Scope& scope) {
+    int initialPosition = scope.characterNumberStart + scope.name.size();
+    int parenthesisCounter = 0;
+    for (unsigned int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
+      const std::string& scopeLine = scope.file->lines[i];
+      for (unsigned int pos = initialPosition; pos < scopeLine.size(); ++pos) {
+        const char& c = scopeLine[pos];
+        if (c == '(') {
+          parenthesisCounter++;
+        } else if (c == ')') {
+          parenthesisCounter--;
+          if (parenthesisCounter <= 0)
+          {
+            return true;
+          }
+        } else if (c == '{' && parenthesisCounter == 0) {
+          return true;
+        } else if (c == '+' || c == '-' || c == '|') {
+          if (scopeLine[pos + 1] != c && scopeLine[pos - 1] != c && 
+             (!isspace(scopeLine[pos - 1]) || !isspace(scopeLine[pos + 1]))) {
+            return false;
+          }
+        } else if (c == ';' || c == ',') {
+          if (!isspace(scopeLine[pos + 1])) {
+            return false;
+          }
+        } else if ( c == '/' || c == '*' || c == '%' || c == '?' || c == ':') {
+          if (!isspace(scopeLine[pos - 1]) || !isspace(scopeLine[pos + 1])) {
+            return false;
+          }
+        } else if (c == '!' || c == '<' || c == '>') {
+          if (!isspace(scopeLine[pos - 1]) || (!isspace(scopeLine[pos + 1]) && scopeLine[pos + 1] != '=')) {
+            return false;
+          }
+        }
+        else if (c == '=') {
+          if ((!isspace(scopeLine[pos - 1]) && scopeLine[pos - 1] != '=' && scopeLine[pos - 1] != '<' && 
+               scopeLine[pos - 1] != '>' && scopeLine[pos - 1] != '!') || 
+               (!isspace(scopeLine[pos + 1]) && scopeLine[pos + 1] != '=')) {
+            return false;
+          }
+        }
+      }
+      initialPosition = 0;
     }
     return true;
   }

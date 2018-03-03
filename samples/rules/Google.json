@@ -3,49 +3,43 @@
   "rules": [
     {
       "rule" : "SpaceIndentation",
-      "appliedTo": "Source",
       "parameter" : "2"
     },
 	
     {
       "rule" : "MaxCharactersPerLine",
-      "appliedTo": "Source",
       "parameter" : "80"
     },
 	
     {
-      "rule" : "SpaceBetweenOperandsInternal",
-      "appliedTo": "Source",
+      "rule" : "SpaceBetweenOperandsInternal"
     },
 	
     {
-      "rule" : "NoSpaceBetweenOperandsExternal",
-      "appliedTo": "Source",
+      "rule" : "NoSpaceBetweenOperandsExternal"
     },
 	
     {
-      "rule" : "CurlyBracketsOpenSameLine",
-      "appliedTo": "Source",
+      "rule" : "CurlyBracketsOpenSameLine"
     },
 	
     {
-      "rule" : "CurlyBracketsCloseSeparateLine",
-      "appliedTo": "Source",
+      "rule" : "CurlyBracketsCloseSeparateLine"
     },
 	
     {
       "rule" : "SpaceBetweenParenthesisAndCurlyBrackets",
-      "appliedTo": "Conditional",
+      "appliedTo": "Conditionnal",
     },
 	
     {
       "rule" : "SpaceBetweenConditionAndParenthesis",
-      "appliedTo": "Conditional",
+      "appliedTo": "Conditionnal",
     },
 	
     {
       "rule" : "ConditionConsistentCurlyBrackets",
-      "appliedTo": "Conditional",
+      "appliedTo": "Conditionnal",
     },
 	
     {
@@ -54,8 +48,7 @@
     },
 	
     {
-      "rule" : "SpaceBetweenOperandsInternal",
-      "appliedTo": "Source"
+      "rule" : "SpaceBetweenOperandsInternal"
     }
 	
   ]

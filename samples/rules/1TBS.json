@@ -8,7 +8,7 @@
 	
     {
       "rule" : "CurlyBracketsOpenSameLine",
-      "appliedTo": "Conditional"
+      "appliedTo": "Conditionnal"
     },
 	
     {
@@ -22,24 +22,21 @@
     },
     
     {
-      "rule" : "TabIndentation",
-      "appliedTo" : "Source"
+      "rule" : "TabIndentation"
     },
 	
     {
       "rule" : "MaxCharactersPerLine",
-      "appliedTo": "Source",
       "parameter" : "80"
     },
 	
     {
       "rule" : "AlwaysHaveCurlyBrackets",
-      "appliedTo": "Conditional"
+      "appliedTo": "Conditionnal"
     },
 	
     {
-      "rule" : "SpaceBetweenOperandsInternal",
-      "appliedTo": "Source"
+      "rule" : "SpaceBetweenOperandsInternal"
     }
   ]
 }

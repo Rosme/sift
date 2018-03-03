@@ -52,7 +52,8 @@ namespace Syntax {
                    StartWithUpperCase,
                    NameMaxCharacter,
                    SingleReturn,
-                   NoGoto
+                   NoGoto,
+                   SpaceBetweenOperandsInternal
                   );
   /* END_RULE_DEFINE_ENUM */
   
