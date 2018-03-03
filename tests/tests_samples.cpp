@@ -35,11 +35,7 @@ TEST_CASE("Testing 1TBS syntax style", "[sample]") {
    
   
   SECTION("All green") {
-<<<<<<< HEAD
     const auto stack = doTestWithFile(pfe, "samples/rules/1TBS.json", "samples/src/brightness_manager_1TBS.cc");
-=======
-    const auto stack = doTest(pfe, "samples/rules/1TBS.json", "samples/src/brightness_manager_1TBS.cc");
->>>>>>> 6a1e31938b66f4d9e0a26e6e31d878af6fdeb36b
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 8);
   }
