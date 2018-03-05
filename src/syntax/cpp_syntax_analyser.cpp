@@ -513,9 +513,16 @@ namespace Syntax
   bool CPPSyntaxAnalyser::isSpaceBetweenOperandsInternal(Core::Scope& scope) {
     int initialPosition = scope.characterNumberStart + scope.name.size();
     int parenthesisCounter = 0;
+    int finalCharacter = 0;
     for (unsigned int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
       const std::string& scopeLine = scope.file->lines[i];
-      for (unsigned int pos = initialPosition; pos < scopeLine.size(); ++pos) {
+      if (i == scope.lineNumberEnd) {
+        finalCharacter = scope.characterNumberEnd;
+      } else {
+        finalCharacter = scopeLine.size();
+      }
+
+      for (unsigned int pos = initialPosition; pos < finalCharacter; ++pos) {
         const char& c = scopeLine[pos];
         if (c == '(') {
           parenthesisCounter++;

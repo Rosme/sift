@@ -239,3 +239,16 @@ TEST_CASE("Testing no goto", "[rules-nogoto]") {
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
 }
+
+TEST_CASE("Testing space between operands internal", "[rules-spacebetweenoperandsinternal]") {
+  std::vector<std::string> argv = { "program_name", "-q" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test space between operands internal") {
+    const auto stack = doTest(pfe, "samples/tests/rules/spacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 4);
+  }
+}
