@@ -64,6 +64,7 @@ namespace Syntax
     REGISTER_RULE(SingleReturn);
     REGISTER_RULE(NoGoto);
     REGISTER_RULE(SpaceBetweenOperandsInternal);
+    REGISTER_RULE(NoSpaceBetweenOperandsInternal);
     
     for(const auto& type : RuleType_list)
     {
@@ -473,13 +474,28 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (!isSpaceBetweenOperandsInternal(currentScope)) {
+      if (!isSpaceBetweenOperandsInternal(currentScope, false)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberEnd
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
-      
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleNoSpaceBetweenOperandsInternal(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if (rule.getScopeType() != Core::ScopeType::All) {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      if (!isSpaceBetweenOperandsInternal(currentScope, true)) {
+        Core::Message message(Core::MessageType::Error,
+          currentScope.name, currentScope.lineNumberEnd
+        );
+        messageStack.pushMessage(rule.getRuleId(), message);
+      }
     }
   }
 
@@ -510,7 +526,9 @@ namespace Syntax
     return true;
   }
 
-  bool CPPSyntaxAnalyser::isSpaceBetweenOperandsInternal(Core::Scope& scope) {
+  // noSpace parameter, true = check if RuleNoSpaceBetweenOperandsInternal is true
+  //                    false = check if RuleSpaceBetweenOperandsInternal is true
+  bool CPPSyntaxAnalyser::isSpaceBetweenOperandsInternal(Core::Scope& scope, bool noSpace) {
     int initialPosition = scope.characterNumberStart + scope.name.size();
     int parenthesisCounter = 0;
     int finalCharacter = 0;
@@ -526,37 +544,61 @@ namespace Syntax
         const char& c = scopeLine[pos];
         if (c == '(') {
           parenthesisCounter++;
+          if (parenthesisCounter == 1)
+          {
+            pos++;
+          }
         } else if (c == ')') {
           parenthesisCounter--;
-          if (parenthesisCounter <= 0)
-          {
+          if (parenthesisCounter <= 0) {
             return true;
           }
         } else if (c == '{' && parenthesisCounter == 0) {
           return true;
-        } else if (c == '+' || c == '-' || c == '|') {
-          if (scopeLine[pos + 1] != c && scopeLine[pos - 1] != c && 
-             (!isspace(scopeLine[pos - 1]) || !isspace(scopeLine[pos + 1]))) {
-            return false;
-          }
-        } else if (c == ';' || c == ',') {
-          if (!isspace(scopeLine[pos + 1])) {
-            return false;
-          }
-        } else if ( c == '/' || c == '*' || c == '%' || c == '?' || c == ':') {
-          if (!isspace(scopeLine[pos - 1]) || !isspace(scopeLine[pos + 1])) {
-            return false;
-          }
-        } else if (c == '!' || c == '<' || c == '>') {
-          if (!isspace(scopeLine[pos - 1]) || (!isspace(scopeLine[pos + 1]) && scopeLine[pos + 1] != '=')) {
-            return false;
-          }
-        }
-        else if (c == '=') {
-          if ((!isspace(scopeLine[pos - 1]) && scopeLine[pos - 1] != '=' && scopeLine[pos - 1] != '<' && 
-               scopeLine[pos - 1] != '>' && scopeLine[pos - 1] != '!') || 
-               (!isspace(scopeLine[pos + 1]) && scopeLine[pos + 1] != '=')) {
-            return false;
+        } else if (parenthesisCounter > 0) {
+          if (c == '+' || c == '-' || c == '|') {
+            if (scopeLine[pos + 1] != c && scopeLine[pos - 1] != c &&
+              (!isspace(scopeLine[pos - 1]) || !isspace(scopeLine[pos + 1]))) {
+              if (!noSpace) {
+                return false;
+              }
+            } else if (noSpace) {
+              return false;
+            }
+          } else if (c == ';' || c == ',') {
+            if (!isspace(scopeLine[pos + 1])) {
+              if (!noSpace) {
+                return false;
+              }
+            } else if (noSpace) {
+              return false;
+            }
+          } else if (c == '/' || c == '*' || c == '%' || c == '?' || c == ':') {
+            if (!isspace(scopeLine[pos - 1]) || !isspace(scopeLine[pos + 1])) {
+              if (!noSpace) {
+                return false;
+              }
+            } else if (noSpace) {
+              return false;
+            }
+          } else if (c == '!' || c == '<' || c == '>') {
+            if (!isspace(scopeLine[pos - 1]) || (!isspace(scopeLine[pos + 1]) && scopeLine[pos + 1] != '=')) {
+              if (!noSpace) {
+                return false;
+              }
+            } else if (noSpace) {
+              return false;
+            }
+          } else if (c == '=') {
+            if ((!isspace(scopeLine[pos - 1]) && scopeLine[pos - 1] != '=' && scopeLine[pos - 1] != '<' &&
+             scopeLine[pos - 1] != '>' && scopeLine[pos - 1] != '!') ||
+             (!isspace(scopeLine[pos + 1]) && scopeLine[pos + 1] != '=')) {
+              if (!noSpace) {
+                return false;
+              }
+            } else if (noSpace) {
+              return false;
+            }
           }
         }
       }

@@ -1,10 +1,10 @@
-int NoSpace(int x,int y) {
+int NoSpace( int x,int y ) {
   if (x!=y)
   {
     x++;
   }
 
-  for (int i=0;i<=x;i++)
+  for ( int i=0;i<=x;i++ )
   {
     y++;
   }

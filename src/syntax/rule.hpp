@@ -53,7 +53,8 @@ namespace Syntax {
                    NameMaxCharacter,
                    SingleReturn,
                    NoGoto,
-                   SpaceBetweenOperandsInternal
+                   SpaceBetweenOperandsInternal,
+                   NoSpaceBetweenOperandsInternal
                   );
   /* END_RULE_DEFINE_ENUM */
   
