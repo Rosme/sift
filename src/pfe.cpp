@@ -178,7 +178,7 @@ void PFE::readFilesFromDirectory(const std::string& directory, const std::string
       {
         bool found = false;
         for(auto&& ext : valid_extensions){
-          if(Core::string_ends_with(item.fullPath, ext)){
+          if(Core::string_ends_with(item.fullPath, "." + ext)){
             found = true;
             break;
           }
