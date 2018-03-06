@@ -252,9 +252,28 @@ TEST_CASE("Testing space between operands internal", "[rules-spacebetweenoperand
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
 
-  SECTION("Test no space between operands internal") {
-    const auto stack = doTest(pfe, "samples/tests/rules/nospacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
-    REQUIRE(stack.size() == 1);
-    REQUIRE(stack.getMessages().begin()->second.size() == 3);
-  }
+  //SECTION("Test no space between operands internal") {
+  //  const auto stack = doTest(pfe, "samples/tests/rules/nospacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
+  //  REQUIRE(stack.size() == 1);
+  //  REQUIRE(stack.getMessages().begin()->second.size() == 3);
+  //}
+}
+
+TEST_CASE("Testing no code allowed same line curly brackets", "[rules-nocodeallowedsamelinecurlybrackets]") {
+  std::vector<std::string> argv = { "program_name", "-q" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  //SECTION("Test no code allowed same line opening curly brackets") {
+  //  const auto stack = doTest(pfe, "samples/tests/rules/nocodeallowedsamelinecurlybracketsopen.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
+  //  REQUIRE(stack.size() == 1);
+  //  REQUIRE(stack.getMessages().begin()->second.size() == 3);
+  //}
+
+  //SECTION("Test no code allowed same line closing curly brackets") {
+  //  const auto stack = doTest(pfe, "samples/tests/rules/nocodeallowedsamelinecurlybracketsclose.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
+  //  REQUIRE(stack.size() == 1);
+  //  REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  //}
 }

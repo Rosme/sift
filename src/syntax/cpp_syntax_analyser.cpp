@@ -65,6 +65,8 @@ namespace Syntax
     REGISTER_RULE(NoGoto);
     REGISTER_RULE(SpaceBetweenOperandsInternal);
     REGISTER_RULE(NoSpaceBetweenOperandsInternal);
+    REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsOpen);
+    REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsClose);
     
     for(const auto& type : RuleType_list)
     {
@@ -499,6 +501,38 @@ namespace Syntax
     }
   }
 
+  void CPPSyntaxAnalyser::RuleNoCodeAllowedSameLineCurlyBracketsOpen(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if (rule.getScopeType() != Core::ScopeType::All) {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      if (isScopeUsingCurlyBrackets(currentScope) && !noCodeAfterCurlyBracketSameLineOpen(currentScope)) {
+        Core::Message message(Core::MessageType::Error,
+          currentScope.name, currentScope.lineNumberStart
+        );
+        messageStack.pushMessage(rule.getRuleId(), message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleNoCodeAllowedSameLineCurlyBracketsClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if (rule.getScopeType() != Core::ScopeType::All) {
+      scopeTypes = rule.getScopeType();
+    }
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      if (isScopeUsingCurlyBrackets(currentScope) && !noCodeAfterCurlyBracketSameLineClose(currentScope)) {
+        Core::Message message(Core::MessageType::Error,
+          currentScope.name, currentScope.lineNumberStart
+        );
+        messageStack.pushMessage(rule.getRuleId(), message);
+      }
+    }
+  }
+
   bool CPPSyntaxAnalyser::isScopeUsingCurlyBrackets(Core::Scope& scope) {
     const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
     return scopeLine[scope.characterNumberEnd] == '}';
@@ -604,6 +638,40 @@ namespace Syntax
       }
       initialPosition = 0;
     }
+    return true;
+  }
+
+  bool CPPSyntaxAnalyser::noCodeAfterCurlyBracketSameLineOpen(Core::Scope& scope) {
+    bool foundBracket = false;
+    for (unsigned int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
+      const std::string& scopeLine = scope.file->lines[i];
+      for (unsigned int pos = 0; pos < scopeLine.size(); ++pos) {
+        const char& c = scopeLine[pos];
+
+        if (c == '{' && !foundBracket) {
+          foundBracket = true;
+        } else if (foundBracket && !isspace(c)) {
+          return false;
+        }
+      }
+      if (foundBracket) {
+        return true;
+      }
+    }
+    return true;
+  }
+
+  bool CPPSyntaxAnalyser::noCodeAfterCurlyBracketSameLineClose(Core::Scope& scope) {
+
+    const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
+    for (unsigned int pos = scope.characterNumberEnd; pos < scopeLine.size(); ++pos) {
+      const char& c = scopeLine[pos];
+
+      if (c != '}' && !isspace(c)) {
+        return false;
+      }
+    }
+
     return true;
   }
 

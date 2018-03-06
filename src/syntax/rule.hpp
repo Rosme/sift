@@ -54,7 +54,9 @@ namespace Syntax {
                    SingleReturn,
                    NoGoto,
                    SpaceBetweenOperandsInternal,
-                   NoSpaceBetweenOperandsInternal
+                   NoSpaceBetweenOperandsInternal,
+                   NoCodeAllowedSameLineCurlyBracketsOpen,
+                   NoCodeAllowedSameLineCurlyBracketsClose
                   );
   /* END_RULE_DEFINE_ENUM */
   
