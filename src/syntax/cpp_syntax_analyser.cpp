@@ -67,6 +67,7 @@ namespace Syntax
     REGISTER_RULE(NoSpaceBetweenOperandsInternal);
     REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsOpen);
     REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsClose);
+    REGISTER_RULE(TabIndentation);
     
     for(const auto& type : RuleType_list)
     {
@@ -84,6 +85,7 @@ namespace Syntax
       case Syntax::RuleType::StartWithX: ruleMessage = "Expect scopes of type '%rs' to begin with '%rp'"; break;
       case Syntax::RuleType::EndWithX: ruleMessage = "Expect scopes of type '%rs' to end with '%rp'"; break;
       case Syntax::RuleType::SingleReturn: ruleMessage = "Expect functions to have a single return"; break;
+      case Syntax::RuleType::TabIndentation: ruleMessage = "Expect indentation to be made using tabs"; break;
       default: break;
     }
         
@@ -533,6 +535,33 @@ namespace Syntax
     }
   }
 
+  void CPPSyntaxAnalyser::RuleTabIndentation(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    std::regex spaceSearch(R"(^\t*[ ]+[\w]*.*$)");
+    const auto& commentScopes = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
+    
+    int i = 0;
+    for(const auto& line : rootScope.file->lines){
+      std::smatch match;
+      if (std::regex_search(line, match, spaceSearch)) {
+        bool isInComment = false;
+        for(const auto& commentScope : commentScopes){
+          if(commentScope.isLineWithinScope(i)){
+            isInComment = true;
+            break;
+          }
+        }
+        
+        if(!isInComment){
+          Core::Message message(Core::MessageType::Error,
+                                line, i, 0
+          );
+          messageStack.pushMessage(rule.getRuleId(), message);
+        }
+      }
+      ++i;
+    }
+  }
+  
   bool CPPSyntaxAnalyser::isScopeUsingCurlyBrackets(Core::Scope& scope) {
     const std::string& scopeLine = scope.file->lines[scope.lineNumberEnd];
     return scopeLine[scope.characterNumberEnd] == '}';
@@ -563,10 +592,9 @@ namespace Syntax
   // noSpace parameter, true = check if RuleNoSpaceBetweenOperandsInternal is true
   //                    false = check if RuleSpaceBetweenOperandsInternal is true
   bool CPPSyntaxAnalyser::checkSpaceBetweenOperandsInternal(Core::Scope& scope, bool noSpace) {
-    int initialPosition = scope.characterNumberStart + scope.name.size();
+    unsigned int initialPosition = scope.characterNumberStart + scope.name.size();
     int parenthesisCounter = 0;
-    int finalCharacter = 0;
-    bool canBeginSearch = false;
+    unsigned int finalCharacter = 0;
 
     // when NoSpace is true and find a space, checkIfFinalCharacter is set to true
     // it check to see if the found space is between the last character of condition and the final parenthesis

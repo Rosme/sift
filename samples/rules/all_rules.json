@@ -4,6 +4,9 @@
       "rule": "NoAuto"
     },
     {
+      "rule": "TabIndentation"
+    },
+    {
       "rule": "NoDefine"
     },
     {

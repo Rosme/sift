@@ -64,6 +64,8 @@ namespace Syntax {
     void RuleNoSpaceBetweenOperandsInternal(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleNoCodeAllowedSameLineCurlyBracketsOpen(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleNoCodeAllowedSameLineCurlyBracketsClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleTabIndentation(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+
     
     bool isScopeUsingCurlyBrackets(Core::Scope& scope);
     bool isOpeningCurlyBracketSeparateLine(Core::Scope& scope);

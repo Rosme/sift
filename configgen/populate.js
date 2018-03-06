@@ -53,6 +53,10 @@ var ruleNames = [
   "SingleReturn",
   "NoGoto",
   "SpaceBetweenOperandsInternal",
+  "NoSpaceBetweenOperandsInternal",
+  "NoCodeAllowedSameLineCurlyBracketsOpen",
+  "NoCodeAllowedSameLineCurlyBracketsClose",
+  "TabIndentation",
 ];
 /* RULE_END */
 

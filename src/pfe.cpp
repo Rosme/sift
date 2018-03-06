@@ -85,7 +85,7 @@ void PFE::parseArgv(int argc, char** argv)
     CXXOPT("output", m_outputFilename, std::string, "output.txt");
     CXXOPT("logconfig", m_loggingSettingsFilename, std::string, "samples/logging.conf");
     CXXOPT("rules", m_ruleFilename, std::string, "samples/rules/rules.json");
-    CXXOPT("path", m_pathToParse, std::string, "samples/src");
+    CXXOPT("path", m_pathToParse, std::string, "samples/src/brightness_manager.cc");
   }
   catch(...)
   {
@@ -140,6 +140,29 @@ void PFE::setupRules(const std::string filename)
     
   LOG(INFO) << "Parsed " << m_rules.size() << " rules:";
   LOG(INFO) << rulesString.str();
+}
+
+
+void PFE::setupRules(std::map<RuleId, Syntax::Rule> rules){
+  m_rules = rules;
+  
+  std::stringstream rulesString;
+  
+  for(auto&& rule : m_rules)
+  {
+    rulesString << "\n " << rule.second;
+  }
+  
+  LOG(INFO) << "Gave " << m_rules.size() << " rules:";
+  LOG(INFO) << rulesString.str();
+}
+
+void PFE::readSource(const std::string& filename, const std::vector<std::string>& source){
+  Core::File file;
+  file.filename = filename;
+  file.lines = source;
+  m_files[filename] = file;
+  LOG(INFO) << "Source file '" << filename << "' has been read";
 }
 
 void PFE::readSingleSourceFile(const std::string & filename) 
@@ -307,4 +330,11 @@ void PFE::readPath(const std::string& path)
   }else{
     readSingleSourceFile(path);
   }
+}
+
+void PFE::clearState(){
+  m_rootScopes.clear();
+  m_files.clear();
+  m_rules.clear();
+  m_rulesWork.clear();
 }

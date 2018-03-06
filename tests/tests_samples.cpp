@@ -23,155 +23,59 @@
 
 #include "catch.hh"
 
+#include "utils.hpp"
 #include "core/utils.hpp"
 #include "syntax/rule.hpp"
 
 TEST_CASE("Testing 1TBS syntax style", "[sample]") {
-
-  std::string ruleFilePath = "samples/rules/1TBS.json";
-  std::string sourceFilePath = "samples/src/brightness_manager_1TBS.cc";
-  Core::File sourceFile = new Core::File();
-  std::vector<Rule> rules;
-
-  SECTION("Reading rules from json file") {
-	rules = Syntax::readRules(ruleFilePath);
-
-	REQUIRE(rules.size() == 8);
-  }
-  
-  SECTION("Reading source file") {
-    bool success = Core::readSourceFile(sourceFilePath, sourceFile);
-    
-    REQUIRE(success);
-  }
-  
-  SECTION("Verifying source file syntax") {
-    //TODO
-  }
-  
+  std::vector<std::string> argv = {"program_name", "-q"};
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+   
+  // Still need a rule to implement
+//   SECTION("All green") {
+//     const auto stack = doTestWithFile(pfe, "samples/rules/1TBS.json", "samples/src/brightness_manager_1TBS.cc");
+//     REQUIRE(stack.size() == 1);
+//     REQUIRE(stack.getMessages().begin()->second.size() == 8);
+//   }
 }
 
 TEST_CASE("Testing Google syntax style", "[sample]") {
 
-	std::string ruleFilePath = "samples/rules/Google.json";
-	std::string sourceFilePath = "samples/src/brightness_manager_Google.cc";
-	Core::File sourceFile = new Core::File();
-	std::vector<Rule> rules;
+  std::string ruleFilePath = "samples/rules/Google.json";
+  std::string sourceFilePath = "samples/src/brightness_manager_Google.cc";
 
-	SECTION("Reading rules from json file") {
-		rules = Syntax::readRules(ruleFilePath);
-
-		REQUIRE(rules.size() == 11);
-	}
-
-	SECTION("Reading source file") {
-		bool success = Core::readSourceFile(sourceFilePath, sourceFile);
-
-		REQUIRE(success);
-	}
-
-	SECTION("Verifying source file syntax") {
-		//TODO
-	}
 
 }
 
 TEST_CASE("Testing K&R syntax style", "[sample]") {
 
-	std::string ruleFilePath = "samples/rules/KnR.json";
-	std::string sourceFilePath = "samples/src/brightness_manager_KnR.cc";
-	Core::File sourceFile = new Core::File();
-	std::vector<Rule> rules;
+  std::string ruleFilePath = "samples/rules/KnR.json";
+  std::string sourceFilePath = "samples/src/brightness_manager_KnR.cc";
 
-	SECTION("Reading rules from json file") {
-		rules = Syntax::readRules(ruleFilePath);
-
-		REQUIRE(rules.size() == 7);
-	}
-
-	SECTION("Reading source file") {
-		bool success = Core::readSourceFile(sourceFilePath, sourceFile);
-
-		REQUIRE(success);
-	}
-
-	SECTION("Verifying source file syntax") {
-		//TODO
-	}
 
 }
 
 TEST_CASE("Testing Allman syntax style", "[sample]") {
 
-	std::string ruleFilePath = "samples/rules/Allman.json";
-	std::string sourceFilePath = "samples/src/brightness_manager_Allman.cc";
-	Core::File sourceFile = new Core::File();
-	std::vector<Rule> rules;
+  std::string ruleFilePath = "samples/rules/Allman.json";
+  std::string sourceFilePath = "samples/src/brightness_manager_Allman.cc";
 
-	SECTION("Reading rules from json file") {
-		rules = Syntax::readRules(ruleFilePath);
-
-		REQUIRE(rules.size() == 7);
-	}
-
-	SECTION("Reading source file") {
-		bool success = Core::readSourceFile(sourceFilePath, sourceFile);
-
-		REQUIRE(success);
-	}
-
-	SECTION("Verifying source file syntax") {
-		//TODO
-	}
 
 }
 
 TEST_CASE("Testing GNU syntax style", "[sample]") {
 
-	std::string ruleFilePath = "samples/rules/GNU.json";
-	std::string sourceFilePath = "samples/src/brightness_manager_GNU.cc";
-	Core::File sourceFile = new Core::File();
-	std::vector<Rule> rules;
-
-	SECTION("Reading rules from json file") {
-		rules = Syntax::readRules(ruleFilePath);
-
-		REQUIRE(rules.size() == 6);
-	}
-
-	SECTION("Reading source file") {
-		bool success = Core::readSourceFile(sourceFilePath, sourceFile);
-
-		REQUIRE(success);
-	}
-
-	SECTION("Verifying source file syntax") {
-		//TODO
-	}
+  std::string ruleFilePath = "samples/rules/GNU.json";
+  std::string sourceFilePath = "samples/src/brightness_manager_GNU.cc";
 
 }
 
 TEST_CASE("Testing Whitesmiths syntax style", "[sample]") {
 
-	std::string ruleFilePath = "samples/rules/Whitesmiths.json";
-	std::string sourceFilePath = "samples/src/brightness_manager_Whitesmiths.cc";
-	Core::File sourceFile = new Core::File();
-	std::vector<Rule> rules;
+  std::string ruleFilePath = "samples/rules/Whitesmiths.json";
+  std::string sourceFilePath = "samples/src/brightness_manager_Whitesmiths.cc";
 
-	SECTION("Reading rules from json file") {
-		rules = Syntax::readRules(ruleFilePath);
-
-		REQUIRE(rules.size() == 7);
-	}
-
-	SECTION("Reading source file") {
-		bool success = Core::readSourceFile(sourceFilePath, sourceFile);
-
-		REQUIRE(success);
-	}
-
-	SECTION("Verifying source file syntax") {
-		//TODO
-	}
 
 }
