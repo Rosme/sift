@@ -79,7 +79,7 @@ TEST_CASE("Testing suffix/prefix related rules", "[rules-suffix]") {
   SECTION("Test Prefix") {
     const auto stack = doTest(pfe, "samples/tests/rules/prefix.json", "samples/src/prefix.cpp");
     REQUIRE(stack.size() == 1);
-    REQUIRE(stack.getMessages().begin()->second.size() == 10);
+    REQUIRE(stack.getMessages().begin()->second.size() == 11);
   }
 }
 
@@ -238,4 +238,43 @@ TEST_CASE("Testing no goto", "[rules-nogoto]") {
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
+}
+
+TEST_CASE("Testing space between operands internal", "[rules-spacebetweenoperandsinternal]") {
+  std::vector<std::string> argv = { "program_name", "-q" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  SECTION("Test space between operands internal") {
+    const auto stack = doTest(pfe, "samples/tests/rules/spacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 4);
+  }
+
+  SECTION("Test no space between operands internal") {
+    const auto stack = doTest(pfe, "samples/tests/rules/nospacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 3);
+  }
+  system("Pause");
+}
+
+TEST_CASE("Testing no code allowed same line curly brackets", "[rules-nocodeallowedsamelinecurlybrackets]") {
+  std::vector<std::string> argv = { "program_name", "-q" };
+  PFE pfe;
+  pfe.parseArgv(argv.size(), convert(argv).data());
+  pfe.setupLogging();
+
+  //SECTION("Test no code allowed same line opening curly brackets") {
+  //  const auto stack = doTest(pfe, "samples/tests/rules/nocodeallowedsamelinecurlybracketsopen.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
+  //  REQUIRE(stack.size() == 1);
+  //  REQUIRE(stack.getMessages().begin()->second.size() == 3);
+  //}
+
+  //SECTION("Test no code allowed same line closing curly brackets") {
+  //  const auto stack = doTest(pfe, "samples/tests/rules/nocodeallowedsamelinecurlybracketsclose.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
+  //  REQUIRE(stack.size() == 1);
+  //  REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  //}
 }
