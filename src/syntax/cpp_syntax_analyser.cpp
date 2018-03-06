@@ -476,7 +476,7 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (!isSpaceBetweenOperandsInternal(currentScope, false)) {
+      if (!checkSpaceBetweenOperandsInternal(currentScope, false)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberEnd
         );
@@ -492,7 +492,7 @@ namespace Syntax
     }
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      if (!isSpaceBetweenOperandsInternal(currentScope, true)) {
+      if (!checkSpaceBetweenOperandsInternal(currentScope, true)) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, currentScope.lineNumberEnd
         );
@@ -562,77 +562,89 @@ namespace Syntax
 
   // noSpace parameter, true = check if RuleNoSpaceBetweenOperandsInternal is true
   //                    false = check if RuleSpaceBetweenOperandsInternal is true
-  bool CPPSyntaxAnalyser::isSpaceBetweenOperandsInternal(Core::Scope& scope, bool noSpace) {
+  bool CPPSyntaxAnalyser::checkSpaceBetweenOperandsInternal(Core::Scope& scope, bool noSpace) {
     int initialPosition = scope.characterNumberStart + scope.name.size();
     int parenthesisCounter = 0;
     int finalCharacter = 0;
+    bool canBeginSearch = false;
+
+    // when NoSpace is true and find a space, checkIfFinalCharacter is set to true
+    // it check to see if the found space is between the last character of condition and the final parenthesis
+    // The space between operands and parenthesis should be handle by SpaceBetweenOperandsExternal so we ignore it here
+    bool checkIfFinalCharacter = false;
+
     for (unsigned int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
       const std::string& scopeLine = scope.file->lines[i];
       if (i == scope.lineNumberEnd) {
         finalCharacter = scope.characterNumberEnd;
-      } else {
+      }
+      else {
         finalCharacter = scopeLine.size();
       }
 
       for (unsigned int pos = initialPosition; pos < finalCharacter; ++pos) {
         const char& c = scopeLine[pos];
-        if (c == '(') {
-          parenthesisCounter++;
-          if (parenthesisCounter == 1)
-          {
-            pos++;
-          }
-        } else if (c == ')') {
+      
+        if (c == ')') {
           parenthesisCounter--;
-          if (parenthesisCounter <= 0) {
+          if (parenthesisCounter == 0) {
             return true;
           }
+        } else if (checkIfFinalCharacter) { 
+          if (!isspace(c)) {
+            return false;
+          }
+        } else if (c == '(') {
+            parenthesisCounter++;
         } else if (c == '{' && parenthesisCounter == 0) {
           return true;
-        } else if (parenthesisCounter > 0) {
-          if (c == '+' || c == '-' || c == '|') {
-            if (scopeLine[pos + 1] != c && scopeLine[pos - 1] != c &&
-              (!isspace(scopeLine[pos - 1]) || !isspace(scopeLine[pos + 1]))) {
-              if (!noSpace) {
+        } else if (parenthesisCounter > 0 && scopeLine[pos + 1] != ')') {
+          switch (c) {
+            case '+':
+            case '-':
+            case '|':
+            case ':':
+              if (scopeLine[pos + 1] != c) {
+                if (isspace(scopeLine[pos + 1])) {
+                  if (noSpace) {
+                    checkIfFinalCharacter = true;
+                  }
+                } else if (!noSpace) {
+                  return false;
+                }
+              }
+              break;
+
+            case ';':
+            case ',':
+            case '/':
+            case '*':
+            case '&':
+            case '?':
+              if (isspace(scopeLine[pos + 1])) {
+                if (noSpace) {
+                  checkIfFinalCharacter = true;
+                }
+              } else if (!noSpace) {
                 return false;
               }
-            } else if (noSpace) {
-              return false;
-            }
-          } else if (c == ';' || c == ',') {
-            if (!isspace(scopeLine[pos + 1])) {
-              if (!noSpace) {
-                return false;
+              break;
+
+            case '!':
+            case '<':
+            case '>':
+            case '=':
+              if (scopeLine[pos + 1] != '=')
+              {
+                if (isspace(scopeLine[pos + 1])) {
+                  if (noSpace) {
+                    checkIfFinalCharacter = true;
+                  }
+                } else if (!noSpace) {
+                  return false;
+                }
               }
-            } else if (noSpace) {
-              return false;
-            }
-          } else if (c == '/' || c == '*' || c == '%' || c == '?' || c == ':') {
-            if (!isspace(scopeLine[pos - 1]) || !isspace(scopeLine[pos + 1])) {
-              if (!noSpace) {
-                return false;
-              }
-            } else if (noSpace) {
-              return false;
-            }
-          } else if (c == '!' || c == '<' || c == '>') {
-            if (!isspace(scopeLine[pos - 1]) || (!isspace(scopeLine[pos + 1]) && scopeLine[pos + 1] != '=')) {
-              if (!noSpace) {
-                return false;
-              }
-            } else if (noSpace) {
-              return false;
-            }
-          } else if (c == '=') {
-            if ((!isspace(scopeLine[pos - 1]) && scopeLine[pos - 1] != '=' && scopeLine[pos - 1] != '<' &&
-             scopeLine[pos - 1] != '>' && scopeLine[pos - 1] != '!') ||
-             (!isspace(scopeLine[pos + 1]) && scopeLine[pos + 1] != '=')) {
-              if (!noSpace) {
-                return false;
-              }
-            } else if (noSpace) {
-              return false;
-            }
+              break;
           }
         }
       }

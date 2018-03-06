@@ -68,7 +68,7 @@ namespace Syntax {
     bool isScopeUsingCurlyBrackets(Core::Scope& scope);
     bool isOpeningCurlyBracketSeparateLine(Core::Scope& scope);
     bool isClosingCurlyBracketSeparateLine(Core::Scope& scope);
-    bool isSpaceBetweenOperandsInternal(Core::Scope& scope, bool noSpace);
+    bool checkSpaceBetweenOperandsInternal(Core::Scope& scope, bool noSpace);
     bool noCodeAfterCurlyBracketSameLineOpen(Core::Scope& scope);
     bool noCodeAfterCurlyBracketSameLineClose(Core::Scope& scope);
     

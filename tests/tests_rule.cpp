@@ -252,11 +252,12 @@ TEST_CASE("Testing space between operands internal", "[rules-spacebetweenoperand
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
 
-  //SECTION("Test no space between operands internal") {
-  //  const auto stack = doTest(pfe, "samples/tests/rules/nospacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
-  //  REQUIRE(stack.size() == 1);
-  //  REQUIRE(stack.getMessages().begin()->second.size() == 3);
-  //}
+  SECTION("Test no space between operands internal") {
+    const auto stack = doTest(pfe, "samples/tests/rules/nospacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 3);
+  }
+  system("Pause");
 }
 
 TEST_CASE("Testing no code allowed same line curly brackets", "[rules-nocodeallowedsamelinecurlybrackets]") {
