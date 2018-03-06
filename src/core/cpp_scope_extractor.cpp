@@ -319,9 +319,9 @@ namespace Core {
         scope.characterNumberStart = line.find(match[0]);
         scope.file = &file;
 
-        if(scope.name == "for") {
+        if(match[2] == "for") {
           findEndOfScopeConditionalFor(scope, file, i, scope.characterNumberStart);
-        } else if(scope.name == "do") {
+        } else if(match[2] == "do") {
           findEndOfScopeConditionalDoWhile(scope, file, i + 1);
         } else {
           findEndOfScope(scope, file, i, scope.characterNumberStart);
