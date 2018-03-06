@@ -28,7 +28,7 @@ before_install:
 script:
 - mkdir build
 - cd build
-- cmake ../
+- cmake .. -DRUN_UNIT_TESTS=1 -DRUN_SYSTEM_TESTS=1
 - make
 - cd tests
 - "./tests"
