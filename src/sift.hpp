@@ -35,10 +35,10 @@
 #include "flow/flow_analyser.hpp"
 
 // Class to render the function flow explicit, better than to have everything laid out in main
-class PFE
+class SIFT
 {
 public:
-  PFE();
+  SIFT();
     
   // Move these to syntax_analyzer accordingly
   void parseArgv(int argc, char** argv);

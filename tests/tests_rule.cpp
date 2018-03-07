@@ -35,18 +35,18 @@ Syntax::Rule RULE(Syntax::RuleType rule){
 
 TEST_CASE("Testing macro related rules", "[rules-macro]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
   
   SECTION("Test No defines") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/nodefines.json", "samples/src/define.hpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/nodefines.json", "samples/src/define.hpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 8);
   }
   
   SECTION("Test No macro functions") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/nomacrofunctions.json", "samples/src/define.hpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/nomacrofunctions.json", "samples/src/define.hpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
@@ -54,12 +54,12 @@ TEST_CASE("Testing macro related rules", "[rules-macro]") {
 
 TEST_CASE("Testing suffix/prefix related rules", "[rules-suffix]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging(); 
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
   
   SECTION("Test Prefix") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/prefix.json", "samples/src/prefix.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/prefix.json", "samples/src/prefix.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 11);
   }
@@ -67,30 +67,30 @@ TEST_CASE("Testing suffix/prefix related rules", "[rules-suffix]") {
 
 TEST_CASE("Testing max characters per line", "[rules-maxcharperline]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test Maximum Characters Per Line") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/maxcharactersperline.json", "samples/tests/src/maxcharactersperline.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/maxcharactersperline.json", "samples/tests/src/maxcharactersperline.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 3);
   }
 
   SECTION("Test Maximum Characters Per Line") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/maxcharactersperlinenoparam.json", "samples/tests/src/maxcharactersperline.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/maxcharactersperlinenoparam.json", "samples/tests/src/maxcharactersperline.cpp");
     REQUIRE(stack.size() == 0);
   }
 }
 
 TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test Finding Const CasT Not In Comments") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/noconstcast.json", "samples/tests/src/noconstcast.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/noconstcast.json", "samples/tests/src/noconstcast.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
@@ -98,54 +98,54 @@ TEST_CASE("Testing No Const Cast", "[rules-noconstcast]") {
 
 TEST_CASE("Testing Max Character For a Name", "[rules-maxcharpername]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test Max Character For All") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/namemaxcharacterall.json", "samples/tests/src/namemaxcharacter.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/namemaxcharacterall.json", "samples/tests/src/namemaxcharacter.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
 
   SECTION("Test Max Character For Variables Only") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/namemaxcharactersvariableonly.json", "samples/tests/src/namemaxcharacter.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/namemaxcharactersvariableonly.json", "samples/tests/src/namemaxcharacter.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
 
   SECTION("Test Max Character For Variables Only") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/namemaxcharacternoparam.json", "samples/tests/src/namemaxcharacter.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/namemaxcharacternoparam.json", "samples/tests/src/namemaxcharacter.cpp");
     REQUIRE(stack.size() == 0);
   }
 }
 
 TEST_CASE("Testing curly brackets on same or separate line", "[rules-curlybracketline]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test opening curly brackets on same line") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/curlybracketsopensameline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/curlybracketsopensameline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 6);
   }
 
   SECTION("Test opening curly brackets on separate line") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/curlybracketsopenseparateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/curlybracketsopenseparateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
 
   SECTION("Test closing curly brackets on same line") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/curlybracketsclosesameline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/curlybracketsclosesameline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
       REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 6);
   }
 
   SECTION("Test closing curly brackets on separate line") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/curlybracketscloseseparateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/curlybracketscloseseparateline.json", "samples/tests/src/curlybracketsameorseparateline.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
@@ -153,18 +153,18 @@ TEST_CASE("Testing curly brackets on same or separate line", "[rules-curlybracke
 
 TEST_CASE("Testing start with upper/lower case", "[rules-upperlower]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test start with lower case") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/startwithlowercase.json", "samples/tests/src/startwithloweruppercase.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/startwithlowercase.json", "samples/tests/src/startwithloweruppercase.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 3);
   }
 
   SECTION("Test start with upper case") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/startwithuppercase.json", "samples/tests/src/startwithloweruppercase.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/startwithuppercase.json", "samples/tests/src/startwithloweruppercase.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
@@ -172,12 +172,12 @@ TEST_CASE("Testing start with upper/lower case", "[rules-upperlower]") {
 
 TEST_CASE("Testing always have curly brackets", "[rules-alwayscurlybrackets]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test always have curly brackets") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/alwayshavecurlybrackets.json", "samples/tests/src/alwayshavecurlybrackets.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/alwayshavecurlybrackets.json", "samples/tests/src/alwayshavecurlybrackets.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
@@ -185,12 +185,12 @@ TEST_CASE("Testing always have curly brackets", "[rules-alwayscurlybrackets]") {
 
 TEST_CASE("Testing single return", "[rules-singlereturn]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test single return") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/singlereturn.json", "samples/tests/src/singlereturn.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/singlereturn.json", "samples/tests/src/singlereturn.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
@@ -198,12 +198,12 @@ TEST_CASE("Testing single return", "[rules-singlereturn]") {
 
 TEST_CASE("Testing no auto", "[rules-noauto]") {
   std::vector<std::string> argv = { "program_name", "-q" };
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test no auto") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/noauto.json", "samples/tests/src/noauto.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/noauto.json", "samples/tests/src/noauto.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 2);
   }
@@ -211,12 +211,12 @@ TEST_CASE("Testing no auto", "[rules-noauto]") {
 
 TEST_CASE("Testing no goto", "[rules-nogoto]") {
   std::vector<std::string> argv = { "program_name", "-q" };
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Against file") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/nogoto.json", "samples/tests/src/nogoto.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/nogoto.json", "samples/tests/src/nogoto.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
@@ -226,31 +226,31 @@ TEST_CASE("Testing no goto", "[rules-nogoto]") {
   };
   
   SECTION("Find in function") {
-    const auto stack = doTestWithSource(pfe, ruleMap, "int main(){ goto label; }");
+    const auto stack = doTestWithSource(sift, ruleMap, "int main(){ goto label; }");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
   
   SECTION("Ignore partial wording") {
-    const auto stack = doTestWithSource(pfe, ruleMap, "int main(){ auto autogoto = \"string\"; }");
+    const auto stack = doTestWithSource(sift, ruleMap, "int main(){ auto autogoto = \"string\"; }");
     REQUIRE(stack.size() == 0);
   }
 }
 
 TEST_CASE("Testing space between operands internal", "[rules-spacebetweenoperandsinternal]") {
   std::vector<std::string> argv = { "program_name", "-q" };
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   SECTION("Test space between operands internal") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/spacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/spacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 4);
   }
 
   SECTION("Test no space between operands internal") {
-    const auto stack = doTestWithFile(pfe, "samples/tests/rules/nospacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/nospacebetweenoperandsinternal.json", "samples/tests/src/spacebetweenoperandsinternal.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 3);
   }
@@ -258,18 +258,18 @@ TEST_CASE("Testing space between operands internal", "[rules-spacebetweenoperand
 
 TEST_CASE("Testing no code allowed same line curly brackets", "[rules-nocodeallowedsamelinecurlybrackets]") {
   std::vector<std::string> argv = { "program_name", "-q" };
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 
   //SECTION("Test no code allowed same line opening curly brackets") {
-  //  const auto stack = doTest(pfe, "samples/tests/rules/nocodeallowedsamelinecurlybracketsopen.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
+  //  const auto stack = doTest(sift, "samples/tests/rules/nocodeallowedsamelinecurlybracketsopen.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
   //  REQUIRE(stack.size() == 1);
   //  REQUIRE(stack.getMessages().begin()->second.size() == 3);
   //}
 
   //SECTION("Test no code allowed same line closing curly brackets") {
-  //  const auto stack = doTest(pfe, "samples/tests/rules/nocodeallowedsamelinecurlybracketsclose.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
+  //  const auto stack = doTest(sift, "samples/tests/rules/nocodeallowedsamelinecurlybracketsclose.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
   //  REQUIRE(stack.size() == 1);
   //  REQUIRE(stack.getMessages().begin()->second.size() == 2);
   //}
@@ -278,9 +278,9 @@ TEST_CASE("Testing no code allowed same line curly brackets", "[rules-nocodeallo
 TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
   std::vector<std::string> argv = { "program_name", "-q" };
 
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
   
   SECTION("All green") {
     std::map<RuleId, Syntax::Rule> ruleMap = {
@@ -288,7 +288,7 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
     };
     
     // By definition, the 1TBS style should have tab indentation
-    const auto stack = doTestWithFile(pfe, ruleMap, "samples/src/brightness_manager_1TBS.cc");
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/src/brightness_manager_1TBS.cc");
     REQUIRE(stack.size() == 0);
   }
   
@@ -297,7 +297,7 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
       {++ruleId, RULE(Syntax::RuleType::TabIndentation)}
     };
     
-    const auto stack = doTestWithFile(pfe, ruleMap, "samples/src/brightness_manager_Google.cc");
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/src/brightness_manager_Google.cc");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 77);
   }
@@ -312,7 +312,7 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
       "\t this is wrong still",
     };
     
-    const auto stack = doTestWithSource(pfe, ruleMap, source);
+    const auto stack = doTestWithSource(sift, ruleMap, source);
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 2);
   }
@@ -329,7 +329,7 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
       "\t }",
     };
     
-    const auto stack = doTestWithSource(pfe, ruleMap, source);
+    const auto stack = doTestWithSource(sift, ruleMap, source);
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 3);
   }

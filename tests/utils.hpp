@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include "core/message_stack.hpp"
-#include "pfe.hpp"
+#include "sift.hpp"
 
 #define DUMP_STACK(stack) for(auto&& mp : stack.getMessages()){ \
   std::cout << "RuleId: " << mp.first << ", " << pfe.getRules().at(mp.first) << std::endl; \
@@ -23,7 +23,7 @@ inline std::vector<char*> convert(std::vector<std::string>& base)
 }
 
 // Execute a unit test with the source filename and the .json rules file
-inline const Core::MessageStack doTestWithFile(PFE& pfe, const std::string rulesFile, const std::string sourceFile)
+inline const Core::MessageStack doTestWithFile(SIFT& pfe, const std::string rulesFile, const std::string sourceFile)
 {
   pfe.clearState();
   pfe.setupRules(rulesFile);
@@ -36,7 +36,7 @@ inline const Core::MessageStack doTestWithFile(PFE& pfe, const std::string rules
 
 static RuleId ruleId = 0;
 // Execute a unit test with the source filename and the rules as a map
-inline const Core::MessageStack doTestWithFile(PFE& pfe, std::map<RuleId, Syntax::Rule> rules, const std::string& sourceFile)
+inline const Core::MessageStack doTestWithFile(SIFT& pfe, std::map<RuleId, Syntax::Rule> rules, const std::string& sourceFile)
 {
   pfe.clearState();
   pfe.setupRules(rules);
@@ -48,7 +48,7 @@ inline const Core::MessageStack doTestWithFile(PFE& pfe, std::map<RuleId, Syntax
 }
 
 // Execute a unit test with the source passed in as a vector of strings and the rules as a map
-inline const Core::MessageStack doTestWithSource(PFE& pfe, std::map<RuleId, Syntax::Rule> rules, const std::vector<std::string>& source)
+inline const Core::MessageStack doTestWithSource(SIFT& pfe, std::map<RuleId, Syntax::Rule> rules, const std::vector<std::string>& source)
 {
   pfe.clearState();
   pfe.setupRules(rules);
@@ -60,7 +60,7 @@ inline const Core::MessageStack doTestWithSource(PFE& pfe, std::map<RuleId, Synt
 }
 
 // Test a single line of code
-inline const Core::MessageStack doTestWithSource(PFE& pfe, std::map<RuleId, Syntax::Rule> rules, const std::string& sourceLine){
+inline const Core::MessageStack doTestWithSource(SIFT& pfe, std::map<RuleId, Syntax::Rule> rules, const std::string& sourceLine){
   std::vector<std::string> source = {sourceLine};
   return doTestWithSource(pfe, rules, source);
 }

@@ -29,9 +29,9 @@
 
 TEST_CASE("Testing 1TBS syntax style", "[sample]") {
   std::vector<std::string> argv = {"program_name", "-q"};
-  PFE pfe;
-  pfe.parseArgv(argv.size(), convert(argv).data());
-  pfe.setupLogging();
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
    
   // Still need a rule to implement
 //   SECTION("All green") {

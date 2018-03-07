@@ -72,7 +72,7 @@ namespace Syntax
     for(const auto& type : RuleType_list)
     {
       const std::string typeString = to_string(type);
-      PFE_ASSERT(work.find(type) != work.end(), std::string("Rule '" + typeString + "' is defined but has no work registered for it"));
+      SIFT_ASSERT(work.find(type) != work.end(), std::string("Rule '" + typeString + "' is defined but has no work registered for it"));
     }
   }
 

@@ -44,11 +44,11 @@ endif(RUN_SYSTEM_TESTS)
 include_directories(../extlib SYSTEM)
 include_directories(../src)
 
-source_group("PFE_Source" FILES ${SRC})
+source_group("SIFT_Source" FILES ${SRC})
 source_group("Tests" FILES ${TESTS_TESTS})
 
 add_executable("tests" ${TESTS_INC} ${TESTS_TESTS}
-  "${CMAKE_SOURCE_DIR}/src/pfe.cpp" 
+  "${CMAKE_SOURCE_DIR}/src/sift.cpp" 
   ${SRC}
 )
 
@@ -60,7 +60,7 @@ add_custom_command(TARGET tests POST_BUILD
 )
 
 add_custom_command(TARGET tests POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:PFE>" "$<TARGET_FILE_DIR:tests>"
+                    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:SIFT>" "$<TARGET_FILE_DIR:tests>"
 )
 add_custom_command(TARGET tests POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:tests>/samples

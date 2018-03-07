@@ -43,7 +43,7 @@
 // Real convenient for debuging
 #define DUMP(x) std::cout << #x << ": " << x << std::endl
 #define CSTR(x) dynamic_cast< std::ostringstream & >(( std::ostringstream() << std::dec << x ) ).str().c_str()
-#define SSTR(x) static_cast< std::ostringstream >(( std::ostringstream() << std::dec << x ) ).str()
+#define SSTR(x) reinterpret_cast< std::ostringstream & >(( std::ostringstream() << std::dec << x ) ).str()
 //
 
 namespace Core {
@@ -89,7 +89,7 @@ namespace Core {
 
     std::ifstream file(fileName);
 
-    PFE_ASSERT(file.is_open(), "Could not open Json file for reading");
+    SIFT_ASSERT(file.is_open(), "Could not open Json file for reading");
 
     while(std::getline(file, line)) {
         content += line;
@@ -101,7 +101,7 @@ namespace Core {
   inline void writeJsonFile(const std::string& fileName, const nlohmann::json& json) {
     std::ofstream file(fileName);
 
-    PFE_ASSERT(file.is_open(), "Could not open Json file for writing");
+    SIFT_ASSERT(file.is_open(), "Could not open Json file for writing");
 
     file << json;
   }

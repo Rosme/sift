@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2018 Jean-Sebastien Fauteux, Michel Rioux, Raphaël Massabot
+# Copyright (c) 2018 Jean-Sebastien Fauteux, Michel Rioux, Raphaï¿½l Massabot
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,12 +23,12 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-project(PFE)
+project(SIFT)
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 set(VERSION_PATCH 0)
 
-option(USE_PFE_ASSERT "Use PFE defined assert" ON)
+option(USE_SIFT_ASSERT "Use SIFT defined assert" ON)
 option(GENERATE_JAVASCRIPT "Generate/populate the .js with rules" OFF)
 option(RUN_UNIT_TESTS "Run the unit tests" ON)
 option(RUN_SYSTEM_TESTS "Run the (lengthy) system tests" OFF)
@@ -50,8 +50,8 @@ configure_file("config.hpp.in" "${CMAKE_SOURCE_DIR}/src/core/config.hpp" @ONLY)
 
 set(SRC_MAIN
     ${CMAKE_SOURCE_DIR}/src/main.cpp
-    ${CMAKE_SOURCE_DIR}/src/pfe.hpp
-    ${CMAKE_SOURCE_DIR}/src/pfe.cpp
+    ${CMAKE_SOURCE_DIR}/src/sift.hpp
+    ${CMAKE_SOURCE_DIR}/src/sift.cpp
     )
 
 set(SRC_CORE
@@ -123,9 +123,9 @@ endif()
 
 include_directories(extlibs SYSTEM)
 
-if(USE_PFE_ASSERT)
-    add_definitions(-DUSE_PFE_ASSERT)
-endif(USE_PFE_ASSERT)
+if(USE_SIFT_ASSERT)
+    add_definitions(-DUSE_SIFT_ASSERT)
+endif(USE_SIFT_ASSERT)
 
 if(GENERATE_JAVASCRIPT)
   execute_process(COMMAND python generate_rules.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/configgen/)

@@ -29,7 +29,7 @@
 #include <muflihun/easylogging++.h>
 #include <cxxopts/cxxopts.hpp>
 
-#include "pfe.hpp"
+#include "sift.hpp"
 #include "core/config.hpp"
 #include "core/assert.hpp"
 #include "core/cpp_scope_extractor.hpp"
@@ -38,7 +38,7 @@
 #include "syntax/rule.hpp"
 
 
-PFE::PFE()
+SIFT::SIFT()
 {
   m_syntaxAnalyser = std::make_unique<Syntax::CPPSyntaxAnalyser>();
   m_flowAnalyser = std::make_unique<Flow::CPPFlowAnalyser>();
@@ -50,7 +50,7 @@ PFE::PFE()
   variableName = defaultValue; \
 }
   
-void PFE::parseArgv(int argc, char** argv)
+void SIFT::parseArgv(int argc, char** argv)
 {
   cxxopts::Options options("PFE", "Syntax analyser for cpp");
     
@@ -94,7 +94,7 @@ void PFE::parseArgv(int argc, char** argv)
   }
 }
   
-void PFE::setupLogging()
+void SIFT::setupLogging()
 {
   // Setup defaults
   el::Configurations conf;
@@ -127,7 +127,7 @@ void PFE::setupLogging()
   
 }
   
-void PFE::setupRules(const std::string filename)
+void SIFT::setupRules(const std::string filename)
 {
   m_rules = Syntax::readRules(filename);
     
@@ -143,7 +143,7 @@ void PFE::setupRules(const std::string filename)
 }
 
 
-void PFE::setupRules(std::map<RuleId, Syntax::Rule> rules){
+void SIFT::setupRules(std::map<RuleId, Syntax::Rule> rules){
   m_rules = rules;
   
   std::stringstream rulesString;
@@ -157,7 +157,7 @@ void PFE::setupRules(std::map<RuleId, Syntax::Rule> rules){
   LOG(INFO) << rulesString.str();
 }
 
-void PFE::readSource(const std::string& filename, const std::vector<std::string>& source){
+void SIFT::readSource(const std::string& filename, const std::vector<std::string>& source){
   Core::File file;
   file.filename = filename;
   file.lines = source;
@@ -165,7 +165,7 @@ void PFE::readSource(const std::string& filename, const std::vector<std::string>
   LOG(INFO) << "Source file '" << filename << "' has been read";
 }
 
-void PFE::readSingleSourceFile(const std::string & filename) 
+void SIFT::readSingleSourceFile(const std::string & filename)
 {
   Core::File file;
   if(!Core::readSourceFile(filename, file)) {
@@ -177,11 +177,11 @@ void PFE::readSingleSourceFile(const std::string & filename)
   LOG(INFO) << "Source file '" << filename << "' has been read";
 }
   
-void PFE::readFilesFromDirectory(const std::string& directory, const std::string& extensions)
+void SIFT::readFilesFromDirectory(const std::string& directory, const std::string& extensions)
 {   
   std::vector<std::string> valid_extensions = Core::split(extensions, '|');
   
-  PFE_ASSERT(valid_extensions.size() > 0, "Not enough valid file extensions provided");
+  SIFT_ASSERT(valid_extensions.size() > 0, "Not enough valid file extensions provided");
   
   std::vector<Core::FilesystemItem> stack, current, all;
   stack = Core::getFilenamesInDirectory(directory);
@@ -226,7 +226,7 @@ void PFE::readFilesFromDirectory(const std::string& directory, const std::string
   LOG(INFO) << "Read " << m_files.size() << " source files";
 }
   
-void PFE::extractScopes()
+void SIFT::extractScopes()
 {
   Core::CppScopeExtractor extractor;
   // Parse all files found
@@ -250,7 +250,7 @@ void PFE::extractScopes()
   LOG(TRACE) << "Extracted " << m_rootScopes.size() << " root scopes";
 }
 
-void PFE::applyRules()
+void SIFT::applyRules()
 {
   for(auto& scopePair : m_rootScopes)
   {
@@ -266,7 +266,7 @@ void PFE::applyRules()
   }
 }
 
-void PFE::registerRuleWork()
+void SIFT::registerRuleWork()
 {
   m_syntaxAnalyser->registerRuleWork(m_rulesWork);
 }
@@ -278,7 +278,7 @@ void PFE::registerRuleWork()
     LOG(INFO) << msg; \
   }
   
-void PFE::outputMessages()
+void SIFT::outputMessages()
 {    
   auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace){
     auto index = from.find(find);
@@ -323,7 +323,7 @@ void PFE::outputMessages()
   LOG(INFO) << "Wrote results to file: " << m_outputFilename;
 }
 
-void PFE::readPath(const std::string& path)
+void SIFT::readPath(const std::string& path)
 {
   if(Core::directoryExists(path)){
     readFilesFromDirectory(path, "cpp|hpp|h|c|cc|hh"); //TODO standardized way
@@ -332,7 +332,7 @@ void PFE::readPath(const std::string& path)
   }
 }
 
-void PFE::clearState(){
+void SIFT::clearState(){
   m_rootScopes.clear();
   m_files.clear();
   m_rules.clear();

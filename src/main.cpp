@@ -25,7 +25,7 @@
 #include <iostream>
 #include <muflihun/easylogging++.h>
 
-#include "pfe.hpp"
+#include "sift.hpp"
 #include "core/utils.hpp"
 #include "core/file.hpp"
 #include "syntax/rule.hpp"
@@ -39,15 +39,15 @@ int main(int argc, char* argv[]) {
   
   std::chrono::time_point<std::chrono::system_clock> before = std::chrono::system_clock::now();
   
-  PFE pfe;
-  pfe.parseArgv(argc, argv);
-  pfe.setupLogging();
-  pfe.setupRules(pfe.getRuleFileName());
-  pfe.registerRuleWork();
-  pfe.readPath(pfe.getPathToParse());
-  pfe.extractScopes();
-  pfe.applyRules();
-  pfe.outputMessages();
+  SIFT sift;
+  sift.parseArgv(argc, argv);
+  sift.setupLogging();
+  sift.setupRules(sift.getRuleFileName());
+  sift.registerRuleWork();
+  sift.readPath(sift.getPathToParse());
+  sift.extractScopes();
+  sift.applyRules();
+  sift.outputMessages();
 
   std::chrono::time_point<std::chrono::system_clock> after = std::chrono::system_clock::now();
   LOG(INFO) << "Ran in " << std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count() << "ms";
