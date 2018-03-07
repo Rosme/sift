@@ -43,7 +43,7 @@
 // Real convenient for debuging
 #define DUMP(x) std::cout << #x << ": " << x << std::endl
 #define CSTR(x) dynamic_cast< std::ostringstream & >(( std::ostringstream() << std::dec << x ) ).str().c_str()
-#define SSTR(x) dynamic_cast< std::ostringstream & >(( std::ostringstream() << std::dec << x ) ).str()
+#define SSTR(x) static_cast< std::ostringstream >(( std::ostringstream() << std::dec << x ) ).str()
 //
 
 namespace Core {
