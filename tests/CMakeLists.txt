@@ -60,7 +60,7 @@ add_custom_command(TARGET tests POST_BUILD
 )
 
 add_custom_command(TARGET tests POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:SIFT>" "$<TARGET_FILE_DIR:tests>"
+                    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:sift>" "$<TARGET_FILE_DIR:tests>"
 )
 add_custom_command(TARGET tests POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/samples $<TARGET_FILE_DIR:tests>/samples

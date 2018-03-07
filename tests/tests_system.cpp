@@ -32,9 +32,9 @@
 #include <fstream>
 
 #ifdef WIN32
-  #define BIN_NAME "PFE.exe"
+  #define BIN_NAME "sift.exe"
 #else
-  #define BIN_NAME "./PFE"
+  #define BIN_NAME "./sift"
 #endif
 
 #define TESTS_DIR "temp-system-tests/"
