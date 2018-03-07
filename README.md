@@ -1,18 +1,11 @@
-![SIFT Logo](images/logo-500.png)
+![SIFT Logo](images/logo-500.png)      
 SIFT is a static language analyser.
 [![Build Status](https://img.shields.io/travis/Rosme/pfe.svg?label=linux+and+macOS)](https://travis-ci.org/Rosme/pfe) [![Build Status](https://img.shields.io/appveyor/ci/Rosme/pfe.svg?label=windows)](https://ci.appveyor.com/project/Rosme/pfe)
 
-#Content
-- [License](#license)
-- [Quick start](#quick-start)
-- [Usage](#usage)
-- [Building SIFT](#building)
-- [Code conventions](#conventions)
-- [Extending SIFT](#extending-sift)
-#License
+### License
 The source code and the project is distributed under the MIT license, unless specified otherwise.
 Copyright(C) Jean-Sébastien Fauteux, Michel Rioux, Raphaël Massabot.
-#Quick Start
+### Quick Start
 To quickly get started with SIFT, just follow these three steps:
 
 * *(Optional) Copy SIFT in the folder containing the source you want to parse*
@@ -43,7 +36,7 @@ And here's an example on how to execute sift:
 ./sift . 
 ```
 It'll look for a rules.json wherever you are and parse the directory or file you provide.
-#Usage
+### Usage
 Once SIFT is build, you may use it like so:
 ```bash
 ./sift --path "source/to/test" --rules "your_rule_definition.json" --output "your_output_file"
@@ -52,12 +45,12 @@ It's also possible to invoke SIFT's help like so:
 ```bash
 ./sift --help
 ```
-#Building
+### Building
 * mkdir build
 * cd build
 * cmake ..
 * cmake --build .
-#Conventions
+### Conventions
 * Indentation is 2 spaces
 * Bracket style is [1TBS](https://en.wikipedia.org/wiki/Indentation_style#1TBS)
  * _if_ with just 1 instruction still needs brackets
@@ -66,5 +59,5 @@ It's also possible to invoke SIFT's help like so:
 * m_camelCase of anything and everything
 * Usage of C++11/C++14 as much as possible
 * Usage of pragma once should be favorised
-#Extending SIFT
+### Extending SIFT
 SIFT is, in theory, capable of being extended to other languages. To do so you may inherit from the interface [...]
