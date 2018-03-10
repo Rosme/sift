@@ -246,7 +246,11 @@ namespace Core {
         std::size_t semicolonPos = line.find(';', scope.characterNumberStart);
         std::size_t curlyBracketPos = line.find('{', scope.characterNumberStart);
 
-        for(int j = lineNumber; semicolonPos == std::string::npos && curlyBracketPos == std::string::npos; ++j) {
+        for(unsigned int j = lineNumber; semicolonPos == std::string::npos && curlyBracketPos == std::string::npos; ++j) {
+          if(j >= parent.lineNumberEnd){
+            throw std::overflow_error("Reached end of parent scope, something is probably wrong");
+          }
+          
           const std::string& nextLine = file.lines[j];
           semicolonPos = nextLine.find(';', scope.characterNumberStart);
           curlyBracketPos = nextLine.find('{', scope.characterNumberStart);
@@ -385,7 +389,6 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractStringLiterals(File& file, Scope& parent) {
-    auto comments = parent.getAllChildrenOfType(ScopeType::Comment);
     //TODO: This is ugly, fix this
     std::size_t startIndex = 0;
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
@@ -436,6 +439,20 @@ namespace Core {
       startIndex = line.find('\'', startIndex);
       if(startIndex == std::string::npos) {
         startIndex = 0;
+        continue;
+      }
+      
+      // Check if we're in another literal (ex: "my comment has 'single quotes'")
+      bool inLiteral = false;
+      for(const auto& literal : stringLiterals[file.filename]){
+        if(literal.isLineWithinScope(lineNumber) && startIndex > literal.characterNumberStart && startIndex < literal.characterNumberEnd){
+          startIndex = 0;
+          inLiteral = true;
+          break;
+        }
+      }
+      
+      if(inLiteral){
         continue;
       }
 
