@@ -325,6 +325,7 @@ void SIFT::outputMessages()
 
 void SIFT::readPath(const std::string& path)
 {
+  LOG(INFO) << "Reading path " << path;
   if(Core::directoryExists(path)){
     readFilesFromDirectory(path, "cpp|hpp|h|c|cc|hh"); //TODO standardized way
   }else{

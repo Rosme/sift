@@ -398,7 +398,15 @@ namespace Core {
         startIndex = 0;
         continue;
       }
-
+      
+      if(isWithinComment(startIndex, lineNumber, file, parent)){
+        continue;
+      }
+      
+      if(isWithinStringLiteral(startIndex, lineNumber, file)){
+        continue;
+      }
+      
       if(startIndex > 0 && line[startIndex-1] == '\\') {
         --lineNumber;
         continue;
@@ -442,23 +450,22 @@ namespace Core {
         continue;
       }
       
-      // Check if we're in another literal (ex: "my comment has 'single quotes'")
-      bool inLiteral = false;
-      for(const auto& literal : stringLiterals[file.filename]){
-        if(literal.isLineWithinScope(lineNumber) && startIndex > literal.characterNumberStart && startIndex < literal.characterNumberEnd){
-          startIndex = 0;
-          inLiteral = true;
-          break;
-        }
+      if(isWithinComment(startIndex, lineNumber, file, parent)){
+        continue;
       }
       
-      if(inLiteral){
+      if(isWithinStringLiteral(startIndex, lineNumber, file)){
         continue;
       }
 
+      // Handle '\''
       if(startIndex > 0 && line[startIndex-1] == '\\') {
-        --lineNumber;
-        continue;
+        
+        // But ignore '\\'
+        if(startIndex < 2 || line[startIndex-2] != '\\'){
+          --lineNumber;
+          continue;
+        }
       }
 
       Scope scope(ScopeType::StringLiteral);
@@ -757,6 +764,11 @@ namespace Core {
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
+        
+        if(ParenthesisStack.size() > BRACKET_STACK_GIVEUP){
+          throw std::overflow_error("Reached maximum parenthesis size, something is probably wrong");
+        }
+        
         if(!foundCondition) {
           if(c == '(') {
             if(!isWithinStringLiteral(pos, j, file)) {
