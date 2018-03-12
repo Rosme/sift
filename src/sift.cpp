@@ -278,7 +278,7 @@ void SIFT::registerRuleWork()
     LOG(INFO) << msg; \
   }
   
-void SIFT::outputMessages()
+void SIFT::outputMessagesSyntax()
 {    
   auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace){
     auto index = from.find(find);
@@ -323,6 +323,41 @@ void SIFT::outputMessages()
   LOG(INFO) << "Wrote results to file: " << m_outputFilename;
 }
 
+
+//TODO: Do this properly
+void SIFT::outputMessagesFlow()
+{
+  auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace) {
+    auto index = from.find(find);
+    if (index != std::string::npos) {
+      from.replace(index, find.length(), replace);
+    }
+  };
+
+  std::ofstream file(m_outputFilename);
+  // Files
+  for (auto&& stackPair : m_messageStacksFlow) {
+    if (stackPair.second.size() == 0)
+    {
+      continue; // Don't bother displaying error-free files
+    }
+
+    OUTPUT("+ " << stackPair.first << " ----------");
+
+    // Rules
+    for (const auto& ruleIdMessagesPair : stackPair.second.getMessages()) {
+
+      for (const auto& message : ruleIdMessagesPair.second) {
+        OUTPUT("    " << message);
+      }
+    }
+  }
+
+  file.close();
+
+  LOG(INFO) << "Wrote results to file: " << m_outputFilename;
+}
+
 void SIFT::readPath(const std::string& path)
 {
   if(Core::directoryExists(path)){
@@ -337,4 +372,10 @@ void SIFT::clearState(){
   m_files.clear();
   m_rules.clear();
   m_rulesWork.clear();
+}
+
+void SIFT::verifyFlow() {
+  for (auto& scopePair : m_rootScopes) {
+    m_flowAnalyser->analyzeFlow(scopePair.second, m_messageStacksFlow[scopePair.second.file->filename]);
+  }
 }

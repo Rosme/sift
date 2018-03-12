@@ -25,12 +25,24 @@
 
 #include "flow_analyser.hpp"
 
+#include "../core/scope.hpp"
+#include "../core/message_stack.hpp"
+
 namespace Flow {
   
   class CPPFlowAnalyser : public FlowAnalyser {
   public:
     CPPFlowAnalyser();
     virtual ~CPPFlowAnalyser();
+
+    void analyzeFlow(Core::Scope& rootScope, Core::MessageStack& messageStack);
+
+  private:
+    void analyzeNullPointer(Core::Scope& rootScope, Core::MessageStack& messageStack);
+
+    int lineUsingNullPointer(Core::Scope& scope);
+    bool isVariableValueChanged(const std::string& line, bool isVariableDeclarationLine, int positionAfterVarName, std::string& varValue);
+    bool isVariableValueValid(std::string varValue, bool isPointer);
   };
   
 }

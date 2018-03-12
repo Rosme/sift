@@ -23,11 +23,15 @@
 
 #pragma once
 
+#include "../core/scope.hpp"
+#include "../core/message_stack.hpp"
+
 namespace Flow {
-  
+
   class FlowAnalyser {
   public:
     virtual ~FlowAnalyser();
+    virtual void analyzeFlow(Core::Scope& rootScope, Core::MessageStack& messageStack) = 0;
   };
   
 }

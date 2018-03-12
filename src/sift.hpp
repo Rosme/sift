@@ -48,9 +48,11 @@ public:
   void extractScopes();
   void applyRules();
   void registerRuleWork();
-  void outputMessages();
+  void outputMessagesSyntax();
+  void outputMessagesFlow();
   void readPath(const std::string& path);
   void clearState();
+  void verifyFlow();
     
   const std::map<const std::string, Core::MessageStack> getMessageStacks(){ return m_messageStacks; }
   std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
@@ -75,6 +77,7 @@ private:
   std::unique_ptr<Flow::FlowAnalyser> m_flowAnalyser;
   std::unique_ptr<Syntax::SyntaxAnalyser> m_syntaxAnalyser;
   std::map<const std::string, Core::MessageStack> m_messageStacks;
+  std::map<const std::string, Core::MessageStack> m_messageStacksFlow;
     
   bool m_quietMode;
   bool m_verboseMode;
