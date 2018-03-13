@@ -9,6 +9,14 @@ namespace MyNamespace
   };
 }
 
+namespace BadNamespace
+{
+  }
+
+void bothFn()
+  {
+  }
+
 //Error
 class WrongClass {
 
@@ -23,7 +31,7 @@ void fn() {
 int main() {
 
   int i = 5;
-  //
+  //Error
   if(i < 5) {
 
   } 

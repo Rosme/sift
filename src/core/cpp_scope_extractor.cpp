@@ -211,7 +211,7 @@ namespace Core {
         scope.name = match[2];
         scope.parent = &parent;
         scope.lineNumberStart = lineNumber;
-        scope.characterNumberStart = line.find(match[0]);
+        scope.characterNumberStart = line.find(match[1]);
         scope.file = &file;
 
         //Struct/Class can have Struct/Class inside

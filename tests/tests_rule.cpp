@@ -346,18 +346,16 @@ TEST_CASE("Testing Curly Brackets Alignement", "[rules-bracketsalignment]") {
       {++ruleId, RULE(Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration)}
     };
 
-    // By definition, the 1TBS style should have tab indentation
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/curlybracketsindentationalignwithdeclaration.cpp");
     REQUIRE(stack.size() == 1);
-    REQUIRE(stack.getMessages().begin()->second.size() == 4);
+    REQUIRE(stack.getMessages().begin()->second.size() == 7);
   }
 
   SECTION("Curly Brackets Indentation Align With Declaration For Class Only") {
     std::map<RuleId, Syntax::Rule> ruleMap = {
       {++ruleId, RULE(Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration, Core::ScopeType::Class)}
     };
-
-    // By definition, the 1TBS style should have tab indentation
+    
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/curlybracketsindentationalignwithdeclaration.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
