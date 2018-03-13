@@ -80,6 +80,11 @@ namespace brightnessmanager
 	} 
 }
 
+class OneTbsClass 
+{
+
+};
+
 int main(int argc, const char *argv[]) 
 {
 	int ret = 0;

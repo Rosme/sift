@@ -268,4 +268,7 @@ namespace Core {
       );
   }
 
+  inline bool isScopeTypeOfType(ScopeType current, ScopeType toVerifyAgainst) {
+    return static_cast<unsigned int>(current & toVerifyAgainst) != 0;
+  }
 }

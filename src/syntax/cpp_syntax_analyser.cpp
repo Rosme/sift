@@ -68,6 +68,7 @@ namespace Syntax
     REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsOpen);
     REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsClose);
     REGISTER_RULE(TabIndentation);
+    REGISTER_RULE(CurlyBracketsIndentationAlignWithDeclaration);
     
     for(const auto& type : RuleType_list)
     {
@@ -86,6 +87,7 @@ namespace Syntax
       case Syntax::RuleType::EndWithX: ruleMessage = "Expect scopes of type '%rs' to end with '%rp'"; break;
       case Syntax::RuleType::SingleReturn: ruleMessage = "Expect functions to have a single return"; break;
       case Syntax::RuleType::TabIndentation: ruleMessage = "Expect indentation to be made using tabs"; break;
+      case Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration: ruleMessage = "Expected '{' to be aligned with declaration on following line for scope '%rs'"; break;
       default: break;
     }
         
@@ -559,6 +561,38 @@ namespace Syntax
         }
       }
       ++i;
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleCurlyBracketsIndentationAlignWithDeclaration(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    if(rule.getScopeType() != Core::ScopeType::All) {
+      scopeTypes = rule.getScopeType();
+    }
+
+    if(!isScopeTypeOfType(rule.getScopeType(), scopeTypes)) {
+      LOG(WARNING) << "ScopeType of Rule CurlyBracketsIndentationAlignWithDeclaration for scope " << to_string(rule.getScopeType()) << " is invalid";
+      return;
+    }
+
+    for(const auto& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      const std::string& line = currentScope.file->lines[currentScope.lineNumberStart];
+      if(line.find('{') != std::string::npos) {
+        //Same line as start, means it's not aligned
+        Core::Message message(Core::MessageType::Error, currentScope.name, currentScope.lineNumberStart, currentScope.characterNumberStart);
+        messageStack.pushMessage(rule.getRuleId(), message);
+      } else {
+        int curlyBracketLineIndex = currentScope.lineNumberStart+1;
+        while(currentScope.file->lines[curlyBracketLineIndex].find('{') == std::string::npos) {
+          //Finding the line where { is
+          ++curlyBracketLineIndex;
+        }
+        const std::string& curlyBracketLine = currentScope.file->lines[curlyBracketLineIndex];
+
+        if(curlyBracketLine.find('{') != currentScope.characterNumberStart) {
+          Core::Message message(Core::MessageType::Error, currentScope.name, currentScope.lineNumberStart, currentScope.characterNumberStart);
+        }
+      }
     }
   }
   

@@ -1,0 +1,9 @@
+
+{
+  "rules": [
+    {
+      "rule" : "CurlyBracketsIndentationAlignWithDeclaration",
+      "appliedTo" : "Class"
+    }
+  ]
+}
