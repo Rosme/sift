@@ -482,7 +482,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!checkSpaceBetweenOperandsInternal(currentScope, false)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberEnd
+          currentScope.name, currentScope.lineNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -498,7 +498,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!checkSpaceBetweenOperandsInternal(currentScope, true)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberEnd
+          currentScope.name, currentScope.lineNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -663,9 +663,7 @@ namespace Syntax
         } else if (parenthesisCounter > 0 && scopeLine[pos + 1] != ')') {
           switch (c) {
             case '+':
-            case '-':
             case '|':
-            case ':':
               if (scopeLine[pos + 1] != c) {
                 if (isspace(scopeLine[pos + 1])) {
                   if (noSpace) {
@@ -680,7 +678,6 @@ namespace Syntax
             case ';':
             case ',':
             case '/':
-            case '*':
             case '&':
             case '?':
               if (isspace(scopeLine[pos + 1])) {
@@ -705,6 +702,16 @@ namespace Syntax
                 } else if (!noSpace) {
                   return false;
                 }
+              }
+              break;
+            case '*':
+              if (isspace(scopeLine[pos + 1])) {
+                if (noSpace) {
+                  checkIfFinalCharacter = true;
+                }
+              }
+              else if (!noSpace && isdigit(c)) {
+                return false;
               }
               break;
           }
