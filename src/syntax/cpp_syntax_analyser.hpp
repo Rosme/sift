@@ -40,7 +40,7 @@ namespace Syntax {
     virtual ~CPPSyntaxAnalyser();
     
     std::string getRuleMessage(const Syntax::Rule& rule);
-    void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work);
+    void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work, const std::map<std::string, std::vector<Core::Scope>>& literals = std::map<std::string, std::vector<Core::Scope>>());
     
     void RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleNoAuto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
@@ -76,6 +76,8 @@ namespace Syntax {
     bool noCodeAfterCurlyBracketSameLineClose(Core::Scope& scope);
     
     Core::ScopeType computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes);
+
+    const std::map<std::string, std::vector<Core::Scope>>* stringLiterals = nullptr;
   };
   
 }

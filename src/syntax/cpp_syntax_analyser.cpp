@@ -42,7 +42,7 @@ namespace Syntax
   // Force consistency between name and method
   #define NS(ns,item) ns::item
   #define REGISTER_RULE(REG) work[NS(RuleType, REG)] = std::bind(&CPPSyntaxAnalyser::Rule##REG, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-  void CPPSyntaxAnalyser::registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work)
+  void CPPSyntaxAnalyser::registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work, const std::map<std::string, std::vector<Core::Scope>>& literals)
   {
     // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
     REGISTER_RULE(Unknown);
@@ -75,6 +75,8 @@ namespace Syntax
       const std::string typeString = to_string(type);
       SIFT_ASSERT(work.find(type) != work.end(), std::string("Rule '" + typeString + "' is defined but has no work registered for it"));
     }
+
+    stringLiterals = &literals;
   }
 
   std::string CPPSyntaxAnalyser::getRuleMessage(const Syntax::Rule& rule){
@@ -635,6 +637,14 @@ namespace Syntax
     // it check to see if the found space is between the last character of condition and the final parenthesis
     // The space between operands and parenthesis should be handle by SpaceBetweenOperandsExternal so we ignore it here
     bool checkIfFinalCharacter = false;
+
+    std::vector<Core::Scope> strings;
+    if(stringLiterals) {
+      auto it = stringLiterals->find(scope.file->filename);
+      if(it != stringLiterals->end()) {
+        strings = it->second;
+      }
+    }
 
     for (unsigned int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
       const std::string& scopeLine = scope.file->lines[i];

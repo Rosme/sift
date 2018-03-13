@@ -42,6 +42,7 @@ SIFT::SIFT()
 {
   m_syntaxAnalyser = std::make_unique<Syntax::CPPSyntaxAnalyser>();
   m_flowAnalyser = std::make_unique<Flow::CPPFlowAnalyser>();
+  m_scopeExtractor = std::make_unique<Core::CppScopeExtractor>();
 }
   
 #define CXXOPT(longName, variableName, type, defaultValue) if(result.count(longName)) { \
@@ -228,13 +229,12 @@ void SIFT::readFilesFromDirectory(const std::string& directory, const std::strin
   
 void SIFT::extractScopes()
 {
-  Core::CppScopeExtractor extractor;
   // Parse all files found
   int i = 1;
   for(auto&& filePair : m_files)
   {
     Core::Scope scope;
-    bool success = extractor.extractScopesFromFile(filePair.second, scope);
+    bool success = m_scopeExtractor->extractScopesFromFile(filePair.second, scope);
     if(success)
     {
       m_rootScopes[filePair.first] = scope;
@@ -268,7 +268,7 @@ void SIFT::applyRules()
 
 void SIFT::registerRuleWork()
 {
-  m_syntaxAnalyser->registerRuleWork(m_rulesWork);
+  m_syntaxAnalyser->registerRuleWork(m_rulesWork, m_scopeExtractor->getStringLiterals());
 }
   
   
