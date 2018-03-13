@@ -317,10 +317,10 @@ namespace Core {
           }
         }
         Scope scope(ScopeType::Conditionnal);
-        scope.name = match[0];
+        scope.name = match[2];
         scope.parent = &parent;
         scope.lineNumberStart = i;
-        scope.characterNumberStart = line.find(match[0]);
+        scope.characterNumberStart = line.find(match[2]);
         scope.file = &file;
 
         if(match[2] == "for") {
