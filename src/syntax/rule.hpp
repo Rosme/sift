@@ -58,7 +58,8 @@ namespace Syntax {
                    NoCodeAllowedSameLineCurlyBracketsOpen,
                    NoCodeAllowedSameLineCurlyBracketsClose,
                    TabIndentation,
-                   CurlyBracketsIndentationAlignWithDeclaration
+                   CurlyBracketsIndentationAlignWithDeclaration,
+                   ElseSeparateLineFromCurlyBracketClose
                   );
   /* END_RULE_DEFINE_ENUM */
   

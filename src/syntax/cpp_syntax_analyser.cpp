@@ -69,6 +69,7 @@ namespace Syntax
     REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsClose);
     REGISTER_RULE(TabIndentation);
     REGISTER_RULE(CurlyBracketsIndentationAlignWithDeclaration);
+    REGISTER_RULE(ElseSeparateLineFromCurlyBracketClose);
     
     for(const auto& type : RuleType_list)
     {
@@ -90,6 +91,7 @@ namespace Syntax
       case Syntax::RuleType::SingleReturn: ruleMessage = "Expect functions to have a single return"; break;
       case Syntax::RuleType::TabIndentation: ruleMessage = "Expect indentation to be made using tabs"; break;
       case Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration: ruleMessage = "Expected curly bracket to be aligned with declaration for scope '%rs'"; break;
+      case Syntax::RuleType::ElseSeparateLineFromCurlyBracketClose: ruleMessage = "Expected 'else' to be on a seperate line than '{'"; break;
       default: break;
     }
         
@@ -617,6 +619,28 @@ namespace Syntax
       const std::string& curlyBracketCloseLine = currentScope.file->lines[currentScope.lineNumberEnd];
 
       if(curlyBracketCloseLine.find('}') != currentScope.characterNumberStart) {
+        Core::Message message(Core::MessageType::Error, currentScope.name, currentScope.lineNumberEnd, currentScope.characterNumberEnd);
+        messageStack.pushMessage(rule.getRuleId(), message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleElseSeparateLineFromCurlyBracketClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Conditionnal;
+    
+    //Ignoring rule applied to a different scope
+    if(rule.getScopeType() != scopeTypes) {
+      LOG(WARNING) << "ScopeType of Rule ElseSeparateLineFromCurlyBracketClose for scope " << to_string(rule.getScopeType()) << " is invalid. Falling back to Conditional";
+    }
+
+    for(const auto& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      if(currentScope.name.find("else") == std::string::npos) {
+        continue;
+      }
+
+      const std::string& line = currentScope.file->lines[currentScope.lineNumberStart];
+      const auto indexCurlyBracket = line.find('}');
+      if(indexCurlyBracket != std::string::npos && !isWithinStringLiteral(currentScope.lineNumberStart, indexCurlyBracket, *currentScope.file)) {
         Core::Message message(Core::MessageType::Error, currentScope.name, currentScope.lineNumberEnd, currentScope.characterNumberEnd);
         messageStack.pushMessage(rule.getRuleId(), message);
       }

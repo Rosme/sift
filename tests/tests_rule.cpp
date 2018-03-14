@@ -362,3 +362,19 @@ TEST_CASE("Testing Curly Brackets Alignement", "[rules-bracketsalignment]") {
   }
 }
 
+TEST_CASE("Testing Conditional And Line Curly Bracket", "[rules-conditionallinecurlybrackets]") {
+  std::vector<std::string> argv = {"program_name", "-q"};
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
+
+  SECTION("Else On Seperate Line From Curly Bracket Close") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::ElseSeparateLineFromCurlyBracketClose)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/elseseperatelinefromcurlybracketclose.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 1);
+  }
+}
