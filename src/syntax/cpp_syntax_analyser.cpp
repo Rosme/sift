@@ -273,7 +273,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -290,7 +290,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSeparateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All)
     {
       scopeTypes = rule.getScopeType();
@@ -310,7 +310,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All)
     {
       scopeTypes = rule.getScopeType();
@@ -329,7 +329,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSeparateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All)
     {
       scopeTypes = rule.getScopeType();
@@ -347,7 +347,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Conditional;
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!isScopeUsingCurlyBrackets(currentScope)) {
@@ -502,7 +502,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleSpaceBetweenOperandsInternal(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -518,7 +518,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleNoSpaceBetweenOperandsInternal(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -534,7 +534,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleNoCodeAllowedSameLineCurlyBracketsOpen(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -550,7 +550,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleNoCodeAllowedSameLineCurlyBracketsClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -593,7 +593,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsIndentationAlignWithDeclaration(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if(rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -626,7 +626,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleElseSeparateLineFromCurlyBracketClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Conditional;
     
     //Ignoring rule applied to a different scope
     if(rule.getScopeType() != scopeTypes) {

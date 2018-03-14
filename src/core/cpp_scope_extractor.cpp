@@ -80,7 +80,7 @@ namespace Core {
       //Filtering out reserved keywords
       rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
         for(const auto& keyword : ReservedKeywords) {
-          if(scope.name == keyword && scope.type != ScopeType::Conditionnal) {
+          if(scope.name == keyword && scope.type != ScopeType::Conditional) {
             return true;
           }
         }
@@ -301,11 +301,11 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractConditionals(File& file, Scope& parent) {
-    std::regex conditionnalRegex(R"((^|\s)(if|else|for|switch|while|do)(\(|\{|\s|$))");
+    std::regex conditionalRegex(R"((^|\s)(if|else|for|switch|while|do)(\(|\{|\s|$))");
     for(unsigned int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
       const std::string& line = file.lines[i];
       std::smatch match;
-      std::regex_search(line, match, conditionnalRegex);
+      std::regex_search(line, match, conditionalRegex);
       if(match.size() > 0) {
         if(isLineWithinDefine(file.filename, i) || isWithinStringLiteral(line.find(match[0]), i, file) || isWithinComment(line.find(match[0]), i, file, parent)) {
           continue;
@@ -316,7 +316,7 @@ namespace Core {
             continue;
           }
         }
-        Scope scope(ScopeType::Conditionnal);
+        Scope scope(ScopeType::Conditional);
         scope.name = match[2];
         scope.parent = &parent;
         scope.lineNumberStart = i;
@@ -508,7 +508,7 @@ namespace Core {
         //Filtering comments
         if(scope.isWithinOtherScope(it) && it.isOfType(ScopeType::Comment)) {
           return true;
-        } else if(scope.isOfType(ScopeType::Function) && scope.isWithinOtherScope(it) && (it.isOfType(ScopeType::Function) || it.isOfType(ScopeType::Conditionnal))) {
+        } else if(scope.isOfType(ScopeType::Function) && scope.isWithinOtherScope(it) && (it.isOfType(ScopeType::Function) || it.isOfType(ScopeType::Conditional))) {
           //Filtering function call within a function
           return true;
         }
@@ -539,7 +539,7 @@ namespace Core {
       if(it->type == ScopeType::Variable) {
         if(bestParent.type == ScopeType::Source || bestParent.type == ScopeType::Namespace) {
           it->type = ScopeType::GlobalVariable;
-        } else if(bestParent.type == ScopeType::Conditionnal || bestParent.type == ScopeType::Function) {
+        } else if(bestParent.type == ScopeType::Conditional || bestParent.type == ScopeType::Function) {
           it->type = ScopeType::FunctionVariable;
         } else {
           it->type = ScopeType::ClassVariable;
@@ -727,11 +727,11 @@ namespace Core {
 
   int CppScopeExtractor::findEndOfScopeConditionalDoWhile(Scope& scope, File& file, int startingLine) {
     int counter = 0;
-    std::regex conditionnalRegex(R"(\s*(while|do)(\(|\{|\s|$))");
+    std::regex conditionalRegex(R"(\s*(while|do)(\(|\{|\s|$))");
     for(unsigned int i = startingLine; i < file.lines.size(); ++i) {
       const std::string& line = file.lines[i];
       std::smatch match;
-      std::regex_search(line, match, conditionnalRegex);
+      std::regex_search(line, match, conditionalRegex);
       if(match.size() > 0) {
         if(match[1] == "do") {
           counter++;

@@ -13,7 +13,7 @@
 	
     {
       "rule" : "ElseSeparateLineFromCurlyBracketClose",
-      "appliedTo": "Conditionnal"
+      "appliedTo": "Conditional"
     },
 	
     {
@@ -23,7 +23,7 @@
 	
     {
       "rule" : "CurlyBracketsIndentationUnique",
-      "appliedTo": "Conditionnal"
+      "appliedTo": "Conditional"
     },
 	
     {

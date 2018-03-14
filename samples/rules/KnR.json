@@ -8,7 +8,7 @@
 	
     {
       "rule" : "CurlyBracketsOpenSameLine",
-      "appliedTo": "Conditionnal"
+      "appliedTo": "Conditional"
     },
 	
     {
