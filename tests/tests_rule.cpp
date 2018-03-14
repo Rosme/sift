@@ -390,7 +390,7 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
       {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
     };
 
-    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardstandardalone.cpp");
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/headerorderstandardalone.cpp");
     REQUIRE(stack.size() == 0);
   }
 
@@ -399,7 +399,7 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
       {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
     };
 
-    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardownalone.cpp");
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/headerorderownalone.cpp");
     REQUIRE(stack.size() == 0);
   }
 
@@ -418,6 +418,43 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardbad.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  }
+
+  SECTION("Standard Header Before Own - Standard Only") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::StandardHeaderBeforeOwn)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/headerorderstandardalone.cpp");
+    REQUIRE(stack.size() == 0);
+  }
+
+  SECTION("Standard Header Before Own - Own Only") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::StandardHeaderBeforeOwn)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/headerorderownalone.cpp");
+    REQUIRE(stack.size() == 0);
+  }
+
+  SECTION("Standard Header Before Own - Good") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::StandardHeaderBeforeOwn)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/standardheaderbeforeowngood.cpp");
+    REQUIRE(stack.size() == 0);
+  }
+
+  SECTION("Standard Header Before Own - Bad") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::StandardHeaderBeforeOwn)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/standardheaderbeforeownbad.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 2);
   }

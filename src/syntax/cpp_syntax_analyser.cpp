@@ -71,6 +71,7 @@ namespace Syntax
     REGISTER_RULE(CurlyBracketsIndentationAlignWithDeclaration);
     REGISTER_RULE(ElseSeparateLineFromCurlyBracketClose);
     REGISTER_RULE(OwnHeaderBeforeStandard);
+    REGISTER_RULE(StandardHeaderBeforeOwn);
     
     for(const auto& type : RuleType_list)
     {
@@ -653,7 +654,7 @@ namespace Syntax
     const auto& lines = rootScope.file->lines;
     bool hasSeenStandard = false;
 
-    static auto validateHeader = [&hasSeenStandard](const std::string& header) {
+    static auto validateOwnHeaderBeforeStandard = [&hasSeenStandard](const std::string& header) {
       if(header.find("\"") != std::string::npos) {
         if(hasSeenStandard) {
           return false;
@@ -669,7 +670,6 @@ namespace Syntax
       const auto& line = lines[i];
       std::smatch match;
       if(std::regex_search(line, match, includeRegex)) {
-
         Core::Scope dummy;
         dummy.lineNumberStart = i;
         dummy.lineNumberEnd = i;
@@ -679,16 +679,61 @@ namespace Syntax
         if(comments.size() > 0) {
           for(const auto& comment : comments) {
             if(!dummy.isWithinOtherScope(comment)) {
-              if(!validateHeader(match[1])) {
+              if(!validateOwnHeaderBeforeStandard(match[1])) {
                 pushErrorMessage(messageStack, rule, line, dummy);
               }
             } else {
               break;
             }
           }
-        } else if(!validateHeader(match[1])) {
+        } else if(!validateOwnHeaderBeforeStandard(match[1])) {
           pushErrorMessage(messageStack, rule, line, dummy);
         }   
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleStandardHeaderBeforeOwn(Syntax::Rule & rule, Core::Scope & rootScope, Core::MessageStack & messageStack) {
+    auto comments = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
+    std::regex includeRegex(R"(#include\s*(.*))");
+    const auto& lines = rootScope.file->lines;
+    bool hasSeenOwn = false;
+
+    static auto validateStandardHeaderBeforeOwn = [&hasSeenOwn](const std::string& header) {
+      if(header.find("<") != std::string::npos) {
+        if(hasSeenOwn) {
+          return false;
+        }
+      } else if(header.find("\"") != std::string::npos) {
+        hasSeenOwn = true;
+      }
+
+      return true;
+    };
+
+    for(unsigned int i = 0; i < lines.size(); ++i) {
+      const auto& line = lines[i];
+      std::smatch match;
+      if(std::regex_search(line, match, includeRegex)) {
+        Core::Scope dummy;
+        dummy.lineNumberStart = i;
+        dummy.lineNumberEnd = i;
+        dummy.characterNumberStart = line.find(match[0]);
+        dummy.characterNumberEnd = dummy.characterNumberStart+match[0].str().size()-1;
+
+        if(comments.size() > 0) {
+          for(const auto& comment : comments) {
+            if(!dummy.isWithinOtherScope(comment)) {
+              if(!validateStandardHeaderBeforeOwn(match[1])) {
+                pushErrorMessage(messageStack, rule, line, dummy);
+              }
+            } else {
+              break;
+            }
+          }
+        } else if(!validateStandardHeaderBeforeOwn(match[1])) {
+          pushErrorMessage(messageStack, rule, line, dummy);
+        }
       }
     }
   }

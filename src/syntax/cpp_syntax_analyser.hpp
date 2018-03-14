@@ -68,6 +68,7 @@ namespace Syntax {
     void RuleCurlyBracketsIndentationAlignWithDeclaration(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleElseSeparateLineFromCurlyBracketClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleOwnHeaderBeforeStandard(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleStandardHeaderBeforeOwn(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
 
     
     bool isScopeUsingCurlyBrackets(Core::Scope& scope);

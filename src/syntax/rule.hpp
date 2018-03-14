@@ -60,7 +60,8 @@ namespace Syntax {
                    TabIndentation,
                    CurlyBracketsIndentationAlignWithDeclaration,
                    ElseSeparateLineFromCurlyBracketClose,
-                   OwnHeaderBeforeStandard
+                   OwnHeaderBeforeStandard,
+                   StandardHeaderBeforeOwn
                   );
   /* END_RULE_DEFINE_ENUM */
   
