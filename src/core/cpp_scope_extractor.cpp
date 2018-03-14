@@ -438,7 +438,7 @@ namespace Core {
         startIndex = 0;
       }
 
-      stringLiterals[file.filename].push_back(scope);   
+      m_stringLiterals[file.filename].push_back(scope);   
     }
 
     startIndex = 0;
@@ -492,7 +492,7 @@ namespace Core {
         startIndex = 0;
       }
 
-      stringLiterals[file.filename].push_back(scope);
+      m_stringLiterals[file.filename].push_back(scope);
     }
   }
 
@@ -584,8 +584,8 @@ namespace Core {
     dummy.lineNumberEnd = line;
     dummy.file = &file;
 
-    auto it = stringLiterals.find(file.filename);
-    if(it != stringLiterals.end()) {
+    auto it = m_stringLiterals.find(file.filename);
+    if(it != m_stringLiterals.end()) {
       return std::find_if(it->second.begin(), it->second.end(), [&dummy](const Scope& stringScope) {
         return dummy.isWithinOtherScope(stringScope);
       }) != it->second.end();

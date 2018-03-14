@@ -33,11 +33,11 @@ namespace Core {
     virtual bool extractScopesFromFile(File& file, Scope& outScope) = 0;
 
     const std::map<std::string, std::vector<Scope>>& getStringLiterals() const {
-      return stringLiterals;
+      return m_stringLiterals;
     }
 
   protected:
-    std::map<std::string, std::vector<Scope>> stringLiterals;
+    std::map<std::string, std::vector<Scope>> m_stringLiterals;
   };
 
 }

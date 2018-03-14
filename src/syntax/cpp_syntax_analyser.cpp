@@ -76,7 +76,7 @@ namespace Syntax
       SIFT_ASSERT(work.find(type) != work.end(), std::string("Rule '" + typeString + "' is defined but has no work registered for it"));
     }
 
-    stringLiterals = &literals;
+    m_stringLiterals = &literals;
   }
 
   std::string CPPSyntaxAnalyser::getRuleMessage(const Syntax::Rule& rule){
@@ -113,6 +113,30 @@ namespace Syntax
     }while(i != 0);
     
     return computed;
+  }
+
+  std::vector<Core::Scope> CPPSyntaxAnalyser::getStringLiterals(const std::string & filename) const {
+    if(m_stringLiterals) {
+      auto it = m_stringLiterals->find(filename);
+      if(it != m_stringLiterals->end()) {
+        return it->second;
+      }
+    }
+    return std::vector<Core::Scope>();
+  }
+
+  bool CPPSyntaxAnalyser::isWithinStringLiteral(unsigned int line, unsigned int position, Core::File& file) {
+    auto stringLiterals = getStringLiterals(file.filename);
+    Core::Scope dummy;
+    dummy.lineNumberStart = line;
+    dummy.lineNumberEnd = line;
+    dummy.characterNumberStart = position;
+    dummy.characterNumberEnd = position;
+    dummy.file = &file;
+
+    return std::find_if(stringLiterals.begin(), stringLiterals.end(), [&dummy](const Core::Scope& stringScope) {
+      return dummy.isWithinOtherScope(stringScope);
+    }) != stringLiterals.end();
   }
   
   void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
@@ -638,14 +662,6 @@ namespace Syntax
     // The space between operands and parenthesis should be handle by SpaceBetweenOperandsExternal so we ignore it here
     bool checkIfFinalCharacter = false;
 
-    std::vector<Core::Scope> strings;
-    if(stringLiterals) {
-      auto it = stringLiterals->find(scope.file->filename);
-      if(it != stringLiterals->end()) {
-        strings = it->second;
-      }
-    }
-
     for (unsigned int i = scope.lineNumberStart; i <= scope.lineNumberEnd; ++i) {
       const std::string& scopeLine = scope.file->lines[i];
       if (i == scope.lineNumberEnd) {
@@ -658,6 +674,10 @@ namespace Syntax
       for (unsigned int pos = initialPosition; pos < finalCharacter; ++pos) {
         const char& c = scopeLine[pos];
       
+        if(isWithinStringLiteral(i, pos, *scope.file)) {
+          continue;
+        }
+
         if (c == ')') {
           parenthesisCounter--;
           if (parenthesisCounter == 0) {

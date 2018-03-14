@@ -56,15 +56,11 @@ namespace Core {
     int findEndOfScopeConditionalDoWhile(Scope& scope, File& file, int startingLine);
     bool isDoWhileLoop(File& file, int startingLine, int startingCharacter);
     bool isWithinStringLiteral(unsigned int pos, unsigned int line, File& file) const;
-    bool isWithinComment(unsigned int pos, unsigned int line, File& file, Scope& parent) const;
-    
-    
+    bool isWithinComment(unsigned int pos, unsigned int line, File& file, Scope& parent) const; 
     bool isLineWithinDefine(const std::string& filename, int line);
 
     static const std::vector<std::string> ReservedKeywords;
     std::map<std::string, std::vector<Core::Scope>> m_defineScopes;
-
-    std::map<std::string, std::vector<Scope>> stringLiterals;
   };
 
 }

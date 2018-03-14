@@ -76,8 +76,10 @@ namespace Syntax {
     bool noCodeAfterCurlyBracketSameLineClose(Core::Scope& scope);
     
     Core::ScopeType computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes);
+    std::vector<Core::Scope> getStringLiterals(const std::string& filename) const;
+    bool isWithinStringLiteral(unsigned int line, unsigned int position, Core::File& file);
 
-    const std::map<std::string, std::vector<Core::Scope>>* stringLiterals = nullptr;
+    const std::map<std::string, std::vector<Core::Scope>>* m_stringLiterals = nullptr;
   };
   
 }

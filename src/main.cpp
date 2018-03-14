@@ -43,9 +43,9 @@ int main(int argc, char* argv[]) {
   sift.parseArgv(argc, argv);
   sift.setupLogging();
   sift.setupRules(sift.getRuleFileName());
-  sift.registerRuleWork();
   sift.readPath(sift.getPathToParse());
   sift.extractScopes();
+  sift.registerRuleWork();
   sift.applyRules();
   sift.outputMessages();
 

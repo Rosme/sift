@@ -28,11 +28,10 @@
 #include <memory>
 #include <string>
 
+#include "file.hpp"
 #include "utils.hpp"
 
 namespace Core {
-
-  struct File;
   
   enum class ScopeType {
     Source = 1u << 0, /* Root scope of a file */
