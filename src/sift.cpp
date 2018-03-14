@@ -268,7 +268,7 @@ void SIFT::applyRules()
 
 void SIFT::registerRuleWork()
 {
-  m_syntaxAnalyser->registerRuleWork(m_rulesWork, m_scopeExtractor->getStringLiterals());
+  m_syntaxAnalyser->registerRuleWork(m_rulesWork, m_scopeExtractor->getStringLiterals(), m_scopeExtractor->getComments());
 }
   
   

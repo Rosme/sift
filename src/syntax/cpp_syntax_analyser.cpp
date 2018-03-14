@@ -42,7 +42,9 @@ namespace Syntax
   // Force consistency between name and method
   #define NS(ns,item) ns::item
   #define REGISTER_RULE(REG) work[NS(RuleType, REG)] = std::bind(&CPPSyntaxAnalyser::Rule##REG, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-  void CPPSyntaxAnalyser::registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work, const std::map<std::string, std::vector<Core::Scope>>& literals)
+  void CPPSyntaxAnalyser::registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work,
+                                           const std::map<std::string, std::vector<Core::Scope>>& literals,  
+                                           const std::map<std::string, std::vector<Core::Scope>>& comments)
   {
     // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
     REGISTER_RULE(Unknown);
@@ -80,6 +82,7 @@ namespace Syntax
     }
 
     m_stringLiterals = &literals;
+    m_comments = &comments;
   }
 
   std::string CPPSyntaxAnalyser::getRuleMessage(const Syntax::Rule& rule){
@@ -139,7 +142,7 @@ namespace Syntax
     }
     return std::vector<Core::Scope>();
   }
-
+  
   bool CPPSyntaxAnalyser::isWithinStringLiteral(unsigned int line, unsigned int position, Core::File& file) {
     auto stringLiterals = getStringLiterals(file.filename);
     Core::Scope dummy;
@@ -148,11 +151,36 @@ namespace Syntax
     dummy.characterNumberStart = position;
     dummy.characterNumberEnd = position;
     dummy.file = &file;
-
+    
     return std::find_if(stringLiterals.begin(), stringLiterals.end(), [&dummy](const Core::Scope& stringScope) {
       return dummy.isWithinOtherScope(stringScope);
     }) != stringLiterals.end();
   }
+  
+  std::vector<Core::Scope> CPPSyntaxAnalyser::getComments(const std::string & filename) const {
+    if(m_comments) {
+      auto it = m_comments->find(filename);
+      if(it != m_comments->end()) {
+        return it->second;
+      }
+    }
+    return std::vector<Core::Scope>();
+  }
+  
+  bool CPPSyntaxAnalyser::isWithinComment(unsigned int line, unsigned int position, Core::File& file) {
+    auto comments = getComments(file.filename);
+    Core::Scope dummy;
+    dummy.lineNumberStart = line;
+    dummy.lineNumberEnd = line;
+    dummy.characterNumberStart = position;
+    dummy.characterNumberEnd = position;
+    dummy.file = &file;
+    
+    return std::find_if(comments.begin(), comments.end(), [&dummy](const Core::Scope& stringScope) {
+      return dummy.isWithinOtherScope(stringScope);
+    }) != comments.end();
+  }
+  
   
   void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
@@ -164,11 +192,10 @@ namespace Syntax
       Core::ScopeType::Unknown
     );
     
-    
     std::regex autoRegex(R"(\b(auto)\b)");
     for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      for (unsigned int i = currentScope.lineNumberStart; i <= currentScope.lineNumberEnd; ++i) {
-        const std::string& line = currentScope.file->lines[i];
+      int offsetLine = 0;
+      for(const auto& line : currentScope.getScopeLines()){
         std::string autoText;
         std::smatch match;
         if(std::regex_search(line, match, autoRegex)) {
@@ -177,9 +204,14 @@ namespace Syntax
           Core::Message message(Core::MessageType::Error, 
             autoText, currentScope.lineNumberStart, currentScope.characterNumberStart
           );
-          messageStack.pushMessage(rule.getRuleId(), message);
-          break;
+                    
+          if(!isWithinComment(currentScope.lineNumberStart+offsetLine, line.find(match[1]), *rootScope.file)){
+            messageStack.pushMessage(rule.getRuleId(), message);
+            break;
+          }
         }
+        
+        offsetLine++;
       }
     }
   } 

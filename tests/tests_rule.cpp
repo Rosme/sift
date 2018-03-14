@@ -207,6 +207,22 @@ TEST_CASE("Testing no auto", "[rules-noauto]") {
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 2);
   }
+  
+  
+  SECTION("Auto within comments") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::NoAuto)}
+    };
+    std::vector<std::string> source = {
+      "  #define some_define(x) /* this is auto */ ",
+      "\tint main(){",
+      "  int x = 3; /* auto does not mean bongo */",
+      "\t }",
+    };
+    
+    const auto stack = doTestWithSource(sift, ruleMap, source);
+    REQUIRE(stack.size() == 0);
+  }
 }
 
 TEST_CASE("Testing no goto", "[rules-nogoto]") {

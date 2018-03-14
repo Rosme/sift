@@ -6,7 +6,7 @@
 #include "sift.hpp"
 
 #define DUMP_STACK(stack) for(auto&& mp : stack.getMessages()){ \
-  std::cout << "RuleId: " << mp.first << ", " << pfe.getRules().at(mp.first) << std::endl; \
+  std::cout << "RuleId: " << mp.first << ", " << sift.getRules().at(mp.first) << std::endl; \
   for(auto&& m : mp.second) \
   { \
     std::cout << "\t" << m << std::endl;\

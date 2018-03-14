@@ -111,22 +111,33 @@ namespace Core {
     for(auto&& line : file.lines) {
       if(line.find("#define") != std::string::npos) {
         // Should match "     #define" and "   /* some comment */   #define"
-        std::regex defineRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)#define)");
+        std::regex defineRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)(#define))");
         std::smatch sm;
         std::regex_search(line, sm, defineRegex);
         if(sm.size() > 0) {
           scope = Scope(ScopeType::GlobalDefine);
           scope.lineNumberStart = lineNo;
-          scope.characterNumberStart = sm.position(0);
+          scope.characterNumberStart = sm.position(2);
           scope.file = &file;
 
-          // Multiline define TODO: Verify with standard
           if(line.at(line.size()-1) == '\\') {
             isStillInDefine = true;
           } else {
-            scope.characterNumberEnd = scope.characterNumberStart + line.size();
+            size_t pos = -1; 
+            if((pos = line.find("/*")) != std::string::npos || (pos = line.find("//")) != std::string::npos){
+              // /* something like this */ #define
+              if(pos < scope.characterNumberStart){
+                scope.characterNumberEnd = scope.characterNumberStart + line.size();
+              }else{
+                scope.characterNumberEnd = pos-2;
+              }
+            }else{
+              scope.characterNumberEnd = scope.characterNumberStart + line.size();
+            }
+            
             scope.lineNumberEnd = lineNo;
             scope.name = line;
+
             parent.children.push_back(scope);
           }
         }
@@ -371,6 +382,7 @@ namespace Core {
         LOG(DEBUG) << "\n" << scope;
 
         parent.children.push_back(scope);
+        m_comments[file.filename].push_back(scope); //TODO maybe remove comments from other scope containers
       } else if(std::regex_match(line, match, singleLineComments)) {
         Scope scope(ScopeType::SingleLineComment);
         scope.name = match[1];
@@ -384,6 +396,7 @@ namespace Core {
         LOG(DEBUG) << "\n" << scope;
 
         parent.children.push_back(scope);
+        m_comments[file.filename].push_back(scope);
       }
     }
   }
@@ -602,10 +615,13 @@ namespace Core {
     dummy.lineNumberEnd = line;
     dummy.file = &file;
 
-    auto comments = parent.getAllChildrenOfType(ScopeType::Comment);
-    return std::find_if(comments.begin(), comments.end(), [&dummy](const Scope& commentScope) {
-      return dummy.isWithinOtherScope(commentScope);
-    }) != comments.end();
+    auto it = m_comments.find(file.filename);
+    if(it != m_comments.end()) {
+      return std::find_if(it->second.begin(), it->second.end(), [&dummy](const Scope& stringScope) {
+        return dummy.isWithinOtherScope(stringScope);
+      }) != it->second.end();
+    }
+    
 
     return false;
   }

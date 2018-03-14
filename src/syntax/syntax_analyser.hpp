@@ -34,7 +34,9 @@ namespace Syntax {
   public:
     
     virtual std::string getRuleMessage(const Syntax::Rule& rule) = 0;
-    virtual void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work, const std::map<std::string, std::vector<Core::Scope>>& stringLiterals = std::map<std::string, std::vector<Core::Scope>>()) = 0;
+    virtual void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work,
+                                      const std::map<std::string, std::vector<Core::Scope>>& literals = std::map<std::string, std::vector<Core::Scope>>(),
+                                      const std::map<std::string, std::vector<Core::Scope>>& comments = std::map<std::string, std::vector<Core::Scope>>()) = 0;
     virtual ~SyntaxAnalyser();
   };
   

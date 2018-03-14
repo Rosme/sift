@@ -40,7 +40,9 @@ namespace Syntax {
     virtual ~CPPSyntaxAnalyser();
     
     std::string getRuleMessage(const Syntax::Rule& rule);
-    void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work, const std::map<std::string, std::vector<Core::Scope>>& literals = std::map<std::string, std::vector<Core::Scope>>());
+    void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work,
+                          const std::map<std::string, std::vector<Core::Scope>>& literals = std::map<std::string, std::vector<Core::Scope>>(),
+                          const std::map<std::string, std::vector<Core::Scope>>& comments = std::map<std::string, std::vector<Core::Scope>>());
     
     void RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleNoAuto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
@@ -80,10 +82,13 @@ namespace Syntax {
     
     void pushErrorMessage(Core::MessageStack& messageStack, Syntax::Rule& rule, const std::string& line, const Core::Scope& scope);
     Core::ScopeType computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes);
+    std::vector<Core::Scope> getComments(const std::string& filename) const;
+    bool isWithinComment(unsigned int line, unsigned int position, Core::File& file);
     std::vector<Core::Scope> getStringLiterals(const std::string& filename) const;
     bool isWithinStringLiteral(unsigned int line, unsigned int position, Core::File& file);
 
     const std::map<std::string, std::vector<Core::Scope>>* m_stringLiterals = nullptr;
+    const std::map<std::string, std::vector<Core::Scope>>* m_comments = nullptr;
   };
   
 }
