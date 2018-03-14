@@ -55,6 +55,7 @@ public:
   void verifyFlow();
     
   const std::map<const std::string, Core::MessageStack> getMessageStacks(){ return m_messageStacks; }
+  const std::map<const std::string, Core::MessageStack> getMessageStacksFlow() { return m_messageStacksFlow; }
   std::map<std::string, Core::Scope> getScopes() { return m_rootScopes; }
   std::string getRuleFileName() { return m_ruleFilename; }
   std::string getPathToParse() { return m_pathToParse; }

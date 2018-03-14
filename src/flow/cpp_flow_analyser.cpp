@@ -47,14 +47,13 @@ namespace Flow
     Core::ScopeType scopeTypes = Core::ScopeType::Variable;
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      int nullPointerLine = lineUsingNullPointer(currentScope);
+      int nullPointerLine = lineUsingNullPointer(currentScope); 
       if (nullPointerLine > -1) {
         Core::Message message(Core::MessageType::Error,
           currentScope.name, nullPointerLine
         );
         messageStack.pushMessage(0, message);
       }
-
     }
   }
 
@@ -73,21 +72,20 @@ namespace Flow
 
         std::string regexValue = match[0];
         int positionAfterVarName = lineVariableDeclaration.find(regexValue);
-        int tamere = regexValue.length();
-        positionAfterVarName += tamere;
+        int regexLength = regexValue.length();
+        positionAfterVarName += regexLength;
 
         isVariableValueChanged(lineVariableDeclaration, true, positionAfterVarName, varValue);
 
         std::regex conditionnalRegex(R"((^|\s)()" + scope.name + R"()(\s+|=|\(|\{|;))");
         for (unsigned int i = scope.lineNumberStart + 1; i < parentScope->lineNumberEnd; ++i) {
-          const std::string& line = parentScope->file->lines[i];
+          const std::string line = parentScope->file->lines[i];
           std::regex_search(line, match, conditionnalRegex);
-          std::regex_search(scope.file->lines[scope.lineNumberStart], match, isVariablePointerRegex);
           if (match.size() > 0) {
             std::string regexValue = match[0];
-            int positionAfterVarName =  line.find(regexValue);
-            int tamere = regexValue.length();
-            positionAfterVarName += tamere;
+            positionAfterVarName =  line.find(regexValue);
+            regexLength = regexValue.length();
+            positionAfterVarName += regexLength;
 
             if (!isVariableValueChanged(line, false, positionAfterVarName, varValue)) {
               if (!isVariableValueValid(varValue, true)) {

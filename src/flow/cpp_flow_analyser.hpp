@@ -36,9 +36,9 @@ namespace Flow {
     virtual ~CPPFlowAnalyser();
 
     void analyzeFlow(Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void analyzeNullPointer(Core::Scope& rootScope, Core::MessageStack& messageStack);
 
   private:
-    void analyzeNullPointer(Core::Scope& rootScope, Core::MessageStack& messageStack);
 
     int lineUsingNullPointer(Core::Scope& scope);
     bool isVariableValueChanged(const std::string& line, bool isVariableDeclarationLine, int positionAfterVarName, std::string& varValue);

@@ -335,3 +335,36 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
   }
 }
 
+TEST_CASE("Testing null pointer", "[rules-nullpointer]") {
+  std::vector<std::string> argv = { "program_name", "-q" };
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
+
+  SECTION("Two errors") {
+
+    std::vector<std::string> source = {
+      "int main()",
+      "{",
+      "  int *firstPointer;",
+      "  int *secondPointer = 0;",
+      "  int *thirdPointer = NULL;",
+      "  firstPointer = NULL;",
+      " cout << firstPointer << endl;",
+      " cout << secondPointer << endl;",
+      "}"
+    };
+
+    sift.clearState();
+    sift.readSource("dummy_filename", source);
+    sift.extractScopes();
+    sift.verifyFlow();
+    const auto stack = sift.getMessageStacksFlow().at("dummy_filename");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  }
+
+}
+
+
+
