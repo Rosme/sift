@@ -70,6 +70,7 @@ namespace Syntax
     REGISTER_RULE(TabIndentation);
     REGISTER_RULE(CurlyBracketsIndentationAlignWithDeclaration);
     REGISTER_RULE(ElseSeparateLineFromCurlyBracketClose);
+    REGISTER_RULE(OwnHeaderBeforeStandard);
     
     for(const auto& type : RuleType_list)
     {
@@ -98,6 +99,17 @@ namespace Syntax
     return ruleMessage;
   }
   
+  void CPPSyntaxAnalyser::pushErrorMessage(Core::MessageStack& messageStack, Syntax::Rule& rule, const std::string& line, const Core::Scope& scope) {
+    const unsigned int errorOffset = 10;
+    int offset = (scope.characterNumberStart <= errorOffset) ? 0 : scope.characterNumberStart - errorOffset;
+    Core::Message message(Core::MessageType::Error,
+                          line.substr(offset, scope.characterNumberEnd - offset + errorOffset),
+                          scope.lineNumberStart,
+                          scope.characterNumberStart
+    );
+    messageStack.pushMessage(rule.getRuleId(), message);
+  }
+
   Core::ScopeType CPPSyntaxAnalyser::computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes){
     Core::ScopeType computed = defaultAll;
     if(input != Core::ScopeType::All)
@@ -358,19 +370,8 @@ namespace Syntax
       }
     }
   }
-
+  
   void CPPSyntaxAnalyser::RuleNoConstCast(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    static auto pushErrorMessage = [&messageStack, &rule](const std::string& line, const Core::Scope& scope) {
-      const unsigned int errorOffset = 10;
-      int offset = (scope.characterNumberStart <= errorOffset) ? 0 : scope.characterNumberStart - errorOffset;
-      Core::Message message(Core::MessageType::Error,
-        line.substr(offset, scope.characterNumberEnd - offset + errorOffset),
-        scope.lineNumberStart,
-        scope.characterNumberStart
-      );
-      messageStack.pushMessage(rule.getRuleId(), message);
-    };
-
     auto comments = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
     std::regex constCastRegex(R"(const_cast<.*>\(.*\))");
     const auto& lines = rootScope.file->lines;
@@ -387,12 +388,11 @@ namespace Syntax
         if(comments.size() > 0) {
           for(const auto& comment : comments) {
             if(!dummy.isWithinOtherScope(comment)) {
-              pushErrorMessage(line, dummy);
-
+              pushErrorMessage(messageStack, rule, line, dummy);
             }
           }
         } else {
-          pushErrorMessage(line, dummy);
+          pushErrorMessage(messageStack, rule, line, dummy);
         }
       }
     }
@@ -643,6 +643,52 @@ namespace Syntax
       if(indexCurlyBracket != std::string::npos && !isWithinStringLiteral(currentScope.lineNumberStart, indexCurlyBracket, *currentScope.file)) {
         Core::Message message(Core::MessageType::Error, currentScope.name, currentScope.lineNumberEnd, currentScope.characterNumberEnd);
         messageStack.pushMessage(rule.getRuleId(), message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleOwnHeaderBeforeStandard(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    auto comments = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
+    std::regex includeRegex(R"(#include\s*(.*))");
+    const auto& lines = rootScope.file->lines;
+    bool hasSeenStandard = false;
+
+    static auto validateHeader = [&hasSeenStandard](const std::string& header) {
+      if(header.find("\"") != std::string::npos) {
+        if(hasSeenStandard) {
+          return false;
+        }
+      } else if(header.find("<") != std::string::npos) {
+        hasSeenStandard = true;
+      }
+
+      return true;
+    };
+
+    for(unsigned int i = 0; i < lines.size(); ++i) {
+      const auto& line = lines[i];
+      std::smatch match;
+      if(std::regex_search(line, match, includeRegex)) {
+
+        Core::Scope dummy;
+        dummy.lineNumberStart = i;
+        dummy.lineNumberEnd = i;
+        dummy.characterNumberStart = line.find(match[0]);
+        dummy.characterNumberEnd = dummy.characterNumberStart+match[0].str().size()-1;
+
+        if(comments.size() > 0) {
+          for(const auto& comment : comments) {
+            if(!dummy.isWithinOtherScope(comment)) {
+              if(!validateHeader(match[1])) {
+                pushErrorMessage(messageStack, rule, line, dummy);
+              }
+            } else {
+              break;
+            }
+          }
+        } else if(!validateHeader(match[1])) {
+          pushErrorMessage(messageStack, rule, line, dummy);
+        }   
       }
     }
   }

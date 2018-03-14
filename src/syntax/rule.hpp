@@ -59,7 +59,8 @@ namespace Syntax {
                    NoCodeAllowedSameLineCurlyBracketsClose,
                    TabIndentation,
                    CurlyBracketsIndentationAlignWithDeclaration,
-                   ElseSeparateLineFromCurlyBracketClose
+                   ElseSeparateLineFromCurlyBracketClose,
+                   OwnHeaderBeforeStandard
                   );
   /* END_RULE_DEFINE_ENUM */
   

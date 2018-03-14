@@ -67,6 +67,7 @@ namespace Syntax {
     void RuleTabIndentation(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleCurlyBracketsIndentationAlignWithDeclaration(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleElseSeparateLineFromCurlyBracketClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleOwnHeaderBeforeStandard(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
 
     
     bool isScopeUsingCurlyBrackets(Core::Scope& scope);
@@ -76,6 +77,7 @@ namespace Syntax {
     bool noCodeAfterCurlyBracketSameLineOpen(Core::Scope& scope);
     bool noCodeAfterCurlyBracketSameLineClose(Core::Scope& scope);
     
+    void pushErrorMessage(Core::MessageStack& messageStack, Syntax::Rule& rule, const std::string& line, const Core::Scope& scope);
     Core::ScopeType computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes);
     std::vector<Core::Scope> getStringLiterals(const std::string& filename) const;
     bool isWithinStringLiteral(unsigned int line, unsigned int position, Core::File& file);

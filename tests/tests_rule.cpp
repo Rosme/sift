@@ -378,3 +378,47 @@ TEST_CASE("Testing Conditional And Line Curly Bracket", "[rules-conditionallinec
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
 }
+
+TEST_CASE("Testing Header Order", "[rules-headerorder]") {
+  std::vector<std::string> argv = {"program_name", "-q"};
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
+
+  SECTION("Own Header Before Standard - Standard Only") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardstandardalone.cpp");
+    REQUIRE(stack.size() == 0);
+  }
+
+  SECTION("Own Header Before Standard - Own Only") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardownalone.cpp");
+    REQUIRE(stack.size() == 0);
+  }
+
+  SECTION("Own Header Before Standard - Good") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardgood.cpp");
+    REQUIRE(stack.size() == 0);
+  }
+
+  SECTION("Own Header Before Standard - Bad") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
+    };
+
+    const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardbad.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  }
+}
