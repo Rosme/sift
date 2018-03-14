@@ -181,6 +181,9 @@ namespace Syntax
     }) != comments.end();
   }
   
+  bool CPPSyntaxAnalyser::isWithinIgnoredScope(unsigned int line, unsigned int position, Core::File& file){
+    return isWithinComment(line, position, file) || isWithinStringLiteral(line, position, file);
+  }
   
   void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
@@ -205,7 +208,7 @@ namespace Syntax
             autoText, currentScope.lineNumberStart, currentScope.characterNumberStart
           );
                     
-          if(!isWithinComment(currentScope.lineNumberStart+offsetLine, line.find(match[1]), *rootScope.file)){
+          if(!isWithinIgnoredScope(currentScope.lineNumberStart+offsetLine, line.find(match[1]), *rootScope.file)){
             messageStack.pushMessage(rule.getRuleId(), message);
             break;
           }

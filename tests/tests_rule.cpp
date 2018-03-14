@@ -223,6 +223,20 @@ TEST_CASE("Testing no auto", "[rules-noauto]") {
     const auto stack = doTestWithSource(sift, ruleMap, source);
     REQUIRE(stack.size() == 0);
   }
+  
+  SECTION("Auto within literals") {
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {++ruleId, RULE(Syntax::RuleType::NoAuto)}
+    };
+    std::vector<std::string> source = {
+      "\tint main(){",
+      " std::string literal = \"auto is a literal\"",
+      "\t }",
+    };
+    
+    const auto stack = doTestWithSource(sift, ruleMap, source);
+    REQUIRE(stack.size() == 0);
+  }
 }
 
 TEST_CASE("Testing no goto", "[rules-nogoto]") {
