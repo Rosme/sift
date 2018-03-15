@@ -233,19 +233,24 @@ void SIFT::extractScopes()
   int i = 1;
   for(auto&& filePair : m_files)
   {
-    bool success = extractor.extractScopesFromFile(filePair.second, m_rootScopes[filePair.first]);
+    Core::Scope scope;
+    bool success = extractor.extractScopesFromFile(filePair.second, scope);
     if(success)
-    { 
+    {
+      m_rootScopes[filePair.first] = scope;
       LOG(INFO) << "[" << i << "/" << m_files.size() << "] Finished Parsing " << filePair.second.filename;
       ++i;
     }
     else
     {
-      m_rootScopes.erase(filePair.first);
       LOG(ERROR) << "Could not parse source file '" << filePair.first << "'";
     }
   }
-  
+    
+  for(auto& scopePair : m_rootScopes) {
+    extractor.constructTree(scopePair.second);
+  }
+
   LOG(TRACE) << "Extracted " << m_rootScopes.size() << " root scopes";
 }
 
