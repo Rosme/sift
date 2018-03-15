@@ -51,7 +51,6 @@ namespace Core {
 
 
   bool CppScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {   
-    /*Scope rootScope(ScopeType::Source);*/
     outScope.file = &file;
     outScope.name = file.filename;
     outScope.lineNumberStart = 0;
@@ -94,8 +93,6 @@ namespace Core {
       constructTree(outScope);
 
       LOG(TRACE) << "\n" << outScope.getTree();
-
-      //outScope = rootScope;
     }catch(std::overflow_error& e){
       LOG(ERROR) << e.what();
       return false;

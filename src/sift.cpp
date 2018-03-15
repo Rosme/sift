@@ -233,12 +233,9 @@ void SIFT::extractScopes()
   int i = 1;
   for(auto&& filePair : m_files)
   {
-    //Core::Scope scope;
-    //m_rootScopes.emplace(std::make_pair(filePair.first, scope));
     bool success = extractor.extractScopesFromFile(filePair.second, m_rootScopes[filePair.first]);
     if(success)
-    {
-      
+    { 
       LOG(INFO) << "[" << i << "/" << m_files.size() << "] Finished Parsing " << filePair.second.filename;
       ++i;
     }
@@ -248,11 +245,7 @@ void SIFT::extractScopes()
       LOG(ERROR) << "Could not parse source file '" << filePair.first << "'";
     }
   }
-    
-  //TODO: Find a way to construct and keep it constructed inside the extractor.
-  /*for(auto&& scopesPair : m_rootScopes) {
-    extractor.constructTree(scopesPair.second);
-  }*/
+  
   LOG(TRACE) << "Extracted " << m_rootScopes.size() << " root scopes";
 }
 
