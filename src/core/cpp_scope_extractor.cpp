@@ -51,51 +51,51 @@ namespace Core {
 
 
   bool CppScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {   
-    Scope rootScope(ScopeType::Source);
-    rootScope.file = &file;
-    rootScope.name = file.filename;
-    rootScope.lineNumberStart = 0;
-    rootScope.lineNumberEnd = file.lines.size();
-    rootScope.characterNumberStart = 0;
-    rootScope.characterNumberEnd = 0;
+    /*Scope rootScope(ScopeType::Source);*/
+    outScope.file = &file;
+    outScope.name = file.filename;
+    outScope.lineNumberStart = 0;
+    outScope.lineNumberEnd = file.lines.size();
+    outScope.characterNumberStart = 0;
+    outScope.characterNumberEnd = 0;
 
     try{
-      extractComments(file, rootScope); //This is needed for later use
-      extractStringLiterals(file, rootScope);
+      extractComments(file, outScope); //This is needed for later use
+      extractStringLiterals(file, outScope);
 
       //The idea here is to fill the rootscope and have all the scopes on a flat line at no depth
       //Afterward, we will construct the tree correctly based on analysis of which scope is within whom
       //This allows us to not have much recursion and handle pretty much all edge case of scope within scopes.
-      extractDefines(file, rootScope);
+      extractDefines(file, outScope);
       
-      m_defineScopes[file.filename] = rootScope.getAllChildrenOfType(Core::ScopeType::GlobalDefine);
+      m_defineScopes[file.filename] = outScope.getAllChildrenOfType(Core::ScopeType::GlobalDefine);
       
-      extractNamespaces(file, rootScope);
-      extractEnums(file, rootScope);
-      extractClasses(file, rootScope);
-      extractFunctions(file, rootScope);
-      extractVariables(file, rootScope);
-      extractConditionals(file, rootScope);
+      extractNamespaces(file, outScope);
+      extractEnums(file, outScope);
+      extractClasses(file, outScope);
+      extractFunctions(file, outScope);
+      extractVariables(file, outScope);
+      extractConditionals(file, outScope);
 
       //Filtering out reserved keywords
-      rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
+      outScope.children.erase(std::remove_if(outScope.children.begin(), outScope.children.end(), [](const Scope& scope) {
         for(const auto& keyword : ReservedKeywords) {
           if(scope.name == keyword && scope.type != ScopeType::Conditionnal) {
             return true;
           }
         }
         return false;
-      }), rootScope.children.end());
+      }), outScope.children.end());
 
       //Remove scope within comments
-      filterScopes(rootScope);
+      filterScopes(outScope);
 
       //Reconstruct Tree
-      constructTree(rootScope);
+      constructTree(outScope);
 
-      LOG(TRACE) << "\n" << rootScope.getTree();
+      LOG(TRACE) << "\n" << outScope.getTree();
 
-      outScope = rootScope;
+      //outScope = rootScope;
     }catch(std::overflow_error& e){
       LOG(ERROR) << e.what();
       return false;
