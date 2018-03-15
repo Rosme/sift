@@ -247,6 +247,10 @@ void SIFT::extractScopes()
     }
   }
     
+  for(auto& scopePair : m_rootScopes) {
+    extractor.constructTree(scopePair.second);
+  }
+
   LOG(TRACE) << "Extracted " << m_rootScopes.size() << " root scopes";
 }
 

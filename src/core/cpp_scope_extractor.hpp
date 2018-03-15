@@ -34,6 +34,7 @@ namespace Core {
   class CppScopeExtractor : public ScopeExtractor {
   public:
     bool extractScopesFromFile(File& file, Scope &outScope);
+    void constructTree(Scope& root);
 
   private:
     void extractDefines(File& file, Scope &parent);
@@ -47,7 +48,6 @@ namespace Core {
     void extractStringLiterals(File& file, Scope& parent);
 
     void filterScopes(Scope& root);
-    void constructTree(Scope& root);
     Scope& findBestParent(Scope& root, Scope& toSearch);
 
     int findEndOfScope(Scope& scope, File& file, int startingLine);

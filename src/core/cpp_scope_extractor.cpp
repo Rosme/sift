@@ -90,9 +90,6 @@ namespace Core {
       //Remove scope within comments
       filterScopes(rootScope);
 
-      //Reconstruct Tree
-      constructTree(rootScope);
-
       LOG(TRACE) << "\n" << rootScope.getTree();
 
       outScope = rootScope;
