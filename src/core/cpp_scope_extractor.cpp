@@ -212,7 +212,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractClasses(File& file, Scope& parent) {
-    std::regex classRegex(R"((?!enum)\s*(class|struct)\s*(\w*)\s*:?\s*(\w|\s)*\s*\{?)");
+    std::regex classRegex(R"((?!enum)\s*(class|struct|union)\s*(\w*)\s*:?\s*(\w|\s)*\s*\{?)");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;

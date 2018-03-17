@@ -22,8 +22,10 @@
 */
 
 #include "catch.hh"
+#include "utils.hpp"
 
 #include "core/scope.hpp"
+#include "core/cpp_scope_extractor.hpp"
 
 TEST_CASE("Scope Children", "[scope]") {
 
@@ -64,5 +66,67 @@ TEST_CASE("Scope Children", "[scope]") {
 
   SECTION("String to Enum") {
     REQUIRE(ScopeType_to_enum_class("fuNcTiOn") == ScopeType::Function);
+  }
+}
+
+struct ScopeTestWrapper {
+
+  ScopeTestWrapper(const std::vector<std::string>& content) {
+    file.filename = "dummy_filename";
+    file.lines = content;
+    scope.file = &file;
+  }
+
+  Core::File file;
+  Core::Scope scope;
+
+};
+
+TEST_CASE("Scope Extraction", "[scope-extraction]") {
+  using namespace Core;
+  CppScopeExtractor extractor;
+  Scope root(ScopeType::Source);
+  setupLoggingForTest();
+
+  SECTION("Union") {
+    const std::vector<std::string> content = {
+      "union TestCase {",
+      "};"
+    };
+
+    ScopeTestWrapper root(content);
+
+    REQUIRE(extractor.extractScopesFromFile(root.file, root.scope));
+    REQUIRE(root.scope.children.size() == 1);
+    REQUIRE(root.scope.children[0].isOfType(ScopeType::Class));
+  }
+
+  SECTION("UnionWithVariable") {
+    const std::vector<std::string> content = {
+      "union TestCase {",
+      "  int a;",
+      "};"
+    };
+
+    ScopeTestWrapper root(content);
+
+    REQUIRE(extractor.extractScopesFromFile(root.file, root.scope));
+    REQUIRE(root.scope.children.size() == 2);
+    REQUIRE(root.scope.children[0].isOfType(ScopeType::Class));
+    REQUIRE(root.scope.children[1].isOfType(ScopeType::ClassVariable));
+  }
+
+  SECTION("VariableWithUnionInName") {
+    const std::vector<std::string> content = {
+      "int unionTest;",
+      "int testunion;"
+    };
+
+    ScopeTestWrapper root(content);
+
+    REQUIRE(extractor.extractScopesFromFile(root.file, root.scope));
+    REQUIRE(root.scope.children.size() == 2);
+    REQUIRE(root.scope.children[0].isOfType(ScopeType::Variable));
+    REQUIRE(root.scope.children[1].isOfType(ScopeType::Variable));
   }
 }

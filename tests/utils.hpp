@@ -64,3 +64,10 @@ inline const Core::MessageStack doTestWithSource(SIFT& pfe, std::map<RuleId, Syn
   std::vector<std::string> source = {sourceLine};
   return doTestWithSource(pfe, rules, source);
 }
+
+inline const void setupLoggingForTest() {
+  std::vector<std::string> argv = {"program_name", "-q"};
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
+}
