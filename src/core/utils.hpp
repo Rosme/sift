@@ -128,6 +128,19 @@ namespace Core {
     return true;
   }
   
+  inline std::string readRawContentSourceFile(const std::string& filename) {
+    std::string raw;
+
+    File file;
+    if(readSourceFile(filename, file)) {
+      for(const auto& line : file.lines) {
+        raw += line;
+      }
+    }
+
+    return raw;
+  }
+
   inline bool directoryExists(const std::string &directory)
   {
     if(!directory.empty())

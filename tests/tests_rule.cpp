@@ -518,8 +518,8 @@ TEST_CASE("Rule Appliance", "[rules-appliance]") {
     const auto ruleOne = 0;
     const auto ruleTwo = 1;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {ruleOne, RULE(0, Syntax::RuleType::StartWithX, Core::ScopeType::Class, "c_")},
-      {ruleTwo, RULE(1, Syntax::RuleType::StartWithX, Core::ScopeType::ClassVariable, "m_")}
+      {ruleOne, RULE(ruleOne, Syntax::RuleType::StartWithX, Core::ScopeType::Class, "c_")},
+      {ruleTwo, RULE(ruleTwo, Syntax::RuleType::StartWithX, Core::ScopeType::ClassVariable, "m_")}
     };
     std::vector<std::string> source = {
       "int itsFine = 1;",
@@ -538,5 +538,30 @@ TEST_CASE("Rule Appliance", "[rules-appliance]") {
     REQUIRE(messages.at(ruleOne).at(0).line == 1);
     REQUIRE(messages.at(ruleTwo).size() == 1);
     REQUIRE(messages.at(ruleTwo).at(0).line == 3);
+  }
+
+  SECTION("Same rule definition twice") {
+    const auto ruleOne = 0;
+    const auto ruleTwo = 1;
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {ruleOne, RULE(ruleOne, Syntax::RuleType::StartWithX, Core::ScopeType::Class, "c_")},
+      {ruleTwo, RULE(ruleTwo, Syntax::RuleType::StartWithX, Core::ScopeType::Class, "c_")}
+    };
+
+    std::vector<std::string> source = {
+      "int itsFine = 1;",
+      "class ErrorClass {",
+      "  int m_itsOkay = 2;",
+      "  int errorVariable = 3;",
+      "};",
+      "class c_OkayClass {",
+      "};"
+    };
+
+    const auto stack = doTestWithSource(sift, ruleMap, source);
+    const auto& messages = stack.getMessages();
+    REQUIRE(stack.size() == 1);
+    REQUIRE(messages.at(ruleOne).size() == 1);
+    REQUIRE(messages.at(ruleOne).at(0).line == 1);
   }
 }

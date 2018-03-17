@@ -252,6 +252,21 @@ void SIFT::extractScopes()
 
 void SIFT::applyRules()
 {
+  {
+    //Clearing Duplicate Rules
+    std::vector<Syntax::Rule> ruleList;
+    for(auto it = m_rules.begin(); it != m_rules.end();) {
+      if(std::find_if(ruleList.begin(), ruleList.end(), [it](const Syntax::Rule& rule) {
+        return it->second == rule;
+      }) != ruleList.end()) {
+        it = m_rules.erase(it);
+      } else {
+        ruleList.push_back(it->second);
+        ++it;
+      }
+    }
+  }
+
   for(auto& scopePair : m_rootScopes)
   {
     for(auto& rulePair : m_rules)

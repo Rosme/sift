@@ -64,6 +64,12 @@ namespace Syntax {
     
     return rules;
   }
+
+  bool operator==(const Rule& lhs, const Rule& rhs) {
+    return lhs.getRuleType() == rhs.getRuleType()
+      && lhs.getParameter() == rhs.getParameter()
+      && lhs.getScopeType() == rhs.getScopeType();
+  }
   
   std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule) {
     out << "Rule: " << to_string(rule.getRuleType()) << " - Applied To: " << Core::to_string(rule.getScopeType());
