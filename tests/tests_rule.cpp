@@ -25,12 +25,12 @@
 #include "utils.hpp"
 #include "syntax/rule.hpp"
 
-Syntax::Rule RULE(Syntax::RuleType rule, Core::ScopeType appliedTo, std::string parameter = ""){
+Syntax::Rule RULE(RuleId ruleId, Syntax::RuleType rule, Core::ScopeType appliedTo, std::string parameter = ""){
   return Syntax::Rule(ruleId, appliedTo, rule, parameter);
 }
 
-Syntax::Rule RULE(Syntax::RuleType rule){
-  return RULE(rule, Core::ScopeType::All, "");
+Syntax::Rule RULE(RuleId ruleId, Syntax::RuleType rule){
+  return RULE(ruleId, rule, Core::ScopeType::All, "");
 }
 
 TEST_CASE("Testing macro related rules", "[rules-macro]") {
@@ -210,8 +210,9 @@ TEST_CASE("Testing no auto", "[rules-noauto]") {
   
   
   SECTION("Auto within comments") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::NoAuto)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::NoAuto)}
     };
     std::vector<std::string> source = {
       "  #define some_define(x) /* this is auto */ ",
@@ -225,8 +226,9 @@ TEST_CASE("Testing no auto", "[rules-noauto]") {
   }
   
   SECTION("Auto within literals") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::NoAuto)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::NoAuto)}
     };
     std::vector<std::string> source = {
       "\tint main(){",
@@ -251,8 +253,9 @@ TEST_CASE("Testing no goto", "[rules-nogoto]") {
     REQUIRE(stack.getMessages().begin()->second.size() == 1);
   }
   
+  const auto ruleId = 0;
   std::map<RuleId, Syntax::Rule> ruleMap = {
-    {++ruleId, RULE(Syntax::RuleType::NoGoto)}
+    {ruleId, RULE(ruleId, Syntax::RuleType::NoGoto)}
   };
   
   SECTION("Find in function") {
@@ -313,8 +316,9 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
   sift.setupLogging();
   
   SECTION("All green") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::TabIndentation)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::TabIndentation)}
     };
     
     // By definition, the 1TBS style should have tab indentation
@@ -323,8 +327,9 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
   }
   
   SECTION("Against Google") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::TabIndentation)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::TabIndentation)}
     };
     
     const auto stack = doTestWithFile(sift, ruleMap, "samples/src/brightness_manager_Google.cc");
@@ -333,8 +338,9 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
   }
   
   SECTION("Two errors") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::TabIndentation)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::TabIndentation)}
     };
     std::vector<std::string> source = {
       "\tHello",
@@ -348,8 +354,9 @@ TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
   }
   
   SECTION("Partially tabbed function") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::TabIndentation)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::TabIndentation)}
     };
     std::vector<std::string> source = {
       "\tint main(){",
@@ -372,8 +379,9 @@ TEST_CASE("Testing Curly Brackets Alignement", "[rules-bracketsalignment]") {
   sift.setupLogging();
 
   SECTION("Curly Brackets Indentation Align With Declaration For All") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/curlybracketsindentationalignwithdeclaration.cpp");
@@ -382,8 +390,9 @@ TEST_CASE("Testing Curly Brackets Alignement", "[rules-bracketsalignment]") {
   }
 
   SECTION("Curly Brackets Indentation Align With Declaration For Class Only") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration, Core::ScopeType::Class)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration, Core::ScopeType::Class)}
     };
     
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/curlybracketsindentationalignwithdeclaration.cpp");
@@ -399,8 +408,9 @@ TEST_CASE("Testing Conditional And Line Curly Bracket", "[rules-conditionallinec
   sift.setupLogging();
 
   SECTION("Else On Seperate Line From Curly Bracket Close") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::ElseSeparateLineFromCurlyBracketClose)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::ElseSeparateLineFromCurlyBracketClose)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/elseseperatelinefromcurlybracketclose.cpp");
@@ -416,8 +426,9 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
   sift.setupLogging();
 
   SECTION("Own Header Before Standard - Standard Only") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::OwnHeaderBeforeStandard)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/headerorderstandardalone.cpp");
@@ -425,8 +436,9 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
   }
 
   SECTION("Own Header Before Standard - Own Only") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::OwnHeaderBeforeStandard)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/headerorderownalone.cpp");
@@ -434,8 +446,9 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
   }
 
   SECTION("Own Header Before Standard - Good") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::OwnHeaderBeforeStandard)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardgood.cpp");
@@ -443,8 +456,9 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
   }
 
   SECTION("Own Header Before Standard - Bad") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::OwnHeaderBeforeStandard)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::OwnHeaderBeforeStandard)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/ownheaderbeforestandardbad.cpp");
@@ -453,8 +467,9 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
   }
 
   SECTION("Standard Header Before Own - Standard Only") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::StandardHeaderBeforeOwn)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::StandardHeaderBeforeOwn)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/headerorderstandardalone.cpp");
@@ -462,8 +477,9 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
   }
 
   SECTION("Standard Header Before Own - Own Only") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::StandardHeaderBeforeOwn)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::StandardHeaderBeforeOwn)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/headerorderownalone.cpp");
@@ -471,8 +487,9 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
   }
 
   SECTION("Standard Header Before Own - Good") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::StandardHeaderBeforeOwn)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::StandardHeaderBeforeOwn)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/standardheaderbeforeowngood.cpp");
@@ -480,12 +497,46 @@ TEST_CASE("Testing Header Order", "[rules-headerorder]") {
   }
 
   SECTION("Standard Header Before Own - Bad") {
+    const auto ruleId = 0;
     std::map<RuleId, Syntax::Rule> ruleMap = {
-      {++ruleId, RULE(Syntax::RuleType::StandardHeaderBeforeOwn)}
+      {ruleId, RULE(ruleId, Syntax::RuleType::StandardHeaderBeforeOwn)}
     };
 
     const auto stack = doTestWithFile(sift, ruleMap, "samples/tests/src/standardheaderbeforeownbad.cpp");
     REQUIRE(stack.size() == 1);
     REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  }
+}
+
+TEST_CASE("Rule Appliance", "[rules-appliance]") {
+  std::vector<std::string> argv = {"program_name", "-q"};
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
+
+  SECTION("Same rule on two different scope") {
+    const auto ruleOne = 0;
+    const auto ruleTwo = 1;
+    std::map<RuleId, Syntax::Rule> ruleMap = {
+      {ruleOne, RULE(0, Syntax::RuleType::StartWithX, Core::ScopeType::Class, "c_")},
+      {ruleTwo, RULE(1, Syntax::RuleType::StartWithX, Core::ScopeType::ClassVariable, "m_")}
+    };
+    std::vector<std::string> source = {
+      "int itsFine = 1;",
+      "class ErrorClass {",
+      "  int m_itsOkay = 2;",
+      "  int errorVariable = 3;",
+      "};",
+      "class c_OkayClass {",
+      "};"
+    };
+
+    const auto stack = doTestWithSource(sift, ruleMap, source);
+    const auto& messages = stack.getMessages();
+    REQUIRE(stack.size() == 2);
+    REQUIRE(messages.at(ruleOne).size() == 1);
+    REQUIRE(messages.at(ruleOne).at(0).line == 1);
+    REQUIRE(messages.at(ruleTwo).size() == 1);
+    REQUIRE(messages.at(ruleTwo).at(0).line == 3);
   }
 }

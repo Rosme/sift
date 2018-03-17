@@ -34,7 +34,6 @@ inline const Core::MessageStack doTestWithFile(SIFT& pfe, const std::string rule
   return pfe.getMessageStacks().at(sourceFile);
 }
 
-static RuleId ruleId = 0;
 // Execute a unit test with the source filename and the rules as a map
 inline const Core::MessageStack doTestWithFile(SIFT& pfe, std::map<RuleId, Syntax::Rule> rules, const std::string& sourceFile)
 {
