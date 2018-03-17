@@ -231,22 +231,27 @@ void SIFT::extractScopes()
 {
   // Parse all files found
   int i = 1;
+  int errors = 0;
   for(auto&& filePair : m_files)
   {
     Core::Scope scope;
+    LOG(INFO) << "[" << i << "/" << m_files.size() << "] Parsing " << filePair.second.filename;
     bool success = m_scopeExtractor->extractScopesFromFile(filePair.second, scope);
     if(success)
     {
       m_rootScopes[filePair.first] = scope;
-      LOG(INFO) << "[" << i << "/" << m_files.size() << "] Finished Parsing " << filePair.second.filename;
-      ++i;
     }
     else
     {
       LOG(ERROR) << "Could not parse source file '" << filePair.first << "'";
+      ++errors;
     }
+    ++i;
   }
-    
+   
+  if(m_files.size() > 0){
+    LOG(INFO) << ">" << errors << "/" << m_files.size() << "< unparsed files (" << std::setprecision(4) << ((float)errors/m_files.size())*100 << "%)";
+  }
   LOG(TRACE) << "Extracted " << m_rootScopes.size() << " root scopes";
 }
 
