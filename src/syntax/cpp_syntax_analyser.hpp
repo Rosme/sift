@@ -72,7 +72,7 @@ namespace Syntax {
     void RuleOwnHeaderBeforeStandard(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleStandardHeaderBeforeOwn(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
 
-    
+  private:
     bool isScopeUsingCurlyBrackets(Core::Scope& scope);
     bool isOpeningCurlyBracketSeparateLine(Core::Scope& scope);
     bool isClosingCurlyBracketSeparateLine(Core::Scope& scope);
@@ -86,6 +86,9 @@ namespace Syntax {
     bool isWithinComment(unsigned int line, unsigned int position, Core::File& file);
     std::vector<Core::Scope> getStringLiterals(const std::string& filename) const;
     bool isWithinStringLiteral(unsigned int line, unsigned int position, Core::File& file);
+
+    bool validateOwnHeaderBeforeStandard(const std::string& header, bool& hasSeenStandard);
+    bool validateStandardHeaderBeforeOwn(const std::string& header, bool& hasSeenOwn);
     
     // Combines comment + string literal checking
     bool isWithinIgnoredScope(unsigned int line, unsigned int position, Core::File& file);

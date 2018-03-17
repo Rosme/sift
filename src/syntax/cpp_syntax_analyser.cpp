@@ -156,8 +156,32 @@ namespace Syntax
       return dummy.isWithinOtherScope(stringScope);
     }) != stringLiterals.end();
   }
+
+  bool CPPSyntaxAnalyser::validateOwnHeaderBeforeStandard(const std::string& header, bool& hasSeenStandard) {
+    if(header.find("\"") != std::string::npos) {
+      if(hasSeenStandard) {
+        return false;
+      }
+    } else if(header.find("<") != std::string::npos) {
+      hasSeenStandard = true;
+    }
+
+    return true;
+  }
+
+  bool CPPSyntaxAnalyser::validateStandardHeaderBeforeOwn(const std::string& header, bool& hasSeenOwn) {
+    if(header.find("<") != std::string::npos) {
+      if(hasSeenOwn) {
+        return false;
+      }
+    } else if(header.find("\"") != std::string::npos) {
+      hasSeenOwn = true;
+    }
+
+    return true;
+  }
   
-  std::vector<Core::Scope> CPPSyntaxAnalyser::getComments(const std::string & filename) const {
+  std::vector<Core::Scope> CPPSyntaxAnalyser::getComments(const std::string& filename) const {
     if(m_comments) {
       auto it = m_comments->find(filename);
       if(it != m_comments->end()) {
@@ -689,18 +713,6 @@ namespace Syntax
     const auto& lines = rootScope.file->lines;
     bool hasSeenStandard = false;
 
-    static auto validateOwnHeaderBeforeStandard = [&hasSeenStandard](const std::string& header) {
-      if(header.find("\"") != std::string::npos) {
-        if(hasSeenStandard) {
-          return false;
-        }
-      } else if(header.find("<") != std::string::npos) {
-        hasSeenStandard = true;
-      }
-
-      return true;
-    };
-
     for(unsigned int i = 0; i < lines.size(); ++i) {
       const auto& line = lines[i];
       std::smatch match;
@@ -714,14 +726,14 @@ namespace Syntax
         if(comments.size() > 0) {
           for(const auto& comment : comments) {
             if(!dummy.isWithinOtherScope(comment)) {
-              if(!validateOwnHeaderBeforeStandard(match[1])) {
+              if(!validateOwnHeaderBeforeStandard(match[1], hasSeenStandard)) {
                 pushErrorMessage(messageStack, rule, line, dummy);
               }
             } else {
               break;
             }
           }
-        } else if(!validateOwnHeaderBeforeStandard(match[1])) {
+        } else if(!validateOwnHeaderBeforeStandard(match[1], hasSeenStandard)) {
           pushErrorMessage(messageStack, rule, line, dummy);
         }   
       }
@@ -734,18 +746,6 @@ namespace Syntax
     const auto& lines = rootScope.file->lines;
     bool hasSeenOwn = false;
 
-    static auto validateStandardHeaderBeforeOwn = [&hasSeenOwn](const std::string& header) {
-      if(header.find("<") != std::string::npos) {
-        if(hasSeenOwn) {
-          return false;
-        }
-      } else if(header.find("\"") != std::string::npos) {
-        hasSeenOwn = true;
-      }
-
-      return true;
-    };
-
     for(unsigned int i = 0; i < lines.size(); ++i) {
       const auto& line = lines[i];
       std::smatch match;
@@ -759,14 +759,14 @@ namespace Syntax
         if(comments.size() > 0) {
           for(const auto& comment : comments) {
             if(!dummy.isWithinOtherScope(comment)) {
-              if(!validateStandardHeaderBeforeOwn(match[1])) {
+              if(!validateStandardHeaderBeforeOwn(match[1], hasSeenOwn)) {
                 pushErrorMessage(messageStack, rule, line, dummy);
               }
             } else {
               break;
             }
           }
-        } else if(!validateStandardHeaderBeforeOwn(match[1])) {
+        } else if(!validateStandardHeaderBeforeOwn(match[1], hasSeenOwn)) {
           pushErrorMessage(messageStack, rule, line, dummy);
         }
       }
