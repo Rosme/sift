@@ -37,10 +37,12 @@ namespace Flow {
 
     void analyzeFlow(Core::Scope& rootScope, Core::MessageStack& messageStack);
     void analyzeNullPointer(Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void analyzeUninitializedVariable(Core::Scope& rootScope, Core::MessageStack& messageStack);
 
   private:
 
-    int lineUsingNullPointer(Core::Scope& scope);
+    int scopeUsingNullPointer(Core::Scope& scope);
+    int scopeUsingUninitializedVariable(Core::Scope& scope);
     bool isVariableValueChanged(const std::string& line, bool isVariableDeclarationLine, int positionAfterVarName, std::string& varValue);
     bool isVariableValueValid(std::string varValue, bool isPointer);
   };

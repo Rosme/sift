@@ -41,23 +41,38 @@ namespace Flow
 
   void CPPFlowAnalyser::analyzeFlow(Core::Scope& rootScope, Core::MessageStack& messageStack) {
     analyzeNullPointer(rootScope, messageStack);
+    analyzeUninitializedVariable(rootScope, messageStack);
   }
 
   void CPPFlowAnalyser::analyzeNullPointer(Core::Scope& rootScope, Core::MessageStack& messageStack) {
     Core::ScopeType scopeTypes = Core::ScopeType::Variable;
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      int nullPointerLine = lineUsingNullPointer(currentScope); 
+      int nullPointerLine = scopeUsingNullPointer(currentScope);
       if (nullPointerLine > -1) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, nullPointerLine
+          currentScope.name + " will throw a NULL pointer exception", nullPointerLine
         );
-        messageStack.pushMessage(0, message);
+        messageStack.pushMessage(1, message);
       }
     }
   }
 
-  int CPPFlowAnalyser::lineUsingNullPointer(Core::Scope& scope) {
+  void CPPFlowAnalyser::analyzeUninitializedVariable(Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Variable;
+
+    for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      int nullPointerLine = scopeUsingUninitializedVariable(currentScope);
+      if (nullPointerLine > -1) {
+        Core::Message message(Core::MessageType::Error,
+          currentScope.name + " is used before initialization", nullPointerLine
+        );
+        messageStack.pushMessage(2, message);
+      }
+    }
+  }
+
+  int CPPFlowAnalyser::scopeUsingNullPointer(Core::Scope& scope) {
     //Regex = \s+\*(VARNAME)(\s+|=|\(|{|;)
     std::regex isVariablePointerRegex(R"(\s+\*()" + scope.name + R"()(\s+|=|\(|\{|;))");
     const std::string& lineVariableDeclaration = scope.file->lines[scope.lineNumberStart];
@@ -66,26 +81,25 @@ namespace Flow
     if (match.size() > 0) {
       Core::Scope* parentScope = scope.parent;
       
-      if (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditionnal))
-      {
+      if (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditionnal)) {
         std::string varValue;
 
         std::string regexValue = match[0];
         int positionAfterVarName = lineVariableDeclaration.find(regexValue);
         int regexLength = regexValue.length();
-        positionAfterVarName += regexLength;
+        positionAfterVarName += regexLength - 1;
 
         isVariableValueChanged(lineVariableDeclaration, true, positionAfterVarName, varValue);
 
-        std::regex conditionnalRegex(R"((^|\s)()" + scope.name + R"()(\s+|=|\(|\{|;))");
+        std::regex variableRegex(R"((^|\s)()" + scope.name + R"()(\s+|=|\(|\{|;))");
         for (unsigned int i = scope.lineNumberStart + 1; i < parentScope->lineNumberEnd; ++i) {
           const std::string line = parentScope->file->lines[i];
-          std::regex_search(line, match, conditionnalRegex);
+          std::regex_search(line, match, variableRegex);
           if (match.size() > 0) {
             std::string regexValue = match[0];
             positionAfterVarName =  line.find(regexValue);
             regexLength = regexValue.length();
-            positionAfterVarName += regexLength;
+            positionAfterVarName += regexLength - 1;
 
             if (!isVariableValueChanged(line, false, positionAfterVarName, varValue)) {
               if (!isVariableValueValid(varValue, true)) {
@@ -96,6 +110,34 @@ namespace Flow
         }
       }
 
+    }
+    return -1;
+  }
+
+  int CPPFlowAnalyser::scopeUsingUninitializedVariable(Core::Scope& scope) {
+    Core::Scope* parentScope = scope.parent;
+
+    if (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditionnal))  {
+      std::string varValue;
+      std::regex variableRegex(R"((^|\s)()" + scope.name + R"()(\s+|=|\(|\{|;))");
+      for (unsigned int i = scope.lineNumberStart; i < parentScope->lineNumberEnd; ++i) {
+       
+        const std::string line = parentScope->file->lines[i];
+        std::smatch match;
+        std::regex_search(line, match, variableRegex);
+        if (match.size() > 0) {
+          std::string regexValue = match[0];
+          int positionAfterVarName = line.find(regexValue);
+          int regexLength = regexValue.length();
+          positionAfterVarName += regexLength - 1;
+
+          if (!isVariableValueChanged(line, i == scope.lineNumberStart, positionAfterVarName, varValue)) {
+            if (varValue.empty() && i != scope.lineNumberStart) {
+              return i;
+            }
+          }
+        }
+      }
     }
     return -1;
   }

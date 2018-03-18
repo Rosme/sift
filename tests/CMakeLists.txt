@@ -34,6 +34,7 @@ set(TESTS_TESTS
   tests_scope.cpp
   tests_rule.cpp
   tests_samples.cpp
+  tests_flow.cpp
   )
 
 if(RUN_SYSTEM_TESTS)

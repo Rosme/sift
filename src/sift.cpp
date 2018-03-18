@@ -327,8 +327,6 @@ void SIFT::outputMessagesSyntax()
   LOG(INFO) << "Wrote results to file: " << m_outputFilename;
 }
 
-
-//TODO: Do this properly
 void SIFT::outputMessagesFlow()
 {
   auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace) {
