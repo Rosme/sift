@@ -30,6 +30,7 @@
 #include "core/message_stack.hpp"
 #include "core/file.hpp"
 #include "core/scope.hpp"
+#include "core/scope_extractor.hpp"
 #include "syntax/rule.hpp"
 #include "syntax/syntax_analyser.hpp"
 #include "flow/flow_analyser.hpp"
@@ -77,6 +78,7 @@ private:
     
   std::unique_ptr<Flow::FlowAnalyser> m_flowAnalyser;
   std::unique_ptr<Syntax::SyntaxAnalyser> m_syntaxAnalyser;
+  std::unique_ptr<Core::ScopeExtractor> m_scopeExtractor;
   std::map<const std::string, Core::MessageStack> m_messageStacks;
   std::map<const std::string, Core::MessageStack> m_messageStacksFlow;
     

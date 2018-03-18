@@ -28,11 +28,10 @@
 #include <memory>
 #include <string>
 
+#include "file.hpp"
 #include "utils.hpp"
 
 namespace Core {
-
-  struct File;
   
   enum class ScopeType {
     Source = 1u << 0, /* Root scope of a file */
@@ -41,7 +40,7 @@ namespace Core {
     Enum = 1u << 3,
     FreeFunction = 1u << 4,
     ClassFunction = 1u << 5,
-    Conditionnal = 1u << 6,
+    Conditional = 1u << 6,
     ClassVariable = 1u << 7,
     FunctionVariable = 1u << 8,
     GlobalVariable = 1u << 9,
@@ -153,8 +152,8 @@ namespace Core {
       return "ClassFunction";
     case ScopeType::Function:
       return "Function";
-    case ScopeType::Conditionnal:
-      return "Conditionnal";
+    case ScopeType::Conditional:
+      return "Conditional";
     case ScopeType::ClassVariable:
       return "ClassVariable";
     case ScopeType::FunctionVariable:
@@ -209,8 +208,8 @@ namespace Core {
       return ScopeType::Function;
     }
 
-    if(string_case_compare(type, "Conditionnal")) {
-      return ScopeType::Conditionnal;
+    if(string_case_compare(type, "Conditional")) {
+      return ScopeType::Conditional;
     }
 
     if(string_case_compare(type, "ClassVariable")) {
@@ -268,4 +267,7 @@ namespace Core {
       );
   }
 
+  inline bool isScopeTypeOfType(ScopeType current, ScopeType toVerifyAgainst) {
+    return static_cast<unsigned int>(current & toVerifyAgainst) != 0;
+  }
 }

@@ -57,6 +57,10 @@ var ruleNames = [
   "NoCodeAllowedSameLineCurlyBracketsOpen",
   "NoCodeAllowedSameLineCurlyBracketsClose",
   "TabIndentation",
+  "CurlyBracketsIndentationAlignWithDeclaration",
+  "ElseSeparateLineFromCurlyBracketClose",
+  "OwnHeaderBeforeStandard",
+  "StandardHeaderBeforeOwn",
 ];
 /* RULE_END */
 

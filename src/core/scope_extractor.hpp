@@ -30,7 +30,20 @@ namespace Core {
 
   class ScopeExtractor {
   public:
-    virtual bool extractScopesFromFile(File& file, Scope &outScope) = 0;
+    virtual bool extractScopesFromFile(File& file, Scope& outScope) = 0;
+    virtual void constructTree(Scope& root) = 0;
+
+    const std::map<std::string, std::vector<Scope>>& getStringLiterals() const {
+      return m_stringLiterals;
+    }
+    
+    const std::map<std::string, std::vector<Scope>>& getComments() const {
+      return m_comments;
+    }
+
+  protected:
+    std::map<std::string, std::vector<Scope>> m_stringLiterals;
+    std::map<std::string, std::vector<Scope>> m_comments;
   };
 
 }

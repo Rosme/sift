@@ -23,5 +23,5 @@
 
 #pragma once
 
-#define BRACKET_STACK_GIVEUP 5000 /* If we have 5000+ brackets on the stack, chances are we're in trouble */
-#define RuleId long long int
+const unsigned int BRACKET_STACK_GIVEUP = 5000; /* If we have 5000+ brackets on the stack, chances are we're in trouble */
+using RuleId = long long int;

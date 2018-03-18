@@ -80,7 +80,7 @@ namespace Core {
       //Filtering out reserved keywords
       rootScope.children.erase(std::remove_if(rootScope.children.begin(), rootScope.children.end(), [](const Scope& scope) {
         for(const auto& keyword : ReservedKeywords) {
-          if(scope.name == keyword && scope.type != ScopeType::Conditionnal) {
+          if(scope.name == keyword && scope.type != ScopeType::Conditional) {
             return true;
           }
         }
@@ -108,22 +108,33 @@ namespace Core {
     for(auto&& line : file.lines) {
       if(line.find("#define") != std::string::npos) {
         // Should match "     #define" and "   /* some comment */   #define"
-        std::regex defineRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)#define)");
+        std::regex defineRegex(R"(^(\s*|\s*\/\*.*\*\/\s*)(#define))");
         std::smatch sm;
         std::regex_search(line, sm, defineRegex);
         if(sm.size() > 0) {
           scope = Scope(ScopeType::GlobalDefine);
           scope.lineNumberStart = lineNo;
-          scope.characterNumberStart = sm.position(0);
+          scope.characterNumberStart = sm.position(2);
           scope.file = &file;
 
-          // Multiline define TODO: Verify with standard
           if(line.at(line.size()-1) == '\\') {
             isStillInDefine = true;
           } else {
-            scope.characterNumberEnd = scope.characterNumberStart + line.size();
+            size_t pos = -1; 
+            if((pos = line.find("/*")) != std::string::npos || (pos = line.find("//")) != std::string::npos){
+              // /* something like this */ #define
+              if(pos < scope.characterNumberStart){
+                scope.characterNumberEnd = scope.characterNumberStart + line.size();
+              }else{
+                scope.characterNumberEnd = pos-2;
+              }
+            }else{
+              scope.characterNumberEnd = scope.characterNumberStart + line.size();
+            }
+            
             scope.lineNumberEnd = lineNo;
             scope.name = line;
+
             parent.children.push_back(scope);
           }
         }
@@ -198,7 +209,7 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractClasses(File& file, Scope& parent) {
-    std::regex classRegex(R"((?!enum)\s*(class|struct)\s*(\w*)\s*:?\s*(\w|\s)*\s*\{?)");
+    std::regex classRegex(R"((?!enum)\s*(class|struct|union)\s*(\w*)\s*:?\s*(\w|\s)*\s*\{?)");
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
       const std::string& line = file.lines[lineNumber];
       std::smatch match;
@@ -208,7 +219,7 @@ namespace Core {
         scope.name = match[2];
         scope.parent = &parent;
         scope.lineNumberStart = lineNumber;
-        scope.characterNumberStart = line.find(match[0]);
+        scope.characterNumberStart = line.find(match[1]);
         scope.file = &file;
 
         //Struct/Class can have Struct/Class inside
@@ -243,7 +254,11 @@ namespace Core {
         std::size_t semicolonPos = line.find(';', scope.characterNumberStart);
         std::size_t curlyBracketPos = line.find('{', scope.characterNumberStart);
 
-        for(int j = lineNumber; semicolonPos == std::string::npos && curlyBracketPos == std::string::npos; ++j) {
+        for(unsigned int j = lineNumber; semicolonPos == std::string::npos && curlyBracketPos == std::string::npos; ++j) {
+          if(j >= parent.lineNumberEnd){
+            throw std::overflow_error("Reached end of parent scope, something is probably wrong");
+          }
+          
           const std::string& nextLine = file.lines[j];
           semicolonPos = nextLine.find(';', scope.characterNumberStart);
           curlyBracketPos = nextLine.find('{', scope.characterNumberStart);
@@ -294,11 +309,11 @@ namespace Core {
   }
 
   void CppScopeExtractor::extractConditionals(File& file, Scope& parent) {
-    std::regex conditionnalRegex(R"((^|\s)(if|else|for|switch|while|do)(\(|\{|\s|$))");
+    std::regex conditionalRegex(R"((^|\s)(if|else|for|switch|while|do)(\(|\{|\s|$))");
     for(unsigned int i = parent.lineNumberStart; i < parent.lineNumberEnd; ++i) {
       const std::string& line = file.lines[i];
       std::smatch match;
-      std::regex_search(line, match, conditionnalRegex);
+      std::regex_search(line, match, conditionalRegex);
       if(match.size() > 0) {
         if(isLineWithinDefine(file.filename, i) || isWithinStringLiteral(line.find(match[0]), i, file) || isWithinComment(line.find(match[0]), i, file, parent)) {
           continue;
@@ -309,11 +324,11 @@ namespace Core {
             continue;
           }
         }
-        Scope scope(ScopeType::Conditionnal);
-        scope.name = match[0];
+        Scope scope(ScopeType::Conditional);
+        scope.name = match[2];
         scope.parent = &parent;
         scope.lineNumberStart = i;
-        scope.characterNumberStart = line.find(match[0]);
+        scope.characterNumberStart = line.find(match[2]);
         scope.file = &file;
 
         if(match[2] == "for") {
@@ -364,6 +379,7 @@ namespace Core {
         LOG(DEBUG) << "\n" << scope;
 
         parent.children.push_back(scope);
+        m_comments[file.filename].push_back(scope); //TODO maybe remove comments from other scope containers
       } else if(std::regex_match(line, match, singleLineComments)) {
         Scope scope(ScopeType::SingleLineComment);
         scope.name = match[1];
@@ -377,12 +393,12 @@ namespace Core {
         LOG(DEBUG) << "\n" << scope;
 
         parent.children.push_back(scope);
+        m_comments[file.filename].push_back(scope);
       }
     }
   }
 
   void CppScopeExtractor::extractStringLiterals(File& file, Scope& parent) {
-    auto comments = parent.getAllChildrenOfType(ScopeType::Comment);
     //TODO: This is ugly, fix this
     std::size_t startIndex = 0;
     for(unsigned int lineNumber = parent.lineNumberStart; lineNumber < parent.lineNumberEnd; ++lineNumber) {
@@ -392,7 +408,15 @@ namespace Core {
         startIndex = 0;
         continue;
       }
-
+      
+      if(isWithinComment(startIndex, lineNumber, file, parent)){
+        continue;
+      }
+      
+      if(isWithinStringLiteral(startIndex, lineNumber, file)){
+        continue;
+      }
+      
       if(startIndex > 0 && line[startIndex-1] == '\\') {
         --lineNumber;
         continue;
@@ -424,7 +448,7 @@ namespace Core {
         startIndex = 0;
       }
 
-      stringLiterals[file.filename].push_back(scope);   
+      m_stringLiterals[file.filename].push_back(scope);   
     }
 
     startIndex = 0;
@@ -435,10 +459,23 @@ namespace Core {
         startIndex = 0;
         continue;
       }
-
-      if(startIndex > 0 && line[startIndex-1] == '\\') {
-        --lineNumber;
+      
+      if(isWithinComment(startIndex, lineNumber, file, parent)){
         continue;
+      }
+      
+      if(isWithinStringLiteral(startIndex, lineNumber, file)){
+        continue;
+      }
+
+      // Handle '\''
+      if(startIndex > 0 && line[startIndex-1] == '\\') {
+        
+        // But ignore '\\'
+        if(startIndex < 2 || line[startIndex-2] != '\\'){
+          --lineNumber;
+          continue;
+        }
       }
 
       Scope scope(ScopeType::StringLiteral);
@@ -465,7 +502,7 @@ namespace Core {
         startIndex = 0;
       }
 
-      stringLiterals[file.filename].push_back(scope);
+      m_stringLiterals[file.filename].push_back(scope);
     }
   }
 
@@ -481,7 +518,7 @@ namespace Core {
         //Filtering comments
         if(scope.isWithinOtherScope(it) && it.isOfType(ScopeType::Comment)) {
           return true;
-        } else if(scope.isOfType(ScopeType::Function) && scope.isWithinOtherScope(it) && (it.isOfType(ScopeType::Function) || it.isOfType(ScopeType::Conditionnal))) {
+        } else if(scope.isOfType(ScopeType::Function) && scope.isWithinOtherScope(it) && (it.isOfType(ScopeType::Function) || it.isOfType(ScopeType::Conditional))) {
           //Filtering function call within a function
           return true;
         }
@@ -512,7 +549,7 @@ namespace Core {
       if(it->type == ScopeType::Variable) {
         if(bestParent.type == ScopeType::Source || bestParent.type == ScopeType::Namespace) {
           it->type = ScopeType::GlobalVariable;
-        } else if(bestParent.type == ScopeType::Conditionnal || bestParent.type == ScopeType::Function) {
+        } else if(bestParent.type == ScopeType::Conditional || bestParent.type == ScopeType::Function) {
           it->type = ScopeType::FunctionVariable;
         } else {
           it->type = ScopeType::ClassVariable;
@@ -557,8 +594,8 @@ namespace Core {
     dummy.lineNumberEnd = line;
     dummy.file = &file;
 
-    auto it = stringLiterals.find(file.filename);
-    if(it != stringLiterals.end()) {
+    auto it = m_stringLiterals.find(file.filename);
+    if(it != m_stringLiterals.end()) {
       return std::find_if(it->second.begin(), it->second.end(), [&dummy](const Scope& stringScope) {
         return dummy.isWithinOtherScope(stringScope);
       }) != it->second.end();
@@ -575,10 +612,13 @@ namespace Core {
     dummy.lineNumberEnd = line;
     dummy.file = &file;
 
-    auto comments = parent.getAllChildrenOfType(ScopeType::Comment);
-    return std::find_if(comments.begin(), comments.end(), [&dummy](const Scope& commentScope) {
-      return dummy.isWithinOtherScope(commentScope);
-    }) != comments.end();
+    auto it = m_comments.find(file.filename);
+    if(it != m_comments.end()) {
+      return std::find_if(it->second.begin(), it->second.end(), [&dummy](const Scope& stringScope) {
+        return dummy.isWithinOtherScope(stringScope);
+      }) != it->second.end();
+    }
+    
 
     return false;
   }
@@ -700,11 +740,11 @@ namespace Core {
 
   int CppScopeExtractor::findEndOfScopeConditionalDoWhile(Scope& scope, File& file, int startingLine) {
     int counter = 0;
-    std::regex conditionnalRegex(R"(\s*(while|do)(\(|\{|\s|$))");
+    std::regex conditionalRegex(R"(\s*(while|do)(\(|\{|\s|$))");
     for(unsigned int i = startingLine; i < file.lines.size(); ++i) {
       const std::string& line = file.lines[i];
       std::smatch match;
-      std::regex_search(line, match, conditionnalRegex);
+      std::regex_search(line, match, conditionalRegex);
       if(match.size() > 0) {
         if(match[1] == "do") {
           counter++;
@@ -737,6 +777,11 @@ namespace Core {
       const std::string& namespaceLine = file.lines[j];
       for(unsigned int pos = startingCharForThisLine; pos < namespaceLine.size(); ++pos) {
         const char& c = namespaceLine[pos];
+        
+        if(ParenthesisStack.size() > BRACKET_STACK_GIVEUP){
+          throw std::overflow_error("Reached maximum parenthesis size, something is probably wrong");
+        }
+        
         if(!foundCondition) {
           if(c == '(') {
             if(!isWithinStringLiteral(pos, j, file)) {

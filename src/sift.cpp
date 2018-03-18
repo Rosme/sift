@@ -42,6 +42,7 @@ SIFT::SIFT()
 {
   m_syntaxAnalyser = std::make_unique<Syntax::CPPSyntaxAnalyser>();
   m_flowAnalyser = std::make_unique<Flow::CPPFlowAnalyser>();
+  m_scopeExtractor = std::make_unique<Core::CppScopeExtractor>();
 }
   
 #define CXXOPT(longName, variableName, type, defaultValue) if(result.count(longName)) { \
@@ -228,27 +229,31 @@ void SIFT::readFilesFromDirectory(const std::string& directory, const std::strin
   
 void SIFT::extractScopes()
 {
-  Core::CppScopeExtractor extractor;
   // Parse all files found
   int i = 1;
+  int errors = 0;
   for(auto&& filePair : m_files)
   {
     Core::Scope scope;
-    bool success = extractor.extractScopesFromFile(filePair.second, scope);
+    LOG(INFO) << "[" << i << "/" << m_files.size() << "] Parsing " << filePair.second.filename;
+    bool success = m_scopeExtractor->extractScopesFromFile(filePair.second, scope);
     if(success)
     {
       m_rootScopes[filePair.first] = scope;
-      LOG(INFO) << "[" << i << "/" << m_files.size() << "] Finished Parsing " << filePair.second.filename;
-      ++i;
     }
     else
     {
       LOG(ERROR) << "Could not parse source file '" << filePair.first << "'";
+      ++errors;
     }
+    ++i;
   }
-    
-  for(auto& scopePair : m_rootScopes) {
-    extractor.constructTree(scopePair.second);
+
+  for (auto& scopePair : m_rootScopes) {
+    m_scopeExtractor->constructTree(scopePair.second);
+  }
+  if(m_files.size() > 0){
+    LOG(INFO) << ">" << errors << "/" << m_files.size() << "< unparsed files (" << std::setprecision(4) << ((float)errors/m_files.size())*100 << "%)";
   }
 
   LOG(TRACE) << "Extracted " << m_rootScopes.size() << " root scopes";
@@ -256,6 +261,21 @@ void SIFT::extractScopes()
 
 void SIFT::applyRules()
 {
+  {
+    //Clearing Duplicate Rules
+    std::vector<Syntax::Rule> ruleList;
+    for(auto it = m_rules.begin(); it != m_rules.end();) {
+      if(std::find_if(ruleList.begin(), ruleList.end(), [it](const Syntax::Rule& rule) {
+        return it->second == rule;
+      }) != ruleList.end()) {
+        it = m_rules.erase(it);
+      } else {
+        ruleList.push_back(it->second);
+        ++it;
+      }
+    }
+  }
+
   for(auto& scopePair : m_rootScopes)
   {
     for(auto& rulePair : m_rules)
@@ -272,7 +292,7 @@ void SIFT::applyRules()
 
 void SIFT::registerRuleWork()
 {
-  m_syntaxAnalyser->registerRuleWork(m_rulesWork);
+  m_syntaxAnalyser->registerRuleWork(m_rulesWork, m_scopeExtractor->getStringLiterals(), m_scopeExtractor->getComments());
 }
   
   
@@ -362,6 +382,7 @@ void SIFT::outputMessagesFlow()
 
 void SIFT::readPath(const std::string& path)
 {
+  LOG(INFO) << "Reading path " << path;
   if(Core::directoryExists(path)){
     readFilesFromDirectory(path, "cpp|hpp|h|c|cc|hh"); //TODO standardized way
   }else{

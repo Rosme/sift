@@ -42,7 +42,9 @@ namespace Syntax
   // Force consistency between name and method
   #define NS(ns,item) ns::item
   #define REGISTER_RULE(REG) work[NS(RuleType, REG)] = std::bind(&CPPSyntaxAnalyser::Rule##REG, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-  void CPPSyntaxAnalyser::registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work)
+  void CPPSyntaxAnalyser::registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work,
+                                           const std::map<std::string, std::vector<Core::Scope>>& literals,  
+                                           const std::map<std::string, std::vector<Core::Scope>>& comments)
   {
     // Registers a rule, expects a name in Syntax::RuleType::RULENAME and a function named CPPSyntaxAnalyser::RuleRULENAME;
     REGISTER_RULE(Unknown);
@@ -68,12 +70,19 @@ namespace Syntax
     REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsOpen);
     REGISTER_RULE(NoCodeAllowedSameLineCurlyBracketsClose);
     REGISTER_RULE(TabIndentation);
+    REGISTER_RULE(CurlyBracketsIndentationAlignWithDeclaration);
+    REGISTER_RULE(ElseSeparateLineFromCurlyBracketClose);
+    REGISTER_RULE(OwnHeaderBeforeStandard);
+    REGISTER_RULE(StandardHeaderBeforeOwn);
     
     for(const auto& type : RuleType_list)
     {
       const std::string typeString = to_string(type);
       SIFT_ASSERT(work.find(type) != work.end(), std::string("Rule '" + typeString + "' is defined but has no work registered for it"));
     }
+
+    m_stringLiterals = &literals;
+    m_comments = &comments;
   }
 
   std::string CPPSyntaxAnalyser::getRuleMessage(const Syntax::Rule& rule){
@@ -86,12 +95,25 @@ namespace Syntax
       case Syntax::RuleType::EndWithX: ruleMessage = "Expect scopes of type '%rs' to end with '%rp'"; break;
       case Syntax::RuleType::SingleReturn: ruleMessage = "Expect functions to have a single return"; break;
       case Syntax::RuleType::TabIndentation: ruleMessage = "Expect indentation to be made using tabs"; break;
+      case Syntax::RuleType::CurlyBracketsIndentationAlignWithDeclaration: ruleMessage = "Expected curly bracket to be aligned with declaration for scope '%rs'"; break;
+      case Syntax::RuleType::ElseSeparateLineFromCurlyBracketClose: ruleMessage = "Expected 'else' to be on a seperate line than '{'"; break;
       default: break;
     }
         
     return ruleMessage;
   }
   
+  void CPPSyntaxAnalyser::pushErrorMessage(Core::MessageStack& messageStack, Syntax::Rule& rule, const std::string& line, const Core::Scope& scope) {
+    const unsigned int errorOffset = 10;
+    int offset = (scope.characterNumberStart <= errorOffset) ? 0 : scope.characterNumberStart - errorOffset;
+    Core::Message message(Core::MessageType::Error,
+                          line.substr(offset, scope.characterNumberEnd - offset + errorOffset),
+                          scope.lineNumberStart,
+                          scope.characterNumberStart
+    );
+    messageStack.pushMessage(rule.getRuleId(), message);
+  }
+
   Core::ScopeType CPPSyntaxAnalyser::computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes){
     Core::ScopeType computed = defaultAll;
     if(input != Core::ScopeType::All)
@@ -110,6 +132,82 @@ namespace Syntax
     
     return computed;
   }
+
+  std::vector<Core::Scope> CPPSyntaxAnalyser::getStringLiterals(const std::string & filename) const {
+    if(m_stringLiterals) {
+      auto it = m_stringLiterals->find(filename);
+      if(it != m_stringLiterals->end()) {
+        return it->second;
+      }
+    }
+    return std::vector<Core::Scope>();
+  }
+  
+  bool CPPSyntaxAnalyser::isWithinStringLiteral(unsigned int line, unsigned int position, Core::File& file) {
+    auto stringLiterals = getStringLiterals(file.filename);
+    Core::Scope dummy;
+    dummy.lineNumberStart = line;
+    dummy.lineNumberEnd = line;
+    dummy.characterNumberStart = position;
+    dummy.characterNumberEnd = position;
+    dummy.file = &file;
+    
+    return std::find_if(stringLiterals.begin(), stringLiterals.end(), [&dummy](const Core::Scope& stringScope) {
+      return dummy.isWithinOtherScope(stringScope);
+    }) != stringLiterals.end();
+  }
+
+  bool CPPSyntaxAnalyser::validateOwnHeaderBeforeStandard(const std::string& header, bool& hasSeenStandard) {
+    if(header.find("\"") != std::string::npos) {
+      if(hasSeenStandard) {
+        return false;
+      }
+    } else if(header.find("<") != std::string::npos) {
+      hasSeenStandard = true;
+    }
+
+    return true;
+  }
+
+  bool CPPSyntaxAnalyser::validateStandardHeaderBeforeOwn(const std::string& header, bool& hasSeenOwn) {
+    if(header.find("<") != std::string::npos) {
+      if(hasSeenOwn) {
+        return false;
+      }
+    } else if(header.find("\"") != std::string::npos) {
+      hasSeenOwn = true;
+    }
+
+    return true;
+  }
+  
+  std::vector<Core::Scope> CPPSyntaxAnalyser::getComments(const std::string& filename) const {
+    if(m_comments) {
+      auto it = m_comments->find(filename);
+      if(it != m_comments->end()) {
+        return it->second;
+      }
+    }
+    return std::vector<Core::Scope>();
+  }
+  
+  bool CPPSyntaxAnalyser::isWithinComment(unsigned int line, unsigned int position, Core::File& file) {
+    auto comments = getComments(file.filename);
+    Core::Scope dummy;
+    dummy.lineNumberStart = line;
+    dummy.lineNumberEnd = line;
+    dummy.characterNumberStart = position;
+    dummy.characterNumberEnd = position;
+    dummy.file = &file;
+    
+    return std::find_if(comments.begin(), comments.end(), [&dummy](const Core::Scope& stringScope) {
+      return dummy.isWithinOtherScope(stringScope);
+    }) != comments.end();
+  }
+  
+  bool CPPSyntaxAnalyser::isWithinIgnoredScope(unsigned int line, unsigned int position, Core::File& file){
+    return isWithinComment(line, position, file) || isWithinStringLiteral(line, position, file);
+  }
   
   void CPPSyntaxAnalyser::RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
     messageStack.pushMessage(rule.getRuleId(), Core::Message(Core::MessageType::Warning, "Unknown Rule being executed"));
@@ -121,11 +219,10 @@ namespace Syntax
       Core::ScopeType::Unknown
     );
     
-    
     std::regex autoRegex(R"(\b(auto)\b)");
     for(auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      for (unsigned int i = currentScope.lineNumberStart; i <= currentScope.lineNumberEnd; ++i) {
-        const std::string& line = currentScope.file->lines[i];
+      int offsetLine = 0;
+      for(const auto& line : currentScope.getScopeLines()){
         std::string autoText;
         std::smatch match;
         if(std::regex_search(line, match, autoRegex)) {
@@ -134,9 +231,14 @@ namespace Syntax
           Core::Message message(Core::MessageType::Error, 
             autoText, currentScope.lineNumberStart, currentScope.characterNumberStart
           );
-          messageStack.pushMessage(rule.getRuleId(), message);
-          break;
+                    
+          if(!isWithinIgnoredScope(currentScope.lineNumberStart+offsetLine, line.find(match[1]), *rootScope.file)){
+            messageStack.pushMessage(rule.getRuleId(), message);
+            break;
+          }
         }
+        
+        offsetLine++;
       }
     }
   } 
@@ -243,7 +345,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -260,7 +362,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsOpenSeparateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All)
     {
       scopeTypes = rule.getScopeType();
@@ -280,7 +382,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSameLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All)
     {
       scopeTypes = rule.getScopeType();
@@ -299,7 +401,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleCurlyBracketsCloseSeparateLine(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All)
     {
       scopeTypes = rule.getScopeType();
@@ -317,7 +419,7 @@ namespace Syntax
 
   void CPPSyntaxAnalyser::RuleAlwaysHaveCurlyBrackets(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack)
   {
-    Core::ScopeType scopeTypes = Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Conditional;
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!isScopeUsingCurlyBrackets(currentScope)) {
@@ -328,19 +430,8 @@ namespace Syntax
       }
     }
   }
-
+  
   void CPPSyntaxAnalyser::RuleNoConstCast(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    static auto pushErrorMessage = [&messageStack, &rule](const std::string& line, const Core::Scope& scope) {
-      const unsigned int errorOffset = 10;
-      int offset = (scope.characterNumberStart <= errorOffset) ? 0 : scope.characterNumberStart - errorOffset;
-      Core::Message message(Core::MessageType::Error,
-        line.substr(offset, scope.characterNumberEnd - offset + errorOffset),
-        scope.lineNumberStart,
-        scope.characterNumberStart
-      );
-      messageStack.pushMessage(rule.getRuleId(), message);
-    };
-
     auto comments = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
     std::regex constCastRegex(R"(const_cast<.*>\(.*\))");
     const auto& lines = rootScope.file->lines;
@@ -357,12 +448,11 @@ namespace Syntax
         if(comments.size() > 0) {
           for(const auto& comment : comments) {
             if(!dummy.isWithinOtherScope(comment)) {
-              pushErrorMessage(line, dummy);
-
+              pushErrorMessage(messageStack, rule, line, dummy);
             }
           }
         } else {
-          pushErrorMessage(line, dummy);
+          pushErrorMessage(messageStack, rule, line, dummy);
         }
       }
     }
@@ -472,7 +562,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleSpaceBetweenOperandsInternal(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -480,7 +570,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!checkSpaceBetweenOperandsInternal(currentScope, false)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberEnd
+          currentScope.name, currentScope.lineNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -488,7 +578,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleNoSpaceBetweenOperandsInternal(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -496,7 +586,7 @@ namespace Syntax
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
       if (!checkSpaceBetweenOperandsInternal(currentScope, true)) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name, currentScope.lineNumberEnd
+          currentScope.name, currentScope.lineNumberStart
         );
         messageStack.pushMessage(rule.getRuleId(), message);
       }
@@ -504,7 +594,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleNoCodeAllowedSameLineCurlyBracketsOpen(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -520,7 +610,7 @@ namespace Syntax
   }
 
   void CPPSyntaxAnalyser::RuleNoCodeAllowedSameLineCurlyBracketsClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
-    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditionnal;
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
     if (rule.getScopeType() != Core::ScopeType::All) {
       scopeTypes = rule.getScopeType();
     }
@@ -559,6 +649,127 @@ namespace Syntax
         }
       }
       ++i;
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleCurlyBracketsIndentationAlignWithDeclaration(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Namespace | Core::ScopeType::Class | Core::ScopeType::Function | Core::ScopeType::Conditional;
+    if(rule.getScopeType() != Core::ScopeType::All) {
+      scopeTypes = rule.getScopeType();
+    }
+
+    if(!isScopeTypeOfType(rule.getScopeType(), scopeTypes)) {
+      LOG(WARNING) << "ScopeType of Rule CurlyBracketsIndentationAlignWithDeclaration for scope " << to_string(rule.getScopeType()) << " is invalid";
+      return;
+    }
+
+    for(const auto& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      int curlyBracketLineIndex = currentScope.lineNumberStart;
+      while(currentScope.file->lines[curlyBracketLineIndex].find('{') == std::string::npos) {
+        //Finding the line where { is
+        ++curlyBracketLineIndex;
+      }
+      const std::string& curlyBracketOpenLine = currentScope.file->lines[curlyBracketLineIndex];
+
+      if(curlyBracketOpenLine.find('{') != currentScope.characterNumberStart) {
+        Core::Message message(Core::MessageType::Error, currentScope.name, currentScope.lineNumberStart, currentScope.characterNumberStart);
+        messageStack.pushMessage(rule.getRuleId(), message);
+      }
+
+      const std::string& curlyBracketCloseLine = currentScope.file->lines[currentScope.lineNumberEnd];
+
+      if(curlyBracketCloseLine.find('}') != currentScope.characterNumberStart) {
+        Core::Message message(Core::MessageType::Error, currentScope.name, currentScope.lineNumberEnd, currentScope.characterNumberEnd);
+        messageStack.pushMessage(rule.getRuleId(), message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleElseSeparateLineFromCurlyBracketClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    Core::ScopeType scopeTypes = Core::ScopeType::Conditional;
+    
+    //Ignoring rule applied to a different scope
+    if(rule.getScopeType() != scopeTypes) {
+      LOG(WARNING) << "ScopeType of Rule ElseSeparateLineFromCurlyBracketClose for scope " << to_string(rule.getScopeType()) << " is invalid. Falling back to Conditional";
+    }
+
+    for(const auto& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
+      if(currentScope.name.find("else") == std::string::npos) {
+        continue;
+      }
+
+      const std::string& line = currentScope.file->lines[currentScope.lineNumberStart];
+      const auto indexCurlyBracket = line.find('}');
+      if(indexCurlyBracket != std::string::npos && !isWithinStringLiteral(currentScope.lineNumberStart, indexCurlyBracket, *currentScope.file)) {
+        Core::Message message(Core::MessageType::Error, currentScope.name, currentScope.lineNumberEnd, currentScope.characterNumberEnd);
+        messageStack.pushMessage(rule.getRuleId(), message);
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleOwnHeaderBeforeStandard(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack) {
+    auto comments = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
+    std::regex includeRegex(R"(#include\s*(.*))");
+    const auto& lines = rootScope.file->lines;
+    bool hasSeenStandard = false;
+
+    for(unsigned int i = 0; i < lines.size(); ++i) {
+      const auto& line = lines[i];
+      std::smatch match;
+      if(std::regex_search(line, match, includeRegex)) {
+        Core::Scope dummy;
+        dummy.lineNumberStart = i;
+        dummy.lineNumberEnd = i;
+        dummy.characterNumberStart = line.find(match[0]);
+        dummy.characterNumberEnd = dummy.characterNumberStart+match[0].str().size()-1;
+
+        if(comments.size() > 0) {
+          for(const auto& comment : comments) {
+            if(!dummy.isWithinOtherScope(comment)) {
+              if(!validateOwnHeaderBeforeStandard(match[1], hasSeenStandard)) {
+                pushErrorMessage(messageStack, rule, line, dummy);
+              }
+            } else {
+              break;
+            }
+          }
+        } else if(!validateOwnHeaderBeforeStandard(match[1], hasSeenStandard)) {
+          pushErrorMessage(messageStack, rule, line, dummy);
+        }   
+      }
+    }
+  }
+
+  void CPPSyntaxAnalyser::RuleStandardHeaderBeforeOwn(Syntax::Rule & rule, Core::Scope & rootScope, Core::MessageStack & messageStack) {
+    auto comments = rootScope.getAllChildrenOfType(Core::ScopeType::Comment);
+    std::regex includeRegex(R"(#include\s*(.*))");
+    const auto& lines = rootScope.file->lines;
+    bool hasSeenOwn = false;
+
+    for(unsigned int i = 0; i < lines.size(); ++i) {
+      const auto& line = lines[i];
+      std::smatch match;
+      if(std::regex_search(line, match, includeRegex)) {
+        Core::Scope dummy;
+        dummy.lineNumberStart = i;
+        dummy.lineNumberEnd = i;
+        dummy.characterNumberStart = line.find(match[0]);
+        dummy.characterNumberEnd = dummy.characterNumberStart+match[0].str().size()-1;
+
+        if(comments.size() > 0) {
+          for(const auto& comment : comments) {
+            if(!dummy.isWithinOtherScope(comment)) {
+              if(!validateStandardHeaderBeforeOwn(match[1], hasSeenOwn)) {
+                pushErrorMessage(messageStack, rule, line, dummy);
+              }
+            } else {
+              break;
+            }
+          }
+        } else if(!validateStandardHeaderBeforeOwn(match[1], hasSeenOwn)) {
+          pushErrorMessage(messageStack, rule, line, dummy);
+        }
+      }
     }
   }
   
@@ -613,6 +824,10 @@ namespace Syntax
       for (unsigned int pos = initialPosition; pos < finalCharacter; ++pos) {
         const char& c = scopeLine[pos];
       
+        if(isWithinStringLiteral(i, pos, *scope.file)) {
+          continue;
+        }
+
         if (c == ')') {
           parenthesisCounter--;
           if (parenthesisCounter == 0) {
@@ -629,9 +844,7 @@ namespace Syntax
         } else if (parenthesisCounter > 0 && scopeLine[pos + 1] != ')') {
           switch (c) {
             case '+':
-            case '-':
             case '|':
-            case ':':
               if (scopeLine[pos + 1] != c) {
                 if (isspace(scopeLine[pos + 1])) {
                   if (noSpace) {
@@ -646,7 +859,6 @@ namespace Syntax
             case ';':
             case ',':
             case '/':
-            case '*':
             case '&':
             case '?':
               if (isspace(scopeLine[pos + 1])) {
@@ -671,6 +883,16 @@ namespace Syntax
                 } else if (!noSpace) {
                   return false;
                 }
+              }
+              break;
+            case '*':
+              if (isspace(scopeLine[pos + 1])) {
+                if (noSpace) {
+                  checkIfFinalCharacter = true;
+                }
+              }
+              else if (!noSpace && isdigit(c)) {
+                return false;
               }
               break;
           }

@@ -6,7 +6,7 @@
 #include "sift.hpp"
 
 #define DUMP_STACK(stack) for(auto&& mp : stack.getMessages()){ \
-  std::cout << "RuleId: " << mp.first << ", " << pfe.getRules().at(mp.first) << std::endl; \
+  std::cout << "RuleId: " << mp.first << ", " << sift.getRules().at(mp.first) << std::endl; \
   for(auto&& m : mp.second) \
   { \
     std::cout << "\t" << m << std::endl;\
@@ -34,7 +34,6 @@ inline const Core::MessageStack doTestWithFile(SIFT& pfe, const std::string rule
   return pfe.getMessageStacks().at(sourceFile);
 }
 
-static RuleId ruleId = 0;
 // Execute a unit test with the source filename and the rules as a map
 inline const Core::MessageStack doTestWithFile(SIFT& pfe, std::map<RuleId, Syntax::Rule> rules, const std::string& sourceFile)
 {
@@ -63,4 +62,11 @@ inline const Core::MessageStack doTestWithSource(SIFT& pfe, std::map<RuleId, Syn
 inline const Core::MessageStack doTestWithSource(SIFT& pfe, std::map<RuleId, Syntax::Rule> rules, const std::string& sourceLine){
   std::vector<std::string> source = {sourceLine};
   return doTestWithSource(pfe, rules, source);
+}
+
+inline const void setupLoggingForTest() {
+  std::vector<std::string> argv = {"program_name", "-q"};
+  SIFT sift;
+  sift.parseArgv(argv.size(), convert(argv).data());
+  sift.setupLogging();
 }

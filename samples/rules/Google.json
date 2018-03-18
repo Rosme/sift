@@ -29,17 +29,17 @@
 	
     {
       "rule" : "SpaceBetweenParenthesisAndCurlyBrackets",
-      "appliedTo": "Conditionnal",
+      "appliedTo": "Conditional",
     },
 	
     {
       "rule" : "SpaceBetweenConditionAndParenthesis",
-      "appliedTo": "Conditionnal",
+      "appliedTo": "Conditional",
     },
 	
     {
       "rule" : "ConditionConsistentCurlyBrackets",
-      "appliedTo": "Conditionnal",
+      "appliedTo": "Conditional",
     },
 	
     {

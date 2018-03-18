@@ -117,7 +117,7 @@ namespace Core {
   }
 
   bool Scope::isOfType(ScopeType typeToVerify) const {
-    return static_cast<unsigned int>(type & typeToVerify) != 0;
+    return isScopeTypeOfType(type, typeToVerify);
   }
 
   ScopeVector::iterator Scope::begin() {

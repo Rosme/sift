@@ -81,7 +81,7 @@ namespace Flow
     if (match.size() > 0) {
       Core::Scope* parentScope = scope.parent;
       
-      if (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditionnal)) {
+      if (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditional)) {
         std::string varValue;
 
         std::string regexValue = match[0];
@@ -117,7 +117,7 @@ namespace Flow
   int CPPFlowAnalyser::scopeUsingUninitializedVariable(Core::Scope& scope) {
     Core::Scope* parentScope = scope.parent;
 
-    if (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditionnal))  {
+    if (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditional))  {
       std::string varValue;
       std::regex variableRegex(R"((^|\s)()" + scope.name + R"()(\s+|=|\(|\{|;))");
       for (unsigned int i = scope.lineNumberStart; i < parentScope->lineNumberEnd; ++i) {

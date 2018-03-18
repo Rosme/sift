@@ -40,7 +40,9 @@ namespace Syntax {
     virtual ~CPPSyntaxAnalyser();
     
     std::string getRuleMessage(const Syntax::Rule& rule);
-    void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work);
+    void registerRuleWork(std::map<Syntax::RuleType, std::function<void(Syntax::Rule&, Core::Scope&, Core::MessageStack&)>>& work,
+                          const std::map<std::string, std::vector<Core::Scope>>& literals = std::map<std::string, std::vector<Core::Scope>>(),
+                          const std::map<std::string, std::vector<Core::Scope>>& comments = std::map<std::string, std::vector<Core::Scope>>());
     
     void RuleUnknown(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleNoAuto(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
@@ -65,8 +67,12 @@ namespace Syntax {
     void RuleNoCodeAllowedSameLineCurlyBracketsOpen(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleNoCodeAllowedSameLineCurlyBracketsClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
     void RuleTabIndentation(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleCurlyBracketsIndentationAlignWithDeclaration(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleElseSeparateLineFromCurlyBracketClose(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleOwnHeaderBeforeStandard(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
+    void RuleStandardHeaderBeforeOwn(Syntax::Rule& rule, Core::Scope& rootScope, Core::MessageStack& messageStack);
 
-    
+  private:
     bool isScopeUsingCurlyBrackets(Core::Scope& scope);
     bool isOpeningCurlyBracketSeparateLine(Core::Scope& scope);
     bool isClosingCurlyBracketSeparateLine(Core::Scope& scope);
@@ -74,7 +80,21 @@ namespace Syntax {
     bool noCodeAfterCurlyBracketSameLineOpen(Core::Scope& scope);
     bool noCodeAfterCurlyBracketSameLineClose(Core::Scope& scope);
     
+    void pushErrorMessage(Core::MessageStack& messageStack, Syntax::Rule& rule, const std::string& line, const Core::Scope& scope);
     Core::ScopeType computeApplicableScopeTypes(Core::ScopeType input, Core::ScopeType defaultAll, Core::ScopeType ignoredTypes);
+    std::vector<Core::Scope> getComments(const std::string& filename) const;
+    bool isWithinComment(unsigned int line, unsigned int position, Core::File& file);
+    std::vector<Core::Scope> getStringLiterals(const std::string& filename) const;
+    bool isWithinStringLiteral(unsigned int line, unsigned int position, Core::File& file);
+
+    bool validateOwnHeaderBeforeStandard(const std::string& header, bool& hasSeenStandard);
+    bool validateStandardHeaderBeforeOwn(const std::string& header, bool& hasSeenOwn);
+    
+    // Combines comment + string literal checking
+    bool isWithinIgnoredScope(unsigned int line, unsigned int position, Core::File& file);
+
+    const std::map<std::string, std::vector<Core::Scope>>* m_stringLiterals = nullptr;
+    const std::map<std::string, std::vector<Core::Scope>>* m_comments = nullptr;
   };
   
 }

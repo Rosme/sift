@@ -28,7 +28,8 @@ i must say\
         
         
   #define dont_forget(x) about these ones too 
-
+  
+  
 std::string something_else("this string has #define in it");
 
 // better be careful with #define comments too
