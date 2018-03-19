@@ -41,7 +41,7 @@ namespace Flow
 
   void CPPFlowAnalyser::analyzeFlow(Core::Scope& rootScope, Core::MessageStack& messageStack) {
     analyzeNullPointer(rootScope, messageStack);
-    analyzeUninitializedVariable(rootScope, messageStack);
+   // analyzeUninitializedVariable(rootScope, messageStack);
   }
 
   void CPPFlowAnalyser::analyzeNullPointer(Core::Scope& rootScope, Core::MessageStack& messageStack) {
