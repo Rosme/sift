@@ -41,7 +41,7 @@ namespace Flow
 
   void CPPFlowAnalyser::analyzeFlow(Core::Scope& rootScope, Core::MessageStack& messageStack) {
     analyzeNullPointer(rootScope, messageStack);
-   // analyzeUninitializedVariable(rootScope, messageStack);
+    // analyzeUninitializedVariable(rootScope, messageStack);
   }
 
   void CPPFlowAnalyser::analyzeNullPointer(Core::Scope& rootScope, Core::MessageStack& messageStack) {
@@ -62,10 +62,10 @@ namespace Flow
     Core::ScopeType scopeTypes = Core::ScopeType::Variable;
 
     for (auto&& currentScope : rootScope.getAllChildrenOfType(scopeTypes)) {
-      int nullPointerLine = scopeUsingUninitializedVariable(currentScope);
-      if (nullPointerLine > -1) {
+      int uninitializedVariableLine = scopeUsingUninitializedVariable(currentScope);
+      if (uninitializedVariableLine > -1) {
         Core::Message message(Core::MessageType::Error,
-          currentScope.name + " is used before initialization", nullPointerLine
+          currentScope.name + " is used before initialization", uninitializedVariableLine
         );
         messageStack.pushMessage(2, message);
       }
@@ -207,8 +207,6 @@ namespace Flow
 
         }
       }
-
-
     }
     return false;
   }
@@ -222,8 +220,7 @@ namespace Flow
     varValue.erase(0, varValue.find_first_not_of(listEmptyCharacters));
     varValue.erase(varValue.find_last_not_of(listEmptyCharacters) + 1);
 
-    if (varValue == "NULL" || (varValue == "0" && isPointer))
-    { 
+    if (varValue == "NULL" || (varValue == "0" && isPointer)) { 
       return false;
     }
 
