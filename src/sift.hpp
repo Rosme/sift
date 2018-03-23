@@ -25,6 +25,10 @@
 #include <memory>
 #include <functional>
 #include <map>
+#include <utility>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 #include "core/constants.hpp"
 #include "core/message_stack.hpp"
@@ -62,7 +66,8 @@ public:
   void readSource(const std::string & filename, const std::vector<std::string>& source);
 private:
   // filename : rawText
-  std::map<std::string, Core::File> m_files;
+  //std::map<std::string, Core::File> m_files;
+  std::vector<std::pair<std::string, Core::File>> m_files;
     
   // filename : rootScope
   std::map<std::string, Core::Scope> m_rootScopes;
@@ -84,7 +89,15 @@ private:
   std::string m_loggingSettingsFilename;
   std::string m_ruleFilename;
   std::string m_pathToParse;
+  std::vector<std::thread> m_threads;
   
   void readSingleSourceFile(const std::string& filename);
   void readFilesFromDirectory(const std::string& directory, const std::string& extensions);
+  
+  std::atomic<int> m_parsingErrors;
+  std::atomic<int> m_scopedFileExtracted;
+  std::mutex m_mutex;
+  using VectorPairFile = std::vector<std::pair<std::string, Core::File*>>;
+  void extractScopesImpl(const VectorPairFile& paths);
+  VectorPairFile getFileRange(unsigned int start, unsigned int count);
 };
