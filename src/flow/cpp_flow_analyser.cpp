@@ -41,7 +41,7 @@ namespace Flow
 
   void CPPFlowAnalyser::analyzeFlow(Core::Scope& rootScope, Core::MessageStack& messageStack) {
     analyzeNullPointer(rootScope, messageStack);
-    // analyzeUninitializedVariable(rootScope, messageStack);
+    analyzeUninitializedVariable(rootScope, messageStack);
   }
 
   void CPPFlowAnalyser::analyzeNullPointer(Core::Scope& rootScope, Core::MessageStack& messageStack) {
@@ -116,8 +116,7 @@ namespace Flow
 
   int CPPFlowAnalyser::scopeUsingUninitializedVariable(Core::Scope& scope) {
     Core::Scope* parentScope = scope.parent;
-
-    if (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditional))  {
+    if (isScopeVariablePrimitive(scope) && (parentScope->isOfType(Core::ScopeType::Function) || parentScope->isOfType(Core::ScopeType::Conditional))) {
       std::string varValue;
       std::regex variableRegex(R"((^|\s)()" + scope.name + R"()(\s+|=|\(|\{|;))");
       for (unsigned int i = scope.lineNumberStart; i < parentScope->lineNumberEnd; ++i) {
@@ -140,6 +139,17 @@ namespace Flow
       }
     }
     return -1;
+  }
+
+  bool CPPFlowAnalyser::isScopeVariablePrimitive(Core::Scope& scope) {
+    if (scope.isOfType(Core::ScopeType::Variable)) {
+      const std::string line = scope.file->lines[scope.lineNumberStart];
+      std::regex variableRegex(R"((^|\s)(bool|int|char|double|float|long|short) )" + scope.name + R"((\s+|=|\(|\{|;))");
+      std::smatch match;
+      std::regex_search(line, match, variableRegex);
+      return match.size() > 0;
+    }
+    return false;
   }
 
   //positionAfterVarName = the position on line after the variable name appear (if var name end at position 10, use 11 for this variable)

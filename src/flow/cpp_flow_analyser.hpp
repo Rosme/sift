@@ -43,6 +43,7 @@ namespace Flow {
 
     int scopeUsingNullPointer(Core::Scope& scope);
     int scopeUsingUninitializedVariable(Core::Scope& scope);
+    bool isScopeVariablePrimitive(Core::Scope& scope);
     bool isVariableValueChanged(const std::string& line, bool isVariableDeclarationLine, int positionAfterVarName, std::string& varValue);
     bool isVariableValueValid(std::string varValue, bool isPointer);
   };
