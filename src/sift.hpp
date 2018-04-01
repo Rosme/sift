@@ -89,7 +89,6 @@ private:
   std::string m_loggingSettingsFilename;
   std::string m_ruleFilename;
   std::string m_pathToParse;
-  std::vector<std::thread> m_threads;
   
   void readSingleSourceFile(const std::string& filename);
   void readFilesFromDirectory(const std::string& directory, const std::string& extensions);

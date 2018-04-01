@@ -29,6 +29,7 @@
 #include <utility>
 #include <muflihun/easylogging++.h>
 #include <cxxopts/cxxopts.hpp>
+#include <nbsdx/ThreadPool.h>
 
 #include "sift.hpp"
 #include "core/config.hpp"
@@ -238,27 +239,21 @@ void SIFT::extractScopes()
 {
   //TODO: Interesting, but could be maybe be a fix at 8?
   const auto MaxThreadCount = std::thread::hardware_concurrency();
-  if(m_files.size() < MaxThreadCount) {
-    extractScopesImpl(getFileRange(0, m_files.size()));
-    return;
-  }
   unsigned int filesPerThread = (m_files.size() / MaxThreadCount)+1;
   
   LOG(INFO) << "Parsing " << filesPerThread << " files per thread";
   
+  using nbsdx::concurrent::ThreadPool;
+
+  ThreadPool<8> pool;
+
   for(int i = 0; i < MaxThreadCount; ++i) {
-    auto files = getFileRange(i*filesPerThread, filesPerThread);
-    std::thread tr(&SIFT::extractScopesImpl, this, files);
-    tr.detach();
-    m_threads.push_back(std::move(tr));
+    pool.AddJob([this, filesPerThread, i]() {
+      extractScopesImpl(getFileRange(i*filesPerThread, filesPerThread));
+    });
   }
-  
-  const unsigned int size = m_files.size();
-  while(m_scopedFileExtracted != size) {
-    using namespace std::chrono_literals;
-    //Don't want to starve
-    std::this_thread::sleep_for(100ms);
-  }
+
+  pool.JoinAll(true);
   
   if(m_files.size() > 0){
     LOG(INFO) << ">" << m_parsingErrors << "/" << m_files.size() << "< unparsed files (" << std::setprecision(4) << ((float)m_parsingErrors/m_files.size())*100 << "%)";
