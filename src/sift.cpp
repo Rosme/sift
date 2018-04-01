@@ -304,7 +304,7 @@ void SIFT::registerRuleWork()
     LOG(INFO) << msg; \
   }
   
-void SIFT::outputMessages()
+void SIFT::outputMessages(long long executionTime)
 {    
   auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace){
     auto index = from.find(find);
@@ -343,7 +343,9 @@ void SIFT::outputMessages()
       }
     }
   }
-    
+  
+  OUTPUT("Ran in " << executionTime << "ms");
+
   file.close();
     
   LOG(INFO) << "Wrote results to file: " << m_outputFilename;

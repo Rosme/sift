@@ -47,9 +47,9 @@ int main(int argc, char* argv[]) {
   sift.extractScopes();
   sift.registerRuleWork();
   sift.applyRules();
-  sift.outputMessages();
-
   std::chrono::time_point<std::chrono::system_clock> after = std::chrono::system_clock::now();
-  LOG(INFO) << "Ran in " << std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count() << "ms";
+  auto executionTime = std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count();
+  LOG(INFO) << "Ran in " << executionTime << "ms";
+  sift.outputMessages(executionTime);
   return 0;
 }

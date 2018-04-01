@@ -53,7 +53,7 @@ public:
   void extractScopes();
   void applyRules();
   void registerRuleWork();
-  void outputMessages();
+  void outputMessages(long long executionTime);
   void readPath(const std::string& path);
   void clearState();
     
