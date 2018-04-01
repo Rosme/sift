@@ -264,9 +264,9 @@ namespace Core {
           curlyBracketPos = nextLine.find('{', scope.characterNumberStart);
         }
 
-        if(semicolonPos != std::string::npos) {
-          scope.characterNumberEnd = semicolonPos;
-          scope.lineNumberEnd = scope.lineNumberStart;
+        if(curlyBracketPos == std::string::npos || (semicolonPos != std::string::npos && semicolonPos < curlyBracketPos)) {
+            scope.characterNumberEnd = semicolonPos;
+            scope.lineNumberEnd = scope.lineNumberStart;
         } else {
           findEndOfScope(scope, file, lineNumber);
         }

@@ -295,17 +295,17 @@ TEST_CASE("Testing no code allowed same line curly brackets", "[rules-nocodeallo
   sift.parseArgv(argv.size(), convert(argv).data());
   sift.setupLogging();
 
-  //SECTION("Test no code allowed same line opening curly brackets") {
-  //  const auto stack = doTest(sift, "samples/tests/rules/nocodeallowedsamelinecurlybracketsopen.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
-  //  REQUIRE(stack.size() == 1);
-  //  REQUIRE(stack.getMessages().begin()->second.size() == 3);
-  //}
+  SECTION("Test no code allowed same line opening curly brackets") {
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/nocodeallowedsamelinecurlybracketsopen.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 3);
+  }
 
-  //SECTION("Test no code allowed same line closing curly brackets") {
-  //  const auto stack = doTest(sift, "samples/tests/rules/nocodeallowedsamelinecurlybracketsclose.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
-  //  REQUIRE(stack.size() == 1);
-  //  REQUIRE(stack.getMessages().begin()->second.size() == 2);
-  //}
+  SECTION("Test no code allowed same line closing curly brackets") {
+    const auto stack = doTestWithFile(sift, "samples/tests/rules/nocodeallowedsamelinecurlybracketsclose.json", "samples/tests/src/nocodeallowedsamelinecurlybrackets.cpp");
+    REQUIRE(stack.size() == 1);
+    REQUIRE(stack.getMessages().begin()->second.size() == 2);
+  }
 }
 
 TEST_CASE("Testing TabIndentation", "[rules-tabindentation]") {
