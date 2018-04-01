@@ -264,7 +264,7 @@ namespace Core {
           curlyBracketPos = nextLine.find('{', scope.characterNumberStart);
         }
 
-        if(curlyBracketPos == std::string::npos || (semicolonPos != std::string::npos && semicolonPos < curlyBracketPos)) {
+        if(semicolonPos != std::string::npos) {
             scope.characterNumberEnd = semicolonPos;
             scope.lineNumberEnd = scope.lineNumberStart;
         } else {
