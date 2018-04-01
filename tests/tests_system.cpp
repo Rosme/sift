@@ -93,14 +93,14 @@ TEST_CASE("Testing sift itself like a blackbox", "[system]") {
     runTest("-q -r samples/tests/rules/empty.json -p samples/src/define.hpp", code, outputVector, stdoutVector);
     REQUIRE(code == 0);
     REQUIRE_OUTPUT_SIZE(stdoutVector, 0);
-    REQUIRE_OUTPUT_SIZE(outputVector, 0);
+    REQUIRE_OUTPUT_SIZE(outputVector, 1);
   }
   
   SECTION("Run sift on itself with no errors") {
     runTest("-q -r samples/tests/rules/empty.json -p samples/SIFT", code, outputVector, stdoutVector);
     REQUIRE(code == 0);
     REQUIRE_OUTPUT_SIZE(stdoutVector, 0);
-    REQUIRE_OUTPUT_SIZE(outputVector, 0);
+    REQUIRE_OUTPUT_SIZE(outputVector, 1);
   }
 
 }
