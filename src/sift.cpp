@@ -43,6 +43,8 @@ SIFT::SIFT()
   m_syntaxAnalyser = std::make_unique<Syntax::CPPSyntaxAnalyser>();
   m_flowAnalyser = std::make_unique<Flow::CPPFlowAnalyser>();
   m_scopeExtractor = std::make_unique<Core::CppScopeExtractor>();
+  
+  registerConflictDefinitions();
 }
   
 #define CXXOPT(longName, variableName, type, defaultValue) if(result.count(longName)) { \
@@ -130,7 +132,7 @@ void SIFT::setupLogging()
   
 void SIFT::setupRules(const std::string filename)
 {
-  m_rules = Syntax::readRules(filename);
+  m_rules = Syntax::readRules(m_conflict_definitions, filename);
     
   std::stringstream rulesString;
     
@@ -144,10 +146,9 @@ void SIFT::setupRules(const std::string filename)
 }
 
 
-void SIFT::setupRules(std::map<RuleId, Syntax::Rule> rules){
-  m_rules = rules;
-  
+void SIFT::setupRules(std::map<RuleId, Syntax::Rule> rules){  
   std::stringstream rulesString;
+  m_rules = rules;
   
   for(auto&& rule : m_rules)
   {
@@ -288,6 +289,25 @@ void SIFT::applyRules()
       }
     }
   }
+}
+
+// TODO maybe have a file for this, but since we aimed for a 'single binary' approach, here's data in code
+void SIFT::registerConflictDefinitions()
+{
+  using namespace Syntax;
+  m_conflict_definitions[RuleType::CurlyBracketsCloseSameLine] = {RuleType::CurlyBracketsCloseSeparateLine};
+  m_conflict_definitions[RuleType::CurlyBracketsCloseSeparateLine] = {RuleType::CurlyBracketsCloseSameLine};
+  
+  m_conflict_definitions[RuleType::CurlyBracketsOpenSameLine] = {RuleType::CurlyBracketsOpenSeparateLine};
+  m_conflict_definitions[RuleType::CurlyBracketsOpenSeparateLine] = {RuleType::CurlyBracketsOpenSameLine};
+  
+  m_conflict_definitions[RuleType::OwnHeaderBeforeStandard] = {RuleType::StandardHeaderBeforeOwn};
+  m_conflict_definitions[RuleType::StandardHeaderBeforeOwn] = {RuleType::OwnHeaderBeforeStandard};
+  
+  m_conflict_definitions[RuleType::StartWithLowerCase] = {RuleType::StartWithUpperCase, RuleType::StartWithX};
+  m_conflict_definitions[RuleType::StartWithUpperCase] = {RuleType::StartWithLowerCase, RuleType::StartWithX};
+  m_conflict_definitions[RuleType::StartWithX] = {RuleType::StartWithLowerCase, RuleType::StartWithUpperCase};
+  
 }
 
 void SIFT::registerRuleWork()

@@ -3,7 +3,14 @@
   "rules": [
     {
       "rule" : "NoAuto"
+    },
+    {
+      "rule" : "CurlyBracketsOpenSameLine"
+    },
+    {
+      "rule" : "CurlyBracketsOpenSeparateLine"
     }
+    
     
   ]
 }

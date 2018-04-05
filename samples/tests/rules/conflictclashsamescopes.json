@@ -1,0 +1,13 @@
+
+{
+  "rules": [
+    {
+      "rule" : "StartWithX",
+      "appliedTo" : "All"
+    },
+    {
+      "rule" : "StartWithLowerCase",
+      "appliedTo" : "All"
+    }
+  ]
+}

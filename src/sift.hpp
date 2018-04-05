@@ -48,6 +48,7 @@ public:
   void setupRules(std::map<RuleId, Syntax::Rule> rules);
   void extractScopes();
   void applyRules();
+  void registerConflictDefinitions();
   void registerRuleWork();
   void outputMessagesSyntax();
   void outputMessagesFlow();
@@ -81,6 +82,7 @@ private:
   std::unique_ptr<Core::ScopeExtractor> m_scopeExtractor;
   std::map<const std::string, Core::MessageStack> m_messageStacks;
   std::map<const std::string, Core::MessageStack> m_messageStacksFlow;
+  std::map<Syntax::RuleType, std::vector<Syntax::RuleType>> m_conflict_definitions;
     
   bool m_quietMode;
   bool m_verboseMode;

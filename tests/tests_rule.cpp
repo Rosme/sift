@@ -565,3 +565,45 @@ TEST_CASE("Rule Appliance", "[rules-appliance]") {
     REQUIRE(messages.at(ruleOne).at(0).line == 1);
   }
 }
+  
+TEST_CASE("Rule conflicts", "[rules-conflicts]") {
+    std::vector<std::string> argv = {"program_name", "-q"};
+    SIFT sift;
+    sift.parseArgv(argv.size(), convert(argv).data());
+    sift.setupLogging();
+  SECTION("Rule with conflict on 'all' (same, verbatim) scopes") {
+
+    sift.clearState();
+    auto x = "samples/tests/rules/conflictclashsamescopes.json";
+    sift.setupRules(x);
+    sift.registerRuleWork();
+
+    const auto& rules = sift.getRules();
+    REQUIRE(rules.size() == 1);
+    
+  }
+  
+  SECTION("Rule with conflict on encompassing scopes") {
+    
+    sift.clearState();
+    auto x = "samples/tests/rules/conflictclashdifferentscopes.json";
+    sift.setupRules(x);
+    sift.registerRuleWork();
+    
+    const auto& rules = sift.getRules();
+    REQUIRE(rules.size() == 1);
+    
+  }
+  
+  SECTION("Rule with no conflict because non-encompassing scopes") {
+    
+    sift.clearState();
+    auto x = "samples/tests/rules/conflictnoclash.json";
+    sift.setupRules(x);
+    sift.registerRuleWork();
+    
+    const auto& rules = sift.getRules();
+    REQUIRE(rules.size() == 2);
+    
+  }
+}

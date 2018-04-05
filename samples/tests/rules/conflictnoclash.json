@@ -1,0 +1,13 @@
+
+{
+  "rules": [
+    {
+      "rule" : "StartWithX",
+      "appliedTo" : "FunctionVariable"
+    },
+    {
+      "rule" : "StartWithLowerCase",
+      "appliedTo" : "GlobalVariable"
+    }
+  ]
+}

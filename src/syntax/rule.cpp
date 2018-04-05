@@ -25,7 +25,7 @@
 
 namespace Syntax {
   
-  std::map<RuleId, Rule> readRules(const std::string& rulesFile) {
+  std::map<RuleId, Rule> readRules(const std::map<Syntax::RuleType, std::vector<Syntax::RuleType>> &conflicts, const std::string& rulesFile) {
     static long long int currentId = 0;
     std::map<RuleId, Rule> rules;
     
@@ -58,7 +58,52 @@ namespace Syntax {
                   Core::ScopeType_to_enum_class(appliedTo),
                   ruleType,
                   parameter);
-        rules[currentId] = rule;
+      
+        const auto conflictVectorIt = conflicts.find(rule.getRuleType());
+        Syntax::Rule const* ruleInConflict = nullptr;
+        if(conflictVectorIt != conflicts.cend())
+        {
+          const auto& conflictVector = conflictVectorIt->second;
+          for(const auto& rulePair : rules)
+          {
+            const auto& conflictIt = std::find(conflictVector.begin(), conflictVector.end(), rulePair.second.getRuleType());
+            if(conflictIt != conflictVector.end())
+            {
+              // One rule is considering to be clashing if it shares a scope with another one
+              bool hasClashingScopes = false;
+              
+              for(int i = 0; i < 32; i++)
+              {
+                int currentBit = 1 << i;
+                int aBit = (int)rule.getScopeType() & currentBit;
+                int bBit = (int)rulePair.second.getScopeType() & currentBit;
+                hasClashingScopes = aBit == bBit && aBit != 0;
+                
+                if(hasClashingScopes)
+                {
+                  break;
+                }
+              }
+              
+              if(hasClashingScopes)
+              {
+                ruleInConflict = &rulePair.second;
+                break;
+              }
+            } 
+          }
+          
+        }
+        
+        if(ruleInConflict == nullptr)
+        {
+          rules[currentId] = rule;
+        }
+        else
+        {
+          LOG(ERROR) << rule << " is in conflict with other rule: " << *ruleInConflict << ", it will be dropped";
+        }
+  
       }
     }
     

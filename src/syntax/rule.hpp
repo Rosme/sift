@@ -84,6 +84,6 @@ namespace Syntax {
   };
 
   std::ostream& operator<<(std::ostream& out, const Syntax::Rule& rule);
-  std::map<RuleId, Rule> readRules(const std::string& rulesFile);
+  std::map<RuleId, Rule> readRules(const std::map<Syntax::RuleType, std::vector<Syntax::RuleType>> &conflicts, const std::string& rulesFile);
   bool operator==(const Rule& lhs, const Rule& rhs);
 }
