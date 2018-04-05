@@ -50,7 +50,7 @@ namespace Core {
   });
 
 
-  bool CppScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {   
+  bool CppScopeExtractor::extractScopesFromFile(File& file, Scope &outScope) {
     Scope rootScope(ScopeType::Source);
     rootScope.file = &file;
     rootScope.name = file.filename;

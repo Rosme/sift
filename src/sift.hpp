@@ -25,6 +25,10 @@
 #include <memory>
 #include <functional>
 #include <map>
+#include <utility>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 #include "core/constants.hpp"
 #include "core/message_stack.hpp"
@@ -50,8 +54,8 @@ public:
   void applyRules();
   void registerConflictDefinitions();
   void registerRuleWork();
-  void outputMessagesSyntax();
-  void outputMessagesFlow();
+  void outputMessagesSyntax(long long executionTime);
+  void outputMessagesFlow(long long executionTime);
   void readPath(const std::string& path);
   void clearState();
   void verifyFlow();
@@ -66,7 +70,8 @@ public:
   void readSource(const std::string & filename, const std::vector<std::string>& source);
 private:
   // filename : rawText
-  std::map<std::string, Core::File> m_files;
+  //std::map<std::string, Core::File> m_files;
+  std::vector<std::pair<std::string, Core::File>> m_files;
     
   // filename : rootScope
   std::map<std::string, Core::Scope> m_rootScopes;
@@ -93,4 +98,11 @@ private:
   
   void readSingleSourceFile(const std::string& filename);
   void readFilesFromDirectory(const std::string& directory, const std::string& extensions);
+  
+  std::atomic<int> m_parsingErrors;
+  std::atomic<int> m_scopedFileExtracted;
+  std::mutex m_mutex;
+  using VectorPairFile = std::vector<std::pair<std::string, Core::File*>>;
+  void extractScopesImpl(const VectorPairFile& paths);
+  VectorPairFile getFileRange(unsigned int start, unsigned int count);
 };

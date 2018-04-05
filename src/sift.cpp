@@ -26,8 +26,10 @@
 
 #include <chrono>
 #include <stack>
+#include <utility>
 #include <muflihun/easylogging++.h>
 #include <cxxopts/cxxopts.hpp>
+#include <nbsdx/ThreadPool.h>
 
 #include "sift.hpp"
 #include "core/config.hpp"
@@ -45,6 +47,9 @@ SIFT::SIFT()
   m_scopeExtractor = std::make_unique<Core::CppScopeExtractor>();
   
   registerConflictDefinitions();
+
+  m_parsingErrors = 0;
+  m_scopedFileExtracted = 0;
 }
   
 #define CXXOPT(longName, variableName, type, defaultValue) if(result.count(longName)) { \
@@ -163,7 +168,8 @@ void SIFT::readSource(const std::string& filename, const std::vector<std::string
   Core::File file;
   file.filename = filename;
   file.lines = source;
-  m_files[filename] = file;
+  //m_files[filename] = file;
+  m_files.push_back(std::make_pair(filename, file));
   LOG(INFO) << "Source file '" << filename << "' has been read";
 }
 
@@ -175,7 +181,8 @@ void SIFT::readSingleSourceFile(const std::string & filename)
     return;
   }
 
-  m_files[filename] = file;
+  //m_files[filename] = file;
+  m_files.push_back(std::make_pair(filename, file));
   LOG(INFO) << "Source file '" << filename << "' has been read";
 }
   
@@ -220,7 +227,8 @@ void SIFT::readFilesFromDirectory(const std::string& directory, const std::strin
           continue;
         }
           
-        m_files[item.fullPath] = file;
+        //m_files[item.fullPath] = file;
+        m_files.push_back(std::make_pair(item.fullPath, file));
       }
     }
   }
@@ -230,31 +238,30 @@ void SIFT::readFilesFromDirectory(const std::string& directory, const std::strin
   
 void SIFT::extractScopes()
 {
-  // Parse all files found
-  int i = 1;
-  int errors = 0;
-  for(auto&& filePair : m_files)
-  {
-    Core::Scope scope;
-    LOG(INFO) << "[" << i << "/" << m_files.size() << "] Parsing " << filePair.second.filename;
-    bool success = m_scopeExtractor->extractScopesFromFile(filePair.second, scope);
-    if(success)
-    {
-      m_rootScopes[filePair.first] = scope;
-    }
-    else
-    {
-      LOG(ERROR) << "Could not parse source file '" << filePair.first << "'";
-      ++errors;
-    }
-    ++i;
+  //TODO: Interesting, but could be maybe be a fix at 8?
+  const auto MaxThreadCount = std::thread::hardware_concurrency();
+  unsigned int filesPerThread = (m_files.size() / MaxThreadCount)+1;
+  
+  LOG(INFO) << "Parsing " << filesPerThread << " files per thread";
+  
+  using nbsdx::concurrent::ThreadPool;
+
+  ThreadPool<8> pool;
+
+  for(int i = 0; i < MaxThreadCount; ++i) {
+    pool.AddJob([this, filesPerThread, i]() {
+      extractScopesImpl(getFileRange(i*filesPerThread, filesPerThread));
+    });
   }
 
-  for (auto& scopePair : m_rootScopes) {
+  pool.JoinAll(true);
+
+  for(auto& scopePair : m_rootScopes) {
     m_scopeExtractor->constructTree(scopePair.second);
   }
+
   if(m_files.size() > 0){
-    LOG(INFO) << ">" << errors << "/" << m_files.size() << "< unparsed files (" << std::setprecision(4) << ((float)errors/m_files.size())*100 << "%)";
+    LOG(INFO) << ">" << m_parsingErrors << "/" << m_files.size() << "< unparsed files (" << std::setprecision(4) << ((float)m_parsingErrors/m_files.size())*100 << "%)";
   }
 
   LOG(TRACE) << "Extracted " << m_rootScopes.size() << " root scopes";
@@ -322,7 +329,7 @@ void SIFT::registerRuleWork()
     LOG(INFO) << msg; \
   }
   
-void SIFT::outputMessagesSyntax()
+void SIFT::outputMessagesSyntax(long long executionTime)
 {    
   auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace){
     auto index = from.find(find);
@@ -361,13 +368,15 @@ void SIFT::outputMessagesSyntax()
       }
     }
   }
-    
+  
+  OUTPUT("Syntax Ran in " << executionTime << "ms");
+
   file.close();
     
   LOG(INFO) << "Wrote results to file: " << m_outputFilename;
 }
 
-void SIFT::outputMessagesFlow()
+void SIFT::outputMessagesFlow(long long executionTime)
 {
   auto findReplaceFn = [&](std::string& from, const std::string find, const std::string replace) {
     auto index = from.find(find);
@@ -395,6 +404,8 @@ void SIFT::outputMessagesFlow()
     }
   }
 
+  OUTPUT("Flow Ran in " << executionTime << "ms");
+
   file.close();
 
   LOG(INFO) << "Wrote results to file: " << m_outputFilename;
@@ -421,4 +432,35 @@ void SIFT::verifyFlow() {
   for (auto& scopePair : m_rootScopes) {
     m_flowAnalyser->analyzeFlow(scopePair.second, m_messageStacksFlow[scopePair.second.file->filename]);
   }
+}
+
+void SIFT::extractScopesImpl(const SIFT::VectorPairFile& files) {
+  
+  for(const auto& filePair : files) {
+    Core::Scope scope;
+    ++m_scopedFileExtracted;
+    LOG(INFO) << "[" << m_scopedFileExtracted << "/" << m_files.size() << "] Parsing " << filePair.second->filename;
+    bool success = m_scopeExtractor->extractScopesFromFile(*filePair.second, scope);
+    if(success)
+    {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      m_rootScopes[filePair.first] = scope;
+    }
+    else
+    {
+      LOG(ERROR) << "Could not parse source file '" << filePair.first << "'";
+      ++m_parsingErrors;
+    }
+  }
+}
+
+SIFT::VectorPairFile SIFT::getFileRange(unsigned int start, unsigned int count) {
+  VectorPairFile files;
+  
+  for(unsigned int i = start; i < start+count && i < m_files.size(); ++i) {
+    auto& pa = m_files[i];
+    files.push_back(std::make_pair(pa.first, &pa.second));
+  }
+  
+  return files;
 }

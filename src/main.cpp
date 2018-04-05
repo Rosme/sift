@@ -47,11 +47,18 @@ int main(int argc, char* argv[]) {
   sift.extractScopes();
   sift.registerRuleWork();
   sift.applyRules();
-  sift.outputMessagesSyntax();
-  sift.verifyFlow();
-  sift.outputMessagesFlow();
-
   std::chrono::time_point<std::chrono::system_clock> after = std::chrono::system_clock::now();
-  LOG(INFO) << "Ran in " << std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count() << "ms";
+  auto syntaxExecutionTime = std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count();
+  LOG(INFO) << "Syntax Ran in " << syntaxExecutionTime << "ms";
+  sift.outputMessagesSyntax(syntaxExecutionTime);
+
+  before = std::chrono::system_clock::now();
+  sift.verifyFlow();
+  after = std::chrono::system_clock::now();
+  auto flowExecutionTime = std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count();
+  LOG(INFO) << "Flow Ran in " << syntaxExecutionTime << "ms";
+  sift.outputMessagesFlow(flowExecutionTime);
+
+  LOG(INFO) << "SIFT Ran in " << syntaxExecutionTime + flowExecutionTime << "ms";
   return 0;
 }
