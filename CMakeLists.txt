@@ -25,7 +25,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(sift)
 set(VERSION_MAJOR 0)
-set(VERSION_MINOR 2)
+set(VERSION_MINOR 5)
 set(VERSION_PATCH 0)
 
 option(USE_SIFT_ASSERT "Use SIFT defined assert" ON)
