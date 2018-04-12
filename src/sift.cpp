@@ -30,6 +30,7 @@
 #include <muflihun/easylogging++.h>
 #include <cxxopts/cxxopts.hpp>
 #include <nbsdx/ThreadPool.h>
+#include <algorithm>
 
 #include "sift.hpp"
 #include "core/config.hpp"
@@ -239,6 +240,7 @@ void SIFT::readFilesFromDirectory(const std::string& directory, const std::strin
 void SIFT::extractScopes()
 {
   //TODO: Interesting, but could be maybe be a fix at 8?
+  std::random_shuffle(m_files.begin(), m_files.end());
   const auto MaxThreadCount = std::thread::hardware_concurrency();
   unsigned int filesPerThread = (m_files.size() / MaxThreadCount)+1;
   
