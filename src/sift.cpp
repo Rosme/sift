@@ -387,7 +387,7 @@ void SIFT::outputMessagesFlow(long long executionTime)
     }
   };
 
-  std::ofstream file(m_outputFilename);
+  std::ofstream file(m_outputFilename, std::ios::app);
   // Files
   for (auto&& stackPair : m_messageStacksFlow) {
     if (stackPair.second.size() == 0)
