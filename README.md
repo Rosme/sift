@@ -1,6 +1,6 @@
 ![SIFT Logo](images/logo-500.png)      
 SIFT is a static language analyser.
-[![Build Status](https://img.shields.io/travis/Rosme/pfe.svg?label=linux+and+macOS)](https://travis-ci.org/Rosme/pfe) [![Build Status](https://img.shields.io/appveyor/ci/Rosme/pfe.svg?label=windows)](https://ci.appveyor.com/project/Rosme/pfe)
+[![Build Status](https://img.shields.io/travis/Rosme/sift.svg?label=linux+and+macOS)](https://travis-ci.org/Rosme/sift) [![Build Status](https://img.shields.io/appveyor/ci/Rosme/pfe.svg?label=windows)](https://ci.appveyor.com/project/Rosme/pfe)
 
 ### License
 The source code and the project is distributed under the MIT license, unless specified otherwise.
