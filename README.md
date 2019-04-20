@@ -60,4 +60,6 @@ It's also possible to invoke SIFT's help like so:
 * Usage of C++11/C++14 as much as possible
 * Usage of pragma once should be favorised
 ### Extending SIFT
-SIFT is, in theory, capable of being extended to other languages. To do so you may inherit from the interface [...]
+SIFT is, in theory, capable of being extended to other languages.
+### Presentation
+Here is a link to the slides we used to present our project (in French): [SIFT Slides](https://drive.google.com/file/d/1WtLYsV_iRVVXI_gbPYyQi2AUHxBN0Krr/view?usp=sharing)
